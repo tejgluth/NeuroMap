@@ -1,0 +1,528 @@
+[
+  {
+    "id": "warwicks",
+    "name": "Warwick's",
+    "category": "bookstore",
+    "address": "7812 Girard Ave, La Jolla, CA 92037",
+    "latitude": 32.845325685953995,
+    "longitude": -117.27446464849183,
+    "reviews": [
+      {
+        "reviewer": "Anonymous",
+        "text": "Very calm compared with most shops in the village. My son did well browsing the kids section because the pace felt slow and the staff never rushed us. Weekend author events can make it much busier, so I would go earlier in the day if your child needs a quieter visit."
+      },
+      {
+        "reviewer": "Maya R.",
+        "text": "This has been one of our easier stops in La Jolla. The lighting felt softer than a lot of retail spaces, and there were enough corners to step aside when my daughter needed a break. Best experience was on a weekday afternoon."
+      }
+    ],
+    "ratings": {
+      "noiseLevel": 2,
+      "crowdedness": 2,
+      "staffHospitality": 5,
+      "lightingSensoryStimuli": 2,
+      "parkingAccessibility": 3,
+      "navigation": 4,
+      "elevators": null,
+      "stairs": 5,
+      "overallAutismFriendliness": 5
+    }
+  },
+  {
+    "id": "taco-stand-la-jolla",
+    "name": "The Taco Stand",
+    "category": "restaurant",
+    "address": "621 Pearl St, La Jolla, CA 92037",
+    "latitude": 32.8393,
+    "longitude": -117.27689,
+    "reviews": [
+      {
+        "reviewer": "Jenna L.",
+        "text": "Food was great, but this is not one of our low stimulation options. The line moved fast, but the room was crowded and the sound bounced around a lot at lunch. We do better with takeout or an earlier visit."
+      },
+      {
+        "reviewer": "Anonymous",
+        "text": "My son loved the tortillas and simple taco options, but the ordering area felt tight when people were coming in and out. Staff were patient when I needed an extra minute. Mid morning was much easier than later in the day."
+      }
+    ],
+    "ratings": {
+      "noiseLevel": 4,
+      "crowdedness": 4,
+      "staffHospitality": 4,
+      "lightingSensoryStimuli": 3,
+      "parkingAccessibility": 2,
+      "navigation": 3,
+      "elevators": null,
+      "stairs": 5,
+      "overallAutismFriendliness": 3
+    }
+  },
+  {
+    "id": "pizza-on-pearl",
+    "name": "Pizza on Pearl",
+    "category": "restaurant",
+    "address": "617 Pearl St, La Jolla, CA 92037",
+    "latitude": 32.83930143763395,
+    "longitude": -117.27689503147701,
+    "reviews": [
+      {
+        "reviewer": "Elena P.",
+        "text": "Casual and pretty manageable when we came before the dinner rush. My daughter liked being able to see the pizza right away and did not have to wait long. Noise went up quickly once more families came in."
+      },
+      {
+        "reviewer": "Anonymous",
+        "text": "Good choice for a simple meal if you go early. The music was not too noticeable on our visit, but the room echoed when it filled up. Staff were kind when we asked for a table away from the entrance."
+      }
+    ],
+    "ratings": {
+      "noiseLevel": 3,
+      "crowdedness": 3,
+      "staffHospitality": 4,
+      "lightingSensoryStimuli": 2,
+      "parkingAccessibility": 2,
+      "navigation": 4,
+      "elevators": null,
+      "stairs": 5,
+      "overallAutismFriendliness": 4
+    }
+  },
+  {
+    "id": "baskin-robbins-la-jolla",
+    "name": "Baskin Robbins",
+    "category": "dessert",
+    "address": "7470 La Jolla Blvd, La Jolla, CA 92037",
+    "latitude": 32.83879626606424,
+    "longitude": -117.27877056596496,
+    "reviews": [
+      {
+        "reviewer": "Anonymous",
+        "text": "Small stop, easy in and out. Bright colors and lots of choices can be a little overstimulating, but it was not too loud when we went after dinner on a weeknight. Staff let my son take his time choosing a flavor."
+      },
+      {
+        "reviewer": "Carla S.",
+        "text": "This worked well as a short outing because the visit was predictable and quick. Seating is limited, so we usually grab ice cream and walk outside. Best for families who want something low commitment."
+      }
+    ],
+    "ratings": {
+      "noiseLevel": 2,
+      "crowdedness": 2,
+      "staffHospitality": 4,
+      "lightingSensoryStimuli": 4,
+      "parkingAccessibility": 2,
+      "navigation": 4,
+      "elevators": null,
+      "stairs": 5,
+      "overallAutismFriendliness": 3
+    }
+  },
+  {
+    "id": "popup-bagels-la-jolla",
+    "name": "PopUp Bagels",
+    "category": "cafe",
+    "address": "637 Pearl St, La Jolla, CA 92037",
+    "latitude": 32.83929,
+    "longitude": -117.27663,
+    "reviews": [
+      {
+        "reviewer": "Anonymous",
+        "text": "Good if you preorder and keep the stop brief. When the pickup line forms, the sidewalk can feel compressed and fast moving. The actual interaction was quick, which helped us a lot."
+      },
+      {
+        "reviewer": "Nina D.",
+        "text": "The bagels were a hit, and the smell alone got my son excited. Sensory wise, this is easier as a grab and go stop than a lingering one. I would avoid peak weekend mornings."
+      }
+    ],
+    "ratings": {
+      "noiseLevel": 3,
+      "crowdedness": 4,
+      "staffHospitality": 4,
+      "lightingSensoryStimuli": 2,
+      "parkingAccessibility": 2,
+      "navigation": 3,
+      "elevators": null,
+      "stairs": 5,
+      "overallAutismFriendliness": 3
+    }
+  },
+  {
+    "id": "mcasd-la-jolla",
+    "name": "Museum of Contemporary Art San Diego",
+    "category": "museum",
+    "address": "700 Prospect St, La Jolla, CA 92037",
+    "latitude": 32.84512,
+    "longitude": -117.27828,
+    "reviews": [
+      {
+        "reviewer": "Anonymous",
+        "text": "Surprisingly good for a slower paced outing. The galleries felt open and calm, and we could move at our own speed without pressure. Some installations were louder or more visually intense, so I stayed ready to skip rooms."
+      },
+      {
+        "reviewer": "Rachel M.",
+        "text": "Ocean views and roomy walkways made this easier than many museums for our family. My child needed a break halfway through, and stepping outside helped right away. I would preview current exhibits before going, because some may be more stimulating than others."
+      }
+    ],
+    "ratings": {
+      "noiseLevel": 2,
+      "crowdedness": 2,
+      "staffHospitality": 4,
+      "lightingSensoryStimuli": 3,
+      "parkingAccessibility": 2,
+      "navigation": 4,
+      "elevators": 4,
+      "stairs": 4,
+      "overallAutismFriendliness": 4
+    }
+  },
+  {
+    "id": "coggan-family-aquatic-complex",
+    "name": "Coggan Family Aquatic Complex",
+    "category": "sports",
+    "address": "800 Nautilus St, La Jolla, CA 92037",
+    "latitude": 32.83291,
+    "longitude": -117.2715,
+    "reviews": [
+      {
+        "reviewer": "Anonymous",
+        "text": "Great facility, but the sensory experience depends entirely on what is happening that day. During lessons there can be whistles, splashing, and many voices at once. We had the best experience during a quieter family swim block."
+      },
+      {
+        "reviewer": "Priya K.",
+        "text": "My son loves water, so this can go really well with preparation. The transition from parking lot to pool deck is easy, but the echo from the pool area is strong. Bringing headphones made a big difference for us."
+      }
+    ],
+    "ratings": {
+      "noiseLevel": 4,
+      "crowdedness": 4,
+      "staffHospitality": 4,
+      "lightingSensoryStimuli": 4,
+      "parkingAccessibility": 4,
+      "navigation": 4,
+      "elevators": null,
+      "stairs": 4,
+      "overallAutismFriendliness": 3
+    }
+  },
+  {
+    "id": "burger-lounge-la-jolla",
+    "name": "Burger Lounge",
+    "category": "restaurant",
+    "address": "1101 Wall St, La Jolla, CA 92037",
+    "latitude": 32.84684088150003,
+    "longitude": -117.27297323550012,
+    "reviews": [
+      {
+        "reviewer": "Anonymous",
+        "text": "One of the easier burger spots for our family because service is straightforward and seating feels more open than some smaller places nearby. It still gets noisy at peak lunch. We prefer an early dinner here."
+      },
+      {
+        "reviewer": "Devon H.",
+        "text": "Staff were patient when we needed a minute to settle after walking in. My daughter liked having simple food options and not too many surprises. Music was present but not overwhelming on our visit."
+      }
+    ],
+    "ratings": {
+      "noiseLevel": 3,
+      "crowdedness": 3,
+      "staffHospitality": 4,
+      "lightingSensoryStimuli": 3,
+      "parkingAccessibility": 2,
+      "navigation": 4,
+      "elevators": null,
+      "stairs": 5,
+      "overallAutismFriendliness": 4
+    }
+  },
+  {
+    "id": "promiscuous-fork",
+    "name": "The Promiscuous Fork",
+    "category": "restaurant",
+    "address": "6984 La Jolla Blvd, La Jolla, CA 92037",
+    "latitude": 32.834453,
+    "longitude": -117.277079,
+    "reviews": [
+      {
+        "reviewer": "Anonymous",
+        "text": "Food was excellent, but this felt more like a special outing than a low sensory one. The room was lively and conversation level rose quickly once tables filled. Staff were warm and never made us feel awkward for stepping outside for a reset."
+      },
+      {
+        "reviewer": "Melissa T.",
+        "text": "We came on a quieter afternoon and had a much better experience than our first dinner visit. Smaller crowd, easier parking, and less wait time. I would not choose peak dinner hours with a sensory sensitive child."
+      }
+    ],
+    "ratings": {
+      "noiseLevel": 4,
+      "crowdedness": 4,
+      "staffHospitality": 5,
+      "lightingSensoryStimuli": 3,
+      "parkingAccessibility": 2,
+      "navigation": 4,
+      "elevators": null,
+      "stairs": 5,
+      "overallAutismFriendliness": 3
+    }
+  },
+  {
+    "id": "marketplace-grille",
+    "name": "Marketplace Grille",
+    "category": "restaurant",
+    "address": "1030 Torrey Pines Rd Ste C, La Jolla, CA 92037",
+    "latitude": 32.8429276,
+    "longitude": -117.2724721,
+    "reviews": [
+      {
+        "reviewer": "Anonymous",
+        "text": "Reliable stop for us because the layout feels pretty predictable and the menu has familiar choices. Sound level was moderate at lunch, not silent but manageable. Parking was easier than in the center of the village."
+      },
+      {
+        "reviewer": "Laura N.",
+        "text": "This was a good middle ground, not too packed, not too chaotic, and fast enough that my son did not get restless waiting for food. Staff were kind when we asked for a table with a little extra space."
+      }
+    ],
+    "ratings": {
+      "noiseLevel": 3,
+      "crowdedness": 3,
+      "staffHospitality": 4,
+      "lightingSensoryStimuli": 2,
+      "parkingAccessibility": 4,
+      "navigation": 4,
+      "elevators": null,
+      "stairs": 5,
+      "overallAutismFriendliness": 4
+    }
+  },
+  {
+    "id": "858-burger",
+    "name": "858 Burger",
+    "category": "restaurant",
+    "address": "615 Pearl St, La Jolla, CA 92037",
+    "latitude": 32.8393,
+    "longitude": -117.27699,
+    "reviews": [
+      {
+        "reviewer": "Anonymous",
+        "text": "Food came out quickly, which helped a lot. Noise level felt similar to the other busy Pearl Street spots, so timing matters. We did better before the main dinner crowd."
+      },
+      {
+        "reviewer": "Samira C.",
+        "text": "The staff were upbeat and helpful, but the room can get energetic fast. My son liked the fries and simple burger options. For sensory reasons I would choose takeout on a weekend."
+      }
+    ],
+    "ratings": {
+      "noiseLevel": 4,
+      "crowdedness": 4,
+      "staffHospitality": 4,
+      "lightingSensoryStimuli": 3,
+      "parkingAccessibility": 2,
+      "navigation": 4,
+      "elevators": null,
+      "stairs": 5,
+      "overallAutismFriendliness": 3
+    }
+  },
+  {
+    "id": "la-jolla-cove",
+    "name": "La Jolla Cove",
+    "category": "park",
+    "address": "1100 Coast Blvd, La Jolla, CA 92037",
+    "latitude": 32.849716221313344,
+    "longitude": -117.27452222222222,
+    "reviews": [
+      {
+        "reviewer": "Anonymous",
+        "text": "Beautiful, but not always calm. The ocean itself was soothing for my child, but crowds, barking sea lions, and street noise changed the experience quickly. Best window for us was earlier in the morning before it got packed."
+      },
+      {
+        "reviewer": "Isabel F.",
+        "text": "We use this as a movement break more than a long stay. Lots of open air and room to look at the water, but weekends can be intense with parking stress and many people stopping for photos. A weekday morning felt much easier."
+      },
+      {
+        "reviewer": "Kevin R.",
+        "text": "Worth it for the scenery, but definitely preview expectations. My daughter loved the waves and needed headphones once the cove got busier. Access paths were straightforward, and stepping toward the grass helped us regroup."
+      }
+    ],
+    "ratings": {
+      "noiseLevel": 4,
+      "crowdedness": 4,
+      "staffHospitality": null,
+      "lightingSensoryStimuli": 4,
+      "parkingAccessibility": 1,
+      "navigation": 4,
+      "elevators": null,
+      "stairs": 3,
+      "overallAutismFriendliness": 3
+    }
+  },
+  {
+    "id": "public-house-la-jolla",
+    "name": "Public House La Jolla",
+    "category": "restaurant",
+    "address": "830 Kline St, La Jolla, CA 92037",
+    "latitude": 32.84334636225025,
+    "longitude": -117.2752740432278,
+    "reviews": [
+      {
+        "reviewer": "Anonymous",
+        "text": "The outdoor setup helped us a lot. Inside felt louder, while the patio gave my son more room to regulate. I would still avoid game times or busy evenings if sound is a major trigger."
+      },
+      {
+        "reviewer": "Jordan B.",
+        "text": "Staff were friendly and the atmosphere was relaxed at brunch. It turned noisier later, but the transition was gradual enough that we could leave before it got too much. Good option if you can choose an off peak time."
+      }
+    ],
+    "ratings": {
+      "noiseLevel": 4,
+      "crowdedness": 3,
+      "staffHospitality": 4,
+      "lightingSensoryStimuli": 3,
+      "parkingAccessibility": 2,
+      "navigation": 4,
+      "elevators": null,
+      "stairs": 5,
+      "overallAutismFriendliness": 3
+    }
+  },
+  {
+    "id": "la-jolla-riford-library",
+    "name": "La Jolla Riford Public Library",
+    "category": "library",
+    "address": "7555 Draper Ave, La Jolla, CA 92037",
+    "latitude": 32.840724,
+    "longitude": -117.276068,
+    "reviews": [
+      {
+        "reviewer": "Anonymous",
+        "text": "One of the easiest places in the area for us. Quiet, predictable, and easy to step outside if needed. The childrens area felt welcoming without being visually overwhelming."
+      },
+      {
+        "reviewer": "Erin W.",
+        "text": "This has become our reset stop when the village feels like too much. Staff have always been kind, and there is enough space to slow down. Parking can take a minute, but the environment inside is worth it."
+      }
+    ],
+    "ratings": {
+      "noiseLevel": 1,
+      "crowdedness": 1,
+      "staffHospitality": 5,
+      "lightingSensoryStimuli": 2,
+      "parkingAccessibility": 3,
+      "navigation": 5,
+      "elevators": 4,
+      "stairs": 4,
+      "overallAutismFriendliness": 5
+    }
+  },
+  {
+    "id": "cvs-eads-ave",
+    "name": "CVS",
+    "category": "pharmacy",
+    "address": "7525 Eads Ave, La Jolla, CA 92037",
+    "latitude": 32.84045584293984,
+    "longitude": -117.27470536654513,
+    "reviews": [
+      {
+        "reviewer": "Anonymous",
+        "text": "Useful stop, but not one we linger in. Bright lighting and narrow aisles can be a lot if the store is busy. Going in with a clear plan made it manageable."
+      },
+      {
+        "reviewer": "Natalie G.",
+        "text": "This was fine for a quick errand. My son did better when we skipped the longer pharmacy wait and kept the visit short. Staff at checkout were patient when he needed a second to settle."
+      }
+    ],
+    "ratings": {
+      "noiseLevel": 3,
+      "crowdedness": 3,
+      "staffHospitality": 3,
+      "lightingSensoryStimuli": 5,
+      "parkingAccessibility": 2,
+      "navigation": 3,
+      "elevators": null,
+      "stairs": 5,
+      "overallAutismFriendliness": 3
+    }
+  },
+  {
+    "id": "brick-and-bell-la-jolla-shores",
+    "name": "Brick and Bell",
+    "category": "cafe",
+    "address": "2216 Avenida De La Playa, La Jolla, CA 92037",
+    "latitude": 32.85407263438605,
+    "longitude": -117.25525195809354,
+    "reviews": [
+      {
+        "reviewer": "Anonymous",
+        "text": "This worked well for a morning outing. Outdoor seating made the experience much easier, and the pace felt gentler than a crowded indoor coffee shop. The scone line can create a little congestion near the counter."
+      },
+      {
+        "reviewer": "Tina M.",
+        "text": "Good neighborhood cafe feel, and the staff were warm with my daughter. We sat outside and avoided most of the noise. I would come early because it gets busier as the beach crowd builds."
+      }
+    ],
+    "ratings": {
+      "noiseLevel": 2,
+      "crowdedness": 3,
+      "staffHospitality": 5,
+      "lightingSensoryStimuli": 2,
+      "parkingAccessibility": 3,
+      "navigation": 4,
+      "elevators": null,
+      "stairs": 5,
+      "overallAutismFriendliness": 4
+    }
+  },
+  {
+    "id": "peets-coffee-la-jolla",
+    "name": "Peet's Coffee",
+    "category": "cafe",
+    "address": "7910 Girard Ave Unit B, La Jolla, CA 92037",
+    "latitude": 32.84673,
+    "longitude": -117.2749,
+    "reviews": [
+      {
+        "reviewer": "Anonymous",
+        "text": "This felt calmer than some of the other coffee spots nearby on our visit. Short stop, straightforward ordering, and enough room to get in and out without too much stress. Morning rush could still be a lot."
+      },
+      {
+        "reviewer": "Helena S.",
+        "text": "My son tolerated this well because the visit was predictable and quick. Staff were friendly, and the pastry case helped him choose something right away. We would return on a weekday morning."
+      }
+    ],
+    "ratings": {
+      "noiseLevel": 2,
+      "crowdedness": 2,
+      "staffHospitality": 4,
+      "lightingSensoryStimuli": 3,
+      "parkingAccessibility": 2,
+      "navigation": 4,
+      "elevators": null,
+      "stairs": 5,
+      "overallAutismFriendliness": 4
+    }
+  },
+  {
+    "id": "better-buzz-la-jolla",
+    "name": "Better Buzz",
+    "category": "cafe",
+    "address": "909 Prospect St Ste 100A, La Jolla, CA 92037",
+    "latitude": 32.8460728,
+    "longitude": -117.2753547,
+    "reviews": [
+      {
+        "reviewer": "Anonymous",
+        "text": "Beautiful space, but definitely more stimulating than some other cafes. Music, crowd movement, and the busy ordering area can add up fast. We had a much better experience taking drinks to go and walking outside."
+      },
+      {
+        "reviewer": "Marissa J.",
+        "text": "The patio helped a lot once we got past the line. Inside felt lively and bright, while outside was much easier for my daughter. Great if your child can handle a little energy, but not my first pick for a very fragile day."
+      }
+    ],
+    "ratings": {
+      "noiseLevel": 4,
+      "crowdedness": 4,
+      "staffHospitality": 4,
+      "lightingSensoryStimuli": 4,
+      "parkingAccessibility": 2,
+      "navigation": 4,
+      "elevators": null,
+      "stairs": 4,
+      "overallAutismFriendliness": 3
+    }
+  }
+]
