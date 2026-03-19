@@ -12,9 +12,9 @@ export default function AboutPage() {
     <div className="py-12 sm:py-14">
       <Container>
         <SectionHeading
-          eyebrow="About us"
-          title="NeuroMap is a Social Innovation team from The Bishop’s School."
-          description="We built NeuroMap as a calm, practical way to help families anticipate sensory environments before they go."
+          eyebrow="Social Innovation · The Bishop’s School"
+          title="We built NeuroMap to help families plan outings with confidence."
+          description="We’re a student team who kept hearing the same need from parents of autistic children: specific, trustworthy information about sensory environments — not vague labels."
         />
 
         <div className="mt-8 grid gap-4 lg:grid-cols-12 lg:items-start">
@@ -26,13 +26,10 @@ export default function AboutPage() {
               <div>
                 <h2 className="text-lg font-semibold text-ink-900">Why we started</h2>
                 <p className="mt-2 text-sm leading-relaxed text-ink-800">
-                  Our team grew up with cousins who have autism. Through personal experiences, interviews with parents,
-                  expert conversations, and community feedback, we kept hearing the same need: families want specific,
-                  trustworthy information about sensory environments — not vague labels.
-                </p>
-                <p className="mt-3 text-sm leading-relaxed text-ink-800">
-                  NeuroMap is our attempt to make that information easier to share, easier to find, and easier to use
-                  during real-life planning.
+                  Our team grew up alongside cousins with autism. Through personal experience, parent interviews, and
+                  community conversations, we kept hearing the same thing: families need honest, specific sensory
+                  information — not a star rating, not a vague label. NeuroMap is our attempt to make that information
+                  easier to find and easier to use when it matters most.
                 </p>
               </div>
             </div>
@@ -44,10 +41,10 @@ export default function AboutPage() {
                 <GraduationCap className="h-5 w-5" aria-hidden="true" />
               </span>
               <div>
-                <h2 className="text-lg font-semibold text-ink-900">What this is</h2>
+                <h2 className="text-lg font-semibold text-ink-900">How it works</h2>
                 <p className="mt-2 text-sm leading-relaxed text-ink-800">
-                  NeuroMap is a static, frontend-only experience right now: no accounts and no backend. Reviews you add
-                  are saved locally on this device (so you can try the flow and see your review appear immediately).
+                  Right now NeuroMap is a demo — no accounts or backend. Reviews you add are saved on this device so
+                  you can try the full flow and see your contribution appear immediately.
                 </p>
               </div>
             </div>
@@ -81,8 +78,8 @@ export default function AboutPage() {
         <Card className="mt-10 p-8">
           <h2 className="text-lg font-semibold text-ink-900">A note on language and respect</h2>
           <p className="mt-2 text-sm leading-relaxed text-ink-800">
-            We recognize that families and autistic individuals use different language preferences. We aim to be
-            respectful, specific, and practical — and we welcome feedback from the community.
+            We try to be respectful in how we talk about autism and sensory differences, and we welcome feedback from
+            families and the community.
           </p>
         </Card>
 

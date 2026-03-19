@@ -1,4 +1,4 @@
-import { MapPin, MessageSquarePlus } from 'lucide-react'
+import { AlertCircle, Clock, Heart, Lightbulb, MapPin, MessageSquarePlus, Zap } from 'lucide-react'
 import { Link, useSearchParams, useParams } from 'react-router-dom'
 
 import CategoryBadge from '../components/places/CategoryBadge'
@@ -93,7 +93,7 @@ export default function PlacePage() {
           </div>
 
           <Card className="p-6 lg:col-span-5">
-            <div className="text-sm font-semibold text-ink-900">Ratings summary</div>
+            <div className="text-sm font-semibold text-ink-900">Community ratings</div>
             <p className="mt-2 text-sm leading-relaxed text-ink-700">
               Ratings are community-reported and may change by time of day, season, staffing, or events. NeuroMap does
               not provide medical advice.
@@ -116,10 +116,9 @@ export default function PlacePage() {
             </div>
             {!hasStructuredRatings ? (
               <div className="mt-4 rounded-2xl border border-ink-100/60 bg-sand-50 p-4 text-sm text-ink-800">
-                <div className="font-semibold text-ink-900">No structured ratings yet</div>
+                <div className="font-semibold text-ink-900">No ratings yet</div>
                 <p className="mt-1 leading-relaxed text-ink-700">
-                  Reviews are available below. Adding a review with ratings helps other families plan with clearer
-                  expectations.
+                  Be the first to share what this place felt like — your ratings help other families plan.
                 </p>
                 <div className="mt-3">
                   <ButtonLink to={`/add-review?place=${encodeURIComponent(place.slug)}`} variant="secondary">
@@ -134,7 +133,7 @@ export default function PlacePage() {
         <div className="mt-10">
           <SectionHeading
             eyebrow="Breakdown"
-            title="Sensory environment ratings"
+            title="Sensory breakdown"
             description="Scores are 1–5 (higher is generally calmer / more accessible)."
           />
           {hasStructuredRatings ? (
@@ -143,10 +142,9 @@ export default function PlacePage() {
             </div>
           ) : (
             <Card className="mt-6 p-6">
-              <div className="text-sm font-semibold text-ink-900">No structured ratings yet</div>
+              <div className="text-sm font-semibold text-ink-900">No ratings yet</div>
               <p className="mt-2 text-sm leading-relaxed text-ink-800">
-                This place has reviews, but structured ratings haven’t been added yet. Share your experience to help
-                other families plan.
+                Be the first to share what this place felt like. Structured ratings help other families plan with confidence.
               </p>
               <div className="mt-4">
                 <ButtonLink to={`/add-review?place=${encodeURIComponent(place.slug)}`} variant="secondary">
@@ -161,14 +159,20 @@ export default function PlacePage() {
           <div className="mt-10 grid gap-4 lg:grid-cols-12">
             {place.sensoryOverview ? (
               <Card className="p-6 lg:col-span-6">
-                <div className="text-sm font-semibold text-ink-900">Sensory overview</div>
+                <div className="flex items-center gap-2 text-sm font-semibold text-ink-900">
+                  <Zap className="h-4 w-4 text-brand-700" aria-hidden="true" />
+                  Sensory overview
+                </div>
                 <p className="mt-2 text-sm leading-relaxed text-ink-800">{place.sensoryOverview}</p>
               </Card>
             ) : null}
 
             {place.bestTimesToVisit && place.bestTimesToVisit.length > 0 ? (
               <Card className="p-6 lg:col-span-6">
-                <div className="text-sm font-semibold text-ink-900">Best times to visit</div>
+                <div className="flex items-center gap-2 text-sm font-semibold text-ink-900">
+                  <Clock className="h-4 w-4 text-brand-700" aria-hidden="true" />
+                  Best times to visit
+                </div>
                 <ul className="mt-2 space-y-2 text-sm leading-relaxed text-ink-800">
                   {place.bestTimesToVisit.map((t) => (
                     <li key={t} className="flex gap-2">
@@ -182,7 +186,10 @@ export default function PlacePage() {
 
             {place.commonTriggers && place.commonTriggers.length > 0 ? (
               <Card className="p-6 lg:col-span-6">
-                <div className="text-sm font-semibold text-ink-900">Common triggers</div>
+                <div className="flex items-center gap-2 text-sm font-semibold text-ink-900">
+                  <AlertCircle className="h-4 w-4 text-brand-700" aria-hidden="true" />
+                  Common triggers
+                </div>
                 <ul className="mt-2 space-y-2 text-sm leading-relaxed text-ink-800">
                   {place.commonTriggers.map((t) => (
                     <li key={t} className="flex gap-2">
@@ -196,7 +203,10 @@ export default function PlacePage() {
 
             {place.helpfulAccommodations && place.helpfulAccommodations.length > 0 ? (
               <Card className="p-6 lg:col-span-6">
-                <div className="text-sm font-semibold text-ink-900">Helpful accommodations</div>
+                <div className="flex items-center gap-2 text-sm font-semibold text-ink-900">
+                  <Heart className="h-4 w-4 text-brand-700" aria-hidden="true" />
+                  Helpful accommodations
+                </div>
                 <ul className="mt-2 space-y-2 text-sm leading-relaxed text-ink-800">
                   {place.helpfulAccommodations.map((t) => (
                     <li key={t} className="flex gap-2">
@@ -210,7 +220,10 @@ export default function PlacePage() {
 
             {place.parentTips && place.parentTips.length > 0 ? (
               <Card className="p-6 lg:col-span-12">
-                <div className="text-sm font-semibold text-ink-900">Parent tips</div>
+                <div className="flex items-center gap-2 text-sm font-semibold text-ink-900">
+                  <Lightbulb className="h-4 w-4 text-brand-700" aria-hidden="true" />
+                  Parent tips
+                </div>
                 <ul className="mt-2 grid gap-2 text-sm leading-relaxed text-ink-800 sm:grid-cols-2">
                   {place.parentTips.map((t) => (
                     <li key={t} className="flex gap-2">
@@ -226,9 +239,7 @@ export default function PlacePage() {
           <Card className="mt-10 p-6">
             <div className="text-sm font-semibold text-ink-900">Planning notes</div>
             <p className="mt-2 text-sm leading-relaxed text-ink-800">
-              Planning details like best times, common triggers, and helpful accommodations grow as more families
-              contribute. For now, start with the reviews below — and consider adding a structured review to help the
-              next caregiver.
+              Reviews from families shape this section. Add a review to help others plan.
             </p>
           </Card>
         )}
@@ -237,7 +248,7 @@ export default function PlacePage() {
           <SectionHeading
             eyebrow="Reviews"
             title="Parent reviews"
-            description="Community reviews appear first. Any reviews you add are saved locally on this device and shown here."
+            description="Shared by parents and caregivers. Your added reviews appear here too."
           />
 
           <div className="mt-6 grid gap-4">

@@ -95,7 +95,7 @@ export default function MapPage() {
         <SectionHeading
           eyebrow="Explore"
           title="Find sensory-friendly places near La Jolla"
-          description="Browse places around the La Jolla area. Filter by category and ratings, then open a place for a full breakdown."
+          description="Browse places around La Jolla, filter by category or sensory ratings, and open any place for a full breakdown."
         />
 
         <div className="mt-8 grid gap-4 lg:grid-cols-12">
@@ -139,7 +139,7 @@ export default function MapPage() {
                 <label className="grid gap-2 text-sm">
                   <div className="flex items-center justify-between gap-3">
                     <span className="text-xs font-semibold uppercase tracking-wide text-ink-700">
-                      Min overall rating
+                      Min. overall
                     </span>
                     <span className="text-xs font-semibold text-ink-800 tabular-nums">{minOverall.toFixed(1)}</span>
                   </div>
@@ -173,7 +173,7 @@ export default function MapPage() {
                     <label className="grid gap-2 text-sm">
                       <div className="flex items-center justify-between gap-3">
                         <span className="text-xs font-semibold uppercase tracking-wide text-ink-700">
-                          Min quietness (noise)
+                          Quietness
                         </span>
                         <span className="text-xs font-semibold text-ink-800 tabular-nums">{minNoise.toFixed(1)}</span>
                       </div>
@@ -192,7 +192,7 @@ export default function MapPage() {
                     <label className="grid gap-2 text-sm">
                       <div className="flex items-center justify-between gap-3">
                         <span className="text-xs font-semibold uppercase tracking-wide text-ink-700">
-                          Min spaciousness (crowds)
+                          Spaciousness
                         </span>
                         <span className="text-xs font-semibold text-ink-800 tabular-nums">{minCrowds.toFixed(1)}</span>
                       </div>
@@ -231,15 +231,6 @@ export default function MapPage() {
             </Card>
 
             <div className="mt-4">
-              <Card className="p-4">
-                <div className="text-xs font-semibold uppercase tracking-wide text-ink-700">Tip</div>
-                <p className="mt-2 text-sm leading-relaxed text-ink-800">
-                  Prefer not to use the map? Browse the list below and open a place page for full details.
-                </p>
-              </Card>
-            </div>
-
-            <div className="mt-4">
               <Card className="overflow-hidden">
                 <div className="border-b border-ink-100/60 bg-sand-100 px-4 py-3">
                   <div className="text-sm font-semibold text-ink-900">Places</div>
@@ -249,7 +240,7 @@ export default function MapPage() {
                 <div className="max-h-[55dvh] overflow-auto p-3 lg:max-h-[70dvh]">
                   {filtered.length === 0 ? (
                     <div className="rounded-2xl bg-sand-100 p-4 text-sm text-ink-800">
-                      No places match these filters.
+                      No places match your filters. Try adjusting the sliders.
                     </div>
                   ) : (
                     <div className="grid gap-3">
@@ -321,7 +312,7 @@ export default function MapPage() {
             </Card>
 
             <Card className="mt-4 p-6">
-              <div className="text-sm font-semibold text-ink-900">A note on ratings</div>
+              <div className="text-sm font-semibold text-ink-900">About these ratings</div>
               <p className="mt-2 text-sm leading-relaxed text-ink-800">
                 Ratings reflect parent-reported experiences and can change day to day. NeuroMap does not provide medical
                 advice. Reviews you add are saved locally on this device.

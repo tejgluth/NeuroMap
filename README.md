@@ -1,8 +1,8 @@
 # NeuroMap
 
-NeuroMap is a calm, accessible **static frontend** for a parent-powered review platform focused on **autism-friendly / sensory-friendly public environments**. The goal is to help families anticipate sensory triggers before visiting a place.
+NeuroMap is a calm, accessible **static frontend** for a parent-powered review platform focused on **autism-friendly / sensory-friendly public environments**. The goal is to help you anticipate sensory triggers before visiting a place.
 
-Seed place + review data is bundled from `src/data/neuromap_la_jolla_places.json` (18 places around La Jolla). User-added reviews persist locally in the browser via `localStorage`.
+Seed place + review data is bundled from `src/data/neuromap_la_jolla_places.json` (18 places around La Jolla). Reviews you add persist locally in the browser via `localStorage`.
 
 ## Tech stack
 
@@ -30,9 +30,10 @@ npm run lint
 
 ## Review persistence (localStorage)
 
-- User-submitted reviews are stored locally in the current browser only.
+- Reviews you submit are stored locally in the current browser only.
 - Storage key: `neuromap.reviews.v1`
-- Clearing site data / localStorage removes user-added reviews.
+- Storage key for local-only unlisted place reviews: `neuromap.unlisted-reviews.v1`
+- Clearing site data / localStorage removes reviews you add.
 
 Seeded reviews (the initial data) are bundled with the app at build time and are not modified at runtime.
 

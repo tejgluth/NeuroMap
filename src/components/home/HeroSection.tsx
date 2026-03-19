@@ -48,15 +48,14 @@ export default function HeroSection() {
             <div className="lg:col-span-7">
               <div className="inline-flex items-center gap-2 rounded-full bg-sand-100 px-3 py-1 text-xs font-semibold text-ink-800 ring-1 ring-inset ring-ink-100/60">
                 <Compass className="h-4 w-4 text-brand-700" aria-hidden="true" />
-                Calm, parent-powered planning
+                Parent-powered sensory reviews
               </div>
               <h1 className="mt-4 text-balance text-4xl font-semibold tracking-tight text-ink-900 sm:text-5xl">
                 Adventure Without Uncertainty
               </h1>
               <p className="mt-4 max-w-2xl text-pretty text-base leading-relaxed text-ink-800 sm:text-lg">
-                NeuroMap is a parent-powered platform that helps families with autistic children find sensory-friendly
-                places before they go — so you can anticipate triggers, choose better timing, and step out with
-                confidence.
+                Find places rated by parents who understand sensory needs — noise levels, crowd patterns, staff support,
+                and the best times to go — before you ever leave home.
               </p>
 
               <div className="mt-7 flex flex-wrap gap-3">
@@ -78,32 +77,43 @@ export default function HeroSection() {
             <div className="lg:col-span-5">
               <div className="grid gap-4">
                 <div className="rounded-2xl border border-ink-100/60 bg-sand-100 p-5 shadow-soft">
-                  <div className="text-sm font-semibold text-ink-900">What families actually need</div>
+                  <div className="text-sm font-semibold text-ink-900">What parents look for</div>
                   <ul className="mt-3 space-y-2 text-sm text-ink-800">
                     <li className="flex gap-2">
                       <span className="mt-1 h-2 w-2 rounded-full bg-brand-600" />
-                      Noise and sudden sound spikes
+                      Noise levels and sudden sound spikes
                     </li>
                     <li className="flex gap-2">
                       <span className="mt-1 h-2 w-2 rounded-full bg-brand-600" />
-                      Crowds and tight transitions
+                      Crowd density and transition zones
                     </li>
                     <li className="flex gap-2">
                       <span className="mt-1 h-2 w-2 rounded-full bg-brand-600" />
-                      Lighting, layout, and staff support
+                      Staff patience and sensory accommodations
                     </li>
                     <li className="flex gap-2">
                       <span className="mt-1 h-2 w-2 rounded-full bg-brand-600" />
-                      Best times to visit, not vague labels
+                      Best times to visit, not just vague labels
                     </li>
                   </ul>
                 </div>
 
                 <div className="rounded-2xl border border-ink-100/60 bg-sand-50 p-5">
-                  <div className="text-sm font-semibold text-ink-900">Designed to feel calm</div>
-                  <p className="mt-2 text-sm leading-relaxed text-ink-800">
-                    Clear hierarchy, readable spacing, and gentle color — built for caregivers planning under stress.
-                  </p>
+                  <div className="text-sm font-semibold text-ink-900">How it works</div>
+                  <ul className="mt-3 space-y-2 text-sm text-ink-800">
+                    <li className="flex gap-2">
+                      <span className="mt-1 h-2 w-2 rounded-full bg-brand-600" />
+                      Search the map for places near La Jolla
+                    </li>
+                    <li className="flex gap-2">
+                      <span className="mt-1 h-2 w-2 rounded-full bg-brand-600" />
+                      Read parent reviews and sensory ratings
+                    </li>
+                    <li className="flex gap-2">
+                      <span className="mt-1 h-2 w-2 rounded-full bg-brand-600" />
+                      Plan your outing with real specifics
+                    </li>
+                  </ul>
                 </div>
               </div>
             </div>

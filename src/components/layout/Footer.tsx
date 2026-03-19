@@ -17,8 +17,8 @@ export default function Footer() {
         </div>
 
         <div className="text-xs text-ink-700">
-          <div className="font-semibold text-ink-900">Built to feel calm</div>
-          <div className="mt-1">Static frontend • No accounts • Reviews saved locally</div>
+          <div className="font-semibold text-ink-900">NeuroMap</div>
+          <div className="mt-1">No accounts needed · Reviews stay on your device</div>
           <div className="mt-1">© {new Date().getFullYear()} NeuroMap Team</div>
         </div>
       </Container>

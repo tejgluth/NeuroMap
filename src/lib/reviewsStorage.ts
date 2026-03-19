@@ -1,6 +1,7 @@
-import type { Review } from '../types'
+import type { Review, UnlistedPlaceReview } from '../types'
 
 const STORAGE_KEY = 'neuromap.reviews.v1'
+const UNLISTED_STORAGE_KEY = 'neuromap.unlisted-reviews.v1'
 const EVENT_NAME = 'neuromap:reviews-updated'
 
 function safeParse(json: string | null): unknown {
@@ -26,6 +27,20 @@ function isReview(value: unknown): value is Review {
   )
 }
 
+function isUnlistedPlaceReview(value: unknown): value is UnlistedPlaceReview {
+  if (!value || typeof value !== 'object') return false
+  const v = value as Partial<UnlistedPlaceReview>
+  return (
+    typeof v.id === 'string' &&
+    v.source === 'local' &&
+    typeof v.createdAt === 'string' &&
+    typeof v.displayName === 'string' &&
+    typeof v.placeName === 'string' &&
+    typeof v.categoryId === 'string' &&
+    typeof v.text === 'string'
+  )
+}
+
 export function loadLocalReviews(): Review[] {
   if (typeof window === 'undefined') return []
   let raw: string | null = null
@@ -42,10 +57,36 @@ export function loadLocalReviews(): Review[] {
   return reviews.filter((r) => r.source === 'local')
 }
 
+export function loadLocalUnlistedPlaceReviews(): UnlistedPlaceReview[] {
+  if (typeof window === 'undefined') return []
+  let raw: string | null = null
+  try {
+    raw = window.localStorage.getItem(UNLISTED_STORAGE_KEY)
+  } catch {
+    return []
+  }
+  const parsed = safeParse(raw)
+  if (!parsed || typeof parsed !== 'object') return []
+
+  const record = parsed as { reviews?: unknown }
+  const reviews = Array.isArray(record.reviews) ? record.reviews.filter(isUnlistedPlaceReview) : []
+  return reviews
+}
+
 export function saveLocalReviews(reviews: Review[]) {
   if (typeof window === 'undefined') return
   try {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ reviews }))
+    window.dispatchEvent(new Event(EVENT_NAME))
+  } catch {
+    throw new Error('Local storage is unavailable in this browser/session.')
+  }
+}
+
+export function saveLocalUnlistedPlaceReviews(reviews: UnlistedPlaceReview[]) {
+  if (typeof window === 'undefined') return
+  try {
+    window.localStorage.setItem(UNLISTED_STORAGE_KEY, JSON.stringify({ reviews }))
     window.dispatchEvent(new Event(EVENT_NAME))
   } catch {
     throw new Error('Local storage is unavailable in this browser/session.')
@@ -68,6 +109,22 @@ export function addLocalReview(review: Omit<Review, 'id' | 'source' | 'createdAt
   return created
 }
 
+export function addLocalUnlistedPlaceReview(review: Omit<UnlistedPlaceReview, 'id' | 'source' | 'createdAt'>) {
+  const uuid =
+    typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function' ? crypto.randomUUID() : Math.random().toString(16).slice(2)
+  const created: UnlistedPlaceReview = {
+    ...review,
+    id: `unlisted_${uuid}`,
+    source: 'local',
+    createdAt: new Date().toISOString(),
+  }
+
+  const all = loadLocalUnlistedPlaceReviews()
+  all.unshift(created)
+  saveLocalUnlistedPlaceReviews(all)
+  return created
+}
+
 export function getLocalReviewsForPlace(placeId: string) {
   return loadLocalReviews().filter((r) => r.placeId === placeId)
 }
@@ -76,7 +133,7 @@ export function subscribeToLocalReviews(callback: () => void) {
   if (typeof window === 'undefined') return () => {}
 
   const onStorage = (e: StorageEvent) => {
-    if (e.key === STORAGE_KEY) callback()
+    if (e.key === STORAGE_KEY || e.key === UNLISTED_STORAGE_KEY) callback()
   }
   const onEvent = () => callback()
 

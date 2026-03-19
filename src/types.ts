@@ -65,6 +65,22 @@ export type Review = {
   text: string
 }
 
+export type UnlistedPlaceReview = {
+  id: string
+  source: 'local'
+  createdAt: string
+  displayName: string
+  placeName: string
+  categoryId: CategoryId
+  address?: string
+  visitTime?: VisitTime
+  childAgeRange?: ChildAgeRange
+  ratings?: Partial<Ratings>
+  recommendForSensorySensitiveFamilies?: YesNo
+  tags?: TagId[]
+  text: string
+}
+
 export type Place = {
   id: string
   slug: string
