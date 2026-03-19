@@ -1,4 +1,4 @@
-import { AlertCircle, Info } from 'lucide-react'
+import { AlertCircle } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
@@ -125,7 +125,7 @@ export default function AddReviewPage() {
         <SectionHeading
           eyebrow="Add a review"
           title="Share what the environment felt like"
-          description="Choose a listed place or save a note for somewhere not on the map yet. Everything stays on this device."
+          description="Choose a listed place or add a note for somewhere not on the map yet."
         />
 
         <div className="mt-8 grid gap-4 lg:grid-cols-12 lg:items-start">
@@ -184,10 +184,10 @@ export default function AddReviewPage() {
                   setCustomAddress('')
                   setCustomCategory('')
                   setErrors({})
-                  setSavedMessage(`Saved your local review for ${created.placeName}. It now appears in the saved reviews section.`)
+                  setSavedMessage(`Review saved for ${created.placeName}. It now appears below.`)
                 } catch (error) {
                   const message = error instanceof Error ? error.message : 'Unknown error'
-                  setSubmitError(`Could not save your review locally. ${message}`)
+                  setSubmitError(`Could not save your review. ${message}`)
                 }
               }}
             >
@@ -202,7 +202,7 @@ export default function AddReviewPage() {
 
               {savedMessage ? (
                 <div className="rounded-2xl border border-brand-200/60 bg-brand-50 p-4 text-sm text-ink-800">
-                  <div className="font-semibold text-ink-900">Saved locally</div>
+                  <div className="font-semibold text-ink-900">Review saved</div>
                   <div className="mt-1 leading-relaxed">{savedMessage}</div>
                 </div>
               ) : null}
@@ -210,7 +210,7 @@ export default function AddReviewPage() {
               <div className="rounded-2xl bg-sand-100 p-4">
                 <div className="text-sm font-semibold text-ink-900">Which place?</div>
                 <p className="mt-1 text-sm leading-relaxed text-ink-800">
-                  If the place is not on the map yet, you can save a personal note and keep it on this device.
+                  If the place is not on the map yet, you can still add a note for it.
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   <Button
@@ -516,18 +516,6 @@ export default function AddReviewPage() {
                 ) : null}
               </div>
 
-              <div className="rounded-2xl bg-sand-100 p-4 text-sm text-ink-800">
-                <div className="flex items-start gap-2">
-                  <Info className="mt-0.5 h-4 w-4 text-brand-700" aria-hidden="true" />
-                  <div>
-                    <div className="font-semibold text-ink-900">Saved on this device</div>
-                    <div className="mt-1 leading-relaxed">
-                      Everything you add is stored only in this browser using localStorage. Clearing site data will
-                      remove it.
-                    </div>
-                  </div>
-                </div>
-              </div>
             </form>
           </Card>
 
@@ -562,7 +550,7 @@ export default function AddReviewPage() {
                   </div>
                   {isNonEmpty(customAddress) ? <div className="text-sm text-ink-700">{customAddress.trim()}</div> : null}
                   <p className="text-sm leading-relaxed text-ink-800">
-                    This local-only review will stay on this device and appear in the saved reviews section below.
+                    This note will appear in the saved notes section below.
                   </p>
                 </div>
               ) : (
@@ -578,8 +566,7 @@ export default function AddReviewPage() {
                 <Badge className="bg-sand-100">{unlistedReviews.length}</Badge>
               </div>
               <p className="mt-2 text-sm leading-relaxed text-ink-800">
-                These local-only entries stay on this device. They help you keep notes even before a place is added to
-                the site.
+                Notes you've added for places not on the map yet.
               </p>
 
               {unlistedReviews.length > 0 ? (
@@ -590,7 +577,7 @@ export default function AddReviewPage() {
                 </div>
               ) : (
                 <div className="mt-4 rounded-2xl bg-sand-100 p-4 text-sm text-ink-800">
-                  Add a note for a place not on the map yet — it'll show up here.
+                  Add a note for a place not on the map yet. It'll show up here.
                 </div>
               )}
             </Card>

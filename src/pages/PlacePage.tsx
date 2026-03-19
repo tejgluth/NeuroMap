@@ -56,9 +56,9 @@ export default function PlacePage() {
       <Container>
         {reviewed ? (
           <Card className="mb-6 border-brand-200/60 bg-brand-50 p-5 shadow-soft">
-            <div className="text-sm font-semibold text-ink-900">Review saved locally</div>
+            <div className="text-sm font-semibold text-ink-900">Review submitted</div>
             <p className="mt-1 text-sm leading-relaxed text-ink-800">
-              Thanks for contributing. Your review is stored in this browser only and is now visible below.
+              Thanks for contributing. Your review is now visible below.
             </p>
           </Card>
         ) : null}
@@ -95,8 +95,7 @@ export default function PlacePage() {
           <Card className="p-6 lg:col-span-5">
             <div className="text-sm font-semibold text-ink-900">Community ratings</div>
             <p className="mt-2 text-sm leading-relaxed text-ink-700">
-              Ratings are community-reported and may change by time of day, season, staffing, or events. NeuroMap does
-              not provide medical advice.
+              Ratings are community-reported and may change by time of day, season, staffing, or events.
             </p>
             <div className="mt-4 grid gap-2 sm:grid-cols-2">
               <div className="rounded-2xl bg-sand-100 p-4">
@@ -118,7 +117,7 @@ export default function PlacePage() {
               <div className="mt-4 rounded-2xl border border-ink-100/60 bg-sand-50 p-4 text-sm text-ink-800">
                 <div className="font-semibold text-ink-900">No ratings yet</div>
                 <p className="mt-1 leading-relaxed text-ink-700">
-                  Be the first to share what this place felt like — your ratings help other families plan.
+                  Be the first to share what this place felt like. Your ratings help other families plan.
                 </p>
                 <div className="mt-3">
                   <ButtonLink to={`/add-review?place=${encodeURIComponent(place.slug)}`} variant="secondary">

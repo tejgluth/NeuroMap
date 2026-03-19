@@ -54,8 +54,8 @@ export default function HeroSection() {
                 Adventure Without Uncertainty
               </h1>
               <p className="mt-4 max-w-2xl text-pretty text-base leading-relaxed text-ink-800 sm:text-lg">
-                Find places rated by parents who understand sensory needs — noise levels, crowd patterns, staff support,
-                and the best times to go — before you ever leave home.
+                Find places rated by parents who understand sensory needs: noise levels, crowd patterns, staff support,
+                and the best times to go. All before you leave home.
               </p>
 
               <div className="mt-7 flex flex-wrap gap-3">
@@ -69,9 +69,6 @@ export default function HeroSection() {
                 </ButtonLink>
               </div>
 
-              <p className="mt-4 text-xs leading-relaxed text-ink-700">
-                Note: Reviews you add are saved locally on this device (using localStorage).
-              </p>
             </div>
 
             <div className="lg:col-span-5">

@@ -7,8 +7,8 @@ export default function Footer() {
         <div className="max-w-xl">
           <div className="font-semibold text-ink-900">NeuroMap</div>
           <p className="mt-1 leading-relaxed">
-            A calm, parent-powered platform for anticipating sensory environments. Ratings and reviews reflect
-            parent-reported experiences and may change over time. Reviews you add are saved locally on this device.
+            A parent-powered platform for finding sensory-friendly places. Ratings and reviews reflect
+            parent-reported experiences and may change over time.
           </p>
           <p className="mt-2 leading-relaxed">
             NeuroMap does not provide medical advice. Always use your best judgment and consult qualified professionals
@@ -18,7 +18,6 @@ export default function Footer() {
 
         <div className="text-xs text-ink-700">
           <div className="font-semibold text-ink-900">NeuroMap</div>
-          <div className="mt-1">No accounts needed · Reviews stay on your device</div>
           <div className="mt-1">© {new Date().getFullYear()} NeuroMap Team</div>
         </div>
       </Container>

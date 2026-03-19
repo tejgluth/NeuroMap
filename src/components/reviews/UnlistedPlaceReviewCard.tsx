@@ -21,7 +21,6 @@ export default function UnlistedPlaceReviewCard({ review }: { review: UnlistedPl
   if (formatted) meta.push(formatted)
   if (review.visitTime) meta.push(review.visitTime)
   if (review.childAgeRange) meta.push(`Child age ${review.childAgeRange}`)
-  meta.push('Saved on this device')
 
   const overall = typeof review.ratings?.overall === 'number' ? review.ratings.overall : null
   const noise = typeof review.ratings?.noise === 'number' ? review.ratings.noise : null

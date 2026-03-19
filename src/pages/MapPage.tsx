@@ -315,7 +315,7 @@ export default function MapPage() {
               <div className="text-sm font-semibold text-ink-900">About these ratings</div>
               <p className="mt-2 text-sm leading-relaxed text-ink-800">
                 Ratings reflect parent-reported experiences and can change day to day. NeuroMap does not provide medical
-                advice. Reviews you add are saved locally on this device.
+                advice.
               </p>
             </Card>
           </div>

@@ -22,7 +22,6 @@ export default function ReviewCard({ review }: { review: Review }) {
   }
   if (review.visitTime) meta.push(review.visitTime)
   if (review.childAgeRange) meta.push(`Child age ${review.childAgeRange}`)
-  if (review.source === 'local') meta.push('Saved on this device')
 
   const overall = typeof review.ratings?.overall === 'number' ? review.ratings.overall : null
   const noise = typeof review.ratings?.noise === 'number' ? review.ratings.noise : null

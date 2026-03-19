@@ -70,7 +70,7 @@ export default function HomePage() {
           <SectionHeading
             eyebrow="How it works"
             title="A simple flow for calmer outings"
-            description="The goal isn't perfection — it's predictability. Small details reduce planning stress and prevent surprises."
+            description="The goal isn't perfection, it's predictability. Small details reduce planning stress and prevent surprises."
           />
 
           <div className="mt-8 grid gap-4 md:grid-cols-3">
@@ -98,7 +98,7 @@ export default function HomePage() {
                 Plan with confidence
               </div>
               <p className="mt-2 text-sm leading-relaxed text-ink-800">
-                Choose the best time to visit and bring the right supports — before you're already overwhelmed.
+                Choose the best time to visit and bring the right supports before you go.
               </p>
             </Card>
           </div>
@@ -110,7 +110,7 @@ export default function HomePage() {
           <SectionHeading
             eyebrow="Real moments"
             title="Small details decide the outing."
-            description="These are the moments families described: an outing is going fine — until one sensory detail changes everything."
+            description="These are the moments families described: an outing is going fine, then one sensory detail changes everything."
           />
 
           <div className="mt-8 grid gap-4 lg:grid-cols-2">
@@ -131,7 +131,7 @@ export default function HomePage() {
           <SectionHeading
             eyebrow="What we heard"
             title="Families need specifics, not scores."
-            description="Caregivers don't need a perfect rating. They need honest, practical information — and a community that understands why details matter."
+            description="Caregivers don't need a perfect rating. They need honest, practical information and a community that understands why details matter."
           />
 
           <div className="mt-8 grid gap-4 md:grid-cols-2">
@@ -144,7 +144,7 @@ export default function HomePage() {
                 </li>
                 <li className="flex gap-2">
                   <span className="mt-2 h-1.5 w-1.5 rounded-full bg-brand-700" />
-                  "We can handle noise — but not surprise noise."
+                  "We can handle noise, just not surprise noise."
                 </li>
                 <li className="flex gap-2">
                   <span className="mt-2 h-1.5 w-1.5 rounded-full bg-brand-700" />
@@ -174,7 +174,7 @@ export default function HomePage() {
           <SectionHeading
             eyebrow="The difference it makes"
             title="More participation, less stress"
-            description="NeuroMap helps families plan around sensory needs — so outings are more likely to end with pride, not recovery."
+            description="NeuroMap helps families plan around sensory needs so outings are more likely to end with pride, not recovery."
           />
 
           <Card className="mt-8 p-6">
@@ -201,7 +201,7 @@ export default function HomePage() {
                 <span className="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-100 text-brand-800">
                   4
                 </span>
-                Participate more fully in community life — parks, restaurants, errands, and events.
+                Participate more fully in community life: parks, restaurants, errands, and events.
               </li>
               <li className="flex gap-3">
                 <span className="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-100 text-brand-800">

@@ -14,7 +14,7 @@ export default function AboutPage() {
         <SectionHeading
           eyebrow="Social Innovation · The Bishop’s School"
           title="We built NeuroMap to help families plan outings with confidence."
-          description="We’re a student team who kept hearing the same need from parents of autistic children: specific, trustworthy information about sensory environments — not vague labels."
+          description="We’re a student team who kept hearing the same need from parents of autistic children: specific, trustworthy information about sensory environments, not vague labels."
         />
 
         <div className="mt-8 grid gap-4 lg:grid-cols-12 lg:items-start">
@@ -28,7 +28,7 @@ export default function AboutPage() {
                 <p className="mt-2 text-sm leading-relaxed text-ink-800">
                   Our team grew up alongside cousins with autism. Through personal experience, parent interviews, and
                   community conversations, we kept hearing the same thing: families need honest, specific sensory
-                  information — not a star rating, not a vague label. NeuroMap is our attempt to make that information
+                  information. Not a star rating or a vague label. NeuroMap is our attempt to make that information
                   easier to find and easier to use when it matters most.
                 </p>
               </div>
@@ -43,8 +43,8 @@ export default function AboutPage() {
               <div>
                 <h2 className="text-lg font-semibold text-ink-900">How it works</h2>
                 <p className="mt-2 text-sm leading-relaxed text-ink-800">
-                  Right now NeuroMap is a demo — no accounts or backend. Reviews you add are saved on this device so
-                  you can try the full flow and see your contribution appear immediately.
+                  Browse places on the map, read parent reviews, filter by sensory ratings, and add your own experience
+                  to help the next family plan.
                 </p>
               </div>
             </div>
@@ -74,14 +74,6 @@ export default function AboutPage() {
             ))}
           </div>
         </div>
-
-        <Card className="mt-10 p-8">
-          <h2 className="text-lg font-semibold text-ink-900">A note on language and respect</h2>
-          <p className="mt-2 text-sm leading-relaxed text-ink-800">
-            We try to be respectful in how we talk about autism and sensory differences, and we welcome feedback from
-            families and the community.
-          </p>
-        </Card>
 
         <div className="mt-10 flex flex-wrap gap-3">
           <ButtonLink to="/map" variant="primary" size="lg">
