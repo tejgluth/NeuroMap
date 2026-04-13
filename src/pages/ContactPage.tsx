@@ -5,7 +5,7 @@ import Container from '../components/ui/Container'
 import { Button } from '../components/ui/Button'
 
 // Set the destination email address here
-const CONTACT_EMAIL = 'hello@neuromap.app'
+const CONTACT_EMAIL = 'neuromaps27@gmail.com'
 
 export default function ContactPage() {
   const [subject, setSubject] = useState('')
