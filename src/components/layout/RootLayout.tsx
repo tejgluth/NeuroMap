@@ -10,7 +10,7 @@ export default function RootLayout() {
   const isBusy = navigation.state !== 'idle'
 
   return (
-    <div className="min-h-dvh bg-hero-glow">
+    <div className="min-h-dvh">
       <SkipToContent />
       <Navbar />
       <div

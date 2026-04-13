@@ -15,25 +15,28 @@ export default function RatingMeter({
   const safe = hasValue ? Math.max(0, Math.min(max, value)) : 0
   const filled = Math.round(safe)
   const display = hasValue ? safe.toFixed(1) : '—'
-  const ariaLabel = hasValue ? `${label}: ${safe.toFixed(1)} out of ${max}` : `${label}: Not rated yet`
+  const ariaLabel = hasValue
+    ? `${label}: ${safe.toFixed(1)} out of ${max}`
+    : `${label}: not rated yet`
 
   return (
-    <div className={cn('flex items-center gap-2', className)} aria-label={ariaLabel}>
-      <div className="flex items-center gap-1" role="img">
+    <div className={cn('flex items-center gap-2.5', className)} aria-label={ariaLabel}>
+      <span className="w-14 text-xs font-medium text-ink-600 shrink-0">{label}</span>
+      <div className="flex items-center gap-1" role="img" aria-hidden="true">
         {Array.from({ length: max }).map((_, idx) => {
           const active = idx < filled
           return (
             <span
               key={idx}
               className={cn(
-                'h-2.5 w-4 rounded-full ring-1 ring-inset ring-ink-100/70',
-                active ? 'bg-brand-600' : 'bg-sand-100',
+                'h-2 w-5 rounded-sm',
+                active ? 'bg-brand-500' : 'bg-sand-200',
               )}
             />
           )
         })}
       </div>
-      <span className="tabular-nums text-xs font-semibold text-ink-800">{display}</span>
+      <span className="tabular-nums text-xs font-semibold text-ink-700">{display}</span>
     </div>
   )
 }

@@ -17,9 +17,7 @@ const REPORT_REASONS = [
 
 type ReviewCardProps = {
   review: Review
-  /** The signed-in user's ID (from useAuth) */
   currentUserId?: string | null
-  /** The review author's user_id from the DB row (null for seed/anonymous) */
   reviewUserId?: string | null
   onDelete?: (reviewId: string) => Promise<void>
   onReport?: (reviewId: string, reason: string) => Promise<void>
@@ -81,22 +79,29 @@ export default function ReviewCard({
 
   return (
     <Card className="p-6">
+      {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <div className="text-sm font-semibold text-ink-900">{review.displayName || 'Anonymous'}</div>
-          {meta.length > 0 ? <div className="mt-1 text-xs text-ink-700">{meta.join(' • ')}</div> : null}
+          {meta.length > 0 && (
+            <div className="mt-1 text-xs text-ink-500">{meta.join(' · ')}</div>
+          )}
         </div>
 
         <div className="flex items-center gap-2">
-          {recommend ? (
-            <Badge className={recommend === 'yes' ? 'bg-brand-100 text-brand-900 ring-brand-200/70' : 'bg-sand-100 text-ink-900'}>
-              {recommend === 'yes' ? <ThumbsUp className="h-3.5 w-3.5" aria-hidden="true" /> : null}
-              {recommend === 'no' ? <ThumbsDown className="h-3.5 w-3.5" aria-hidden="true" /> : null}
+          {recommend && (
+            <Badge
+              className={recommend === 'yes'
+                ? 'bg-brand-50 text-brand-800 ring-brand-200/60'
+                : 'bg-sand-100 text-ink-700 ring-ink-100/60'}
+            >
+              {recommend === 'yes'
+                ? <ThumbsUp className="h-3 w-3" aria-hidden="true" />
+                : <ThumbsDown className="h-3 w-3" aria-hidden="true" />}
               {recommend === 'yes' ? 'Recommended' : 'Not recommended'}
             </Badge>
-          ) : null}
+          )}
 
-          {/* Owner actions */}
           {isOwn && onDelete && (
             isConfirmingDelete ? (
               <div className="flex items-center gap-1.5">
@@ -111,7 +116,7 @@ export default function ReviewCard({
                 <button
                   type="button"
                   onClick={() => setIsConfirmingDelete(false)}
-                  className="rounded-lg bg-sand-100 px-2.5 py-1 text-xs font-semibold text-ink-800 hover:bg-sand-200 transition-colors"
+                  className="rounded-lg bg-sand-100 px-2.5 py-1 text-xs font-semibold text-ink-700 hover:bg-sand-200 transition-colors"
                 >
                   Cancel
                 </button>
@@ -120,7 +125,7 @@ export default function ReviewCard({
               <button
                 type="button"
                 onClick={() => setIsConfirmingDelete(true)}
-                className="rounded-lg p-1.5 text-ink-400 hover:text-red-600 hover:bg-red-50 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                className="rounded-lg p-1.5 text-ink-300 hover:text-red-500 hover:bg-red-50 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                 aria-label="Delete review"
               >
                 <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
@@ -128,15 +133,14 @@ export default function ReviewCard({
             )
           )}
 
-          {/* Report action for other users */}
           {canReport && (
             reportDone ? (
-              <span className="text-xs text-ink-500">Reported</span>
+              <span className="text-xs text-ink-400">Reported</span>
             ) : (
               <button
                 type="button"
                 onClick={() => setIsReporting((v) => !v)}
-                className="rounded-lg p-1.5 text-ink-400 hover:text-ink-700 hover:bg-sand-100 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                className="rounded-lg p-1.5 text-ink-300 hover:text-ink-600 hover:bg-sand-100 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                 aria-label="Report review"
                 aria-expanded={isReporting}
               >
@@ -147,35 +151,38 @@ export default function ReviewCard({
         </div>
       </div>
 
-      {showRatings ? (
-        <div className="mt-4 grid gap-2 sm:grid-cols-2">
+      {/* Ratings */}
+      {showRatings && (
+        <div className="mt-4 flex flex-wrap gap-4">
           <RatingMeter value={overall} label="Overall" />
           <RatingMeter value={noise} label="Noise" />
         </div>
-      ) : null}
+      )}
 
-      <p className="mt-4 text-sm leading-relaxed text-ink-800">{review.text}</p>
+      {/* Review text */}
+      <p className="mt-4 text-sm leading-relaxed text-ink-700">{review.text}</p>
 
-      {review.tags && review.tags.length > 0 ? (
+      {/* Tags */}
+      {review.tags && review.tags.length > 0 && (
         <div className="mt-4 flex flex-wrap gap-2">
           {review.tags.map((t) => (
-            <Badge key={t} className="bg-sand-100">
+            <Badge key={t} className="bg-sand-100 text-ink-600">
               {TAG_BY_ID[t]?.label ?? t}
             </Badge>
           ))}
         </div>
-      ) : null}
+      )}
 
       {/* Report form */}
       {isReporting && !reportDone && (
-        <form onSubmit={handleReport} className="mt-4 rounded-2xl border border-ink-100/60 bg-sand-100 p-4">
-          <label className="block text-xs font-semibold text-ink-800 mb-1.5">
+        <form onSubmit={handleReport} className="mt-4 rounded-xl border border-ink-100/60 bg-sand-100 p-4">
+          <label className="block text-xs font-semibold text-ink-700 mb-1.5">
             Reason for report
           </label>
           <select
             value={reportReason}
             onChange={(e) => setReportReason(e.target.value)}
-            className="w-full rounded-xl border-ink-100/60 bg-white text-sm text-ink-900 focus:border-brand-500 focus:ring-brand-500 mb-3"
+            className="mb-3 w-full rounded-lg border border-ink-100/60 bg-white py-1.5 px-2.5 text-sm text-ink-900 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
           >
             {REPORT_REASONS.map((r) => (
               <option key={r} value={r}>{r}</option>
@@ -187,12 +194,12 @@ export default function ReviewCard({
               disabled={reporting}
               className="rounded-lg bg-ink-900 px-3 py-1.5 text-xs font-semibold text-sand-50 hover:bg-ink-800 disabled:opacity-50 transition-colors"
             >
-              {reporting ? 'Submitting…' : 'Submit report'}
+              {reporting ? 'Submitting…' : 'Submit'}
             </button>
             <button
               type="button"
               onClick={() => setIsReporting(false)}
-              className="rounded-lg bg-sand-200 px-3 py-1.5 text-xs font-semibold text-ink-800 hover:bg-sand-300 transition-colors"
+              className="rounded-lg bg-sand-200 px-3 py-1.5 text-xs font-semibold text-ink-700 hover:bg-sand-300 transition-colors"
             >
               Cancel
             </button>

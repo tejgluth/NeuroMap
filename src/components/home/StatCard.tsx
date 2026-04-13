@@ -1,5 +1,4 @@
 import { cn } from '../../lib/cn'
-import Card from '../ui/Card'
 
 export default function StatCard({
   value,
@@ -13,11 +12,10 @@ export default function StatCard({
   className?: string
 }) {
   return (
-    <Card className={cn('p-6', className)}>
-      <div className="text-3xl font-semibold tracking-tight text-ink-900">{value}</div>
-      <div className="mt-2 text-sm font-semibold text-ink-900">{label}</div>
-      <p className="mt-2 text-sm leading-relaxed text-ink-800">{supporting}</p>
-    </Card>
+    <div className={cn('', className)}>
+      <div className="text-5xl font-semibold tracking-tight text-ink-900 sm:text-6xl">{value}</div>
+      <div className="mt-3 text-sm font-semibold text-ink-800">{label}</div>
+      <p className="mt-2 text-sm leading-relaxed text-ink-600">{supporting}</p>
+    </div>
   )
 }
-

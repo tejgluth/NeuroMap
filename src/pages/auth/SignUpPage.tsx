@@ -61,11 +61,15 @@ export default function SignUpPage() {
       <Container className="py-16 flex justify-center">
         <div className="w-full max-w-md text-center">
           <Card className="p-8">
-            <div className="mb-4 text-3xl">✉️</div>
-            <h1 className="text-xl font-bold text-ink-900 mb-2">Check your email</h1>
-            <p className="text-sm text-ink-600 mb-6">
-              We've sent a confirmation link to <strong className="text-ink-900">{email}</strong>.
-              Open it to activate your account, then sign in.
+            <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-100 text-brand-700">
+              <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <rect width="20" height="16" x="2" y="4" rx="2"/>
+                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+              </svg>
+            </div>
+            <h1 className="text-xl font-semibold tracking-tight text-ink-900 mb-2">Check your email</h1>
+            <p className="text-sm text-ink-700 mb-6">
+              We sent a confirmation link to <strong className="text-ink-900">{email}</strong>. Open it to activate your account, then sign in.
             </p>
             <Link
               to="/sign-in"
@@ -75,7 +79,7 @@ export default function SignUpPage() {
             </Link>
           </Card>
           <p className="mt-4 text-xs text-ink-500">
-            For staging: if you don't receive an email, ask your admin to disable "Confirm email" in Supabase Auth settings.
+            Didn't receive the email? Check your spam folder or try signing up again.
           </p>
         </div>
       </Container>
@@ -86,8 +90,8 @@ export default function SignUpPage() {
     <Container className="py-16 flex justify-center">
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
-          <h1 className="text-2xl font-bold text-ink-900 tracking-tight">Create an account</h1>
-          <p className="mt-2 text-sm text-ink-600">Join NeuroMap to save places and share your family's experience.</p>
+          <h1 className="text-2xl font-semibold tracking-tight text-ink-900">Create an account</h1>
+          <p className="mt-2 text-sm text-ink-700">Join NeuroMap to save places and share your experience.</p>
         </div>
 
         <Card className="p-8">
@@ -175,7 +179,7 @@ export default function SignUpPage() {
           </form>
         </Card>
 
-        <p className="mt-6 text-center text-sm text-ink-600">
+        <p className="mt-6 text-center text-sm text-ink-700">
           Already have an account?{' '}
           <Link to="/sign-in" className="font-semibold text-brand-700 hover:text-brand-800 underline underline-offset-2">
             Sign in

@@ -11,11 +11,16 @@ export default {
           100: '#F4F4EC',
           200: '#EAE9DD',
           300: '#DDDCCB',
+          400: '#CCC9B3',
         },
         ink: {
           50: '#EFF4F7',
           100: '#D8E3EA',
           200: '#B3C7D6',
+          300: '#8DAFC0',
+          400: '#6990A5',
+          500: '#4E7489',
+          600: '#3C5F71',
           700: '#2B4D61',
           800: '#243E52',
           900: '#1C3444',
@@ -40,10 +45,6 @@ export default {
       borderRadius: {
         xl: '1rem',
         '2xl': '1.25rem',
-      },
-      backgroundImage: {
-        'hero-glow':
-          'radial-gradient(1200px circle at 20% 20%, rgb(92 180 180 / 0.25), transparent 45%), radial-gradient(900px circle at 80% 30%, rgb(68 164 172 / 0.18), transparent 50%), radial-gradient(1000px circle at 55% 90%, rgb(28 52 68 / 0.10), transparent 55%)',
       },
     },
   },

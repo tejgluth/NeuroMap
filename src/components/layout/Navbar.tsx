@@ -1,4 +1,4 @@
-import { Menu, X, ChevronDown } from 'lucide-react'
+import { ChevronDown, Menu, X } from 'lucide-react'
 import { useEffect, useId, useRef, useState } from 'react'
 import { Link, NavLink, useLocation } from 'react-router-dom'
 
@@ -21,10 +21,10 @@ function NavItem({
       onClick={onNavigate}
       className={({ isActive }) =>
         cn(
-          'rounded-xl px-3 py-2 text-sm font-semibold text-ink-800 no-underline transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 motion-reduce:transition-none',
+          'rounded-lg px-3 py-1.5 text-sm font-medium no-underline transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 motion-reduce:transition-none',
           isActive
-            ? 'bg-sand-50 text-ink-900 shadow-soft'
-            : 'hover:bg-sand-50 hover:text-ink-900',
+            ? 'bg-sand-200/70 text-ink-900'
+            : 'text-ink-700 hover:bg-sand-200/50 hover:text-ink-900',
         )
       }
     >
@@ -74,8 +74,8 @@ function UserMenu() {
         to="/sign-in"
         className={({ isActive }) =>
           cn(
-            'rounded-xl px-3 py-2 text-sm font-semibold text-ink-800 no-underline ring-1 ring-inset ring-ink-100/60 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500',
-            isActive ? 'bg-sand-50' : 'bg-sand-50 hover:bg-sand-100',
+            'rounded-lg px-3 py-1.5 text-sm font-medium no-underline ring-1 ring-inset ring-ink-100/80 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500',
+            isActive ? 'bg-sand-100 text-ink-900' : 'bg-sand-50 text-ink-800 hover:bg-sand-100',
           )
         }
       >
@@ -91,18 +91,21 @@ function UserMenu() {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="inline-flex items-center gap-1.5 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+        className="inline-flex items-center gap-1.5 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
         aria-label="Account menu"
         aria-expanded={open}
       >
         <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-600 text-xs font-bold text-sand-50 select-none">
           {initials}
         </span>
-        <ChevronDown className={cn('h-3.5 w-3.5 text-ink-600 transition-transform', open && 'rotate-180')} aria-hidden="true" />
+        <ChevronDown
+          className={cn('h-3.5 w-3.5 text-ink-500 transition-transform', open && 'rotate-180')}
+          aria-hidden="true"
+        />
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-48 rounded-2xl border border-ink-100/60 bg-sand-50 shadow-card z-50 overflow-hidden">
+        <div className="absolute right-0 mt-2 w-52 rounded-2xl border border-ink-100/60 bg-sand-50 shadow-card z-50 overflow-hidden">
           <div className="px-4 py-3 border-b border-ink-100/60">
             <p className="text-xs font-semibold text-ink-900 truncate">{profile?.display_name ?? 'My Account'}</p>
             <p className="text-xs text-ink-500 truncate">{user.email}</p>
@@ -111,7 +114,7 @@ function UserMenu() {
             <Link
               to="/account"
               onClick={() => setOpen(false)}
-              className="block px-4 py-2 text-sm text-ink-800 hover:bg-sand-100 transition-colors no-underline"
+              className="block px-4 py-2 text-sm text-ink-700 hover:bg-sand-100 hover:text-ink-900 transition-colors no-underline"
             >
               My account
             </Link>
@@ -119,8 +122,11 @@ function UserMenu() {
           <div className="border-t border-ink-100/60 py-1">
             <button
               type="button"
-              onClick={async () => { setOpen(false); await signOut() }}
-              className="block w-full text-left px-4 py-2 text-sm text-ink-800 hover:bg-sand-100 transition-colors"
+              onClick={async () => {
+                setOpen(false)
+                await signOut()
+              }}
+              className="block w-full text-left px-4 py-2 text-sm text-ink-700 hover:bg-sand-100 hover:text-ink-900 transition-colors"
             >
               Sign out
             </button>
@@ -146,7 +152,7 @@ function MobileNav({
     <>
       <button
         type="button"
-        className="inline-flex items-center justify-center rounded-xl bg-sand-50 p-2 text-ink-900 ring-1 ring-inset ring-ink-100/60 transition-colors hover:bg-sand-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 motion-reduce:transition-none md:hidden"
+        className="inline-flex items-center justify-center rounded-lg p-2 text-ink-700 transition-colors hover:bg-sand-200/60 hover:text-ink-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 motion-reduce:transition-none md:hidden"
         aria-label={open ? 'Close menu' : 'Open menu'}
         aria-expanded={open}
         aria-controls={mobileNavId}
@@ -163,19 +169,22 @@ function MobileNav({
         )}
       >
         <Container className="py-3">
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-0.5">
             <NavItem to="/" label="Home" onNavigate={close} />
             <NavItem to="/map" label="Explore Map" onNavigate={close} />
-            <NavItem to="/add-review" label="Add Review" onNavigate={close} />
+            <NavItem to="/add-review" label="Add a Review" onNavigate={close} />
             <NavItem to="/about" label="About" onNavigate={close} />
-            <hr className="my-1 border-ink-100/60" />
+            <hr className="my-2 border-ink-100/60" />
             {user ? (
               <>
                 <NavItem to="/account" label="My Account" onNavigate={close} />
                 <button
                   type="button"
-                  onClick={async () => { close(); await signOut() }}
-                  className="rounded-xl px-3 py-2 text-left text-sm font-semibold text-ink-800 hover:bg-sand-50 hover:text-ink-900 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                  onClick={async () => {
+                    close()
+                    await signOut()
+                  }}
+                  className="rounded-lg px-3 py-1.5 text-left text-sm font-medium text-ink-700 hover:bg-sand-200/50 hover:text-ink-900 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                 >
                   Sign out
                 </button>
@@ -195,35 +204,33 @@ export default function Navbar() {
   const { user, signOut } = useAuth()
 
   return (
-    <header className="sticky top-0 z-40 border-b border-ink-100/60 bg-sand-100/85 backdrop-blur">
-      <Container className="flex h-16 items-center justify-between gap-4">
+    <header className="sticky top-0 z-40 border-b border-ink-100/60 bg-sand-100/90 backdrop-blur-md">
+      <Container className="flex h-14 items-center justify-between gap-4 py-0">
         <Link
           to="/"
-          className="flex items-center gap-3 no-underline focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+          className="flex items-center no-underline focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded-lg"
           aria-label="NeuroMap — Home"
         >
-          <img
-            src="/logo.png"
-            alt=""
-            className="h-9 w-9 rounded-xl bg-sand-50 p-1 shadow-soft"
-            width={36}
-            height={36}
-            loading="eager"
-          />
-          <div className="leading-tight">
-            <div className="text-sm font-semibold text-ink-900">NeuroMap</div>
-            <div className="text-xs text-ink-700">Sensory-friendly planning</div>
+          <div className="h-12 w-24 overflow-hidden rounded-lg">
+            <img
+              src="/logo.png"
+              alt="NeuroMap"
+              className="-translate-y-6 h-24 w-24"
+              width={96}
+              height={96}
+              loading="eager"
+            />
           </div>
         </Link>
 
-        <nav aria-label="Primary" className="hidden items-center gap-1 md:flex">
+        <nav aria-label="Primary" className="hidden items-center gap-0.5 md:flex">
           <NavItem to="/" label="Home" />
           <NavItem to="/map" label="Explore Map" />
-          <NavItem to="/add-review" label="Add Review" />
+          <NavItem to="/add-review" label="Add a Review" />
           <NavItem to="/about" label="About" />
         </nav>
 
-        <div className="hidden md:flex items-center">
+        <div className="hidden md:flex items-center gap-3">
           <UserMenu />
         </div>
 

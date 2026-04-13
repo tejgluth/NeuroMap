@@ -1,4 +1,4 @@
-import { AlertCircle } from 'lucide-react'
+import { AlertCircle, CheckCircle2 } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
@@ -9,7 +9,6 @@ import Badge from '../components/ui/Badge'
 import { Button, ButtonLink } from '../components/ui/Button'
 import Card from '../components/ui/Card'
 import Container from '../components/ui/Container'
-import SectionHeading from '../components/ui/SectionHeading'
 import { CATEGORIES } from '../data/categories'
 import { RATING_DIMENSIONS } from '../data/ratings'
 import { TAGS } from '../data/tags'
@@ -67,6 +66,22 @@ function validateReview(input: {
   return errors
 }
 
+function FormSection({ title, hint, children }: { title: string; hint?: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <div className="text-sm font-semibold text-ink-900">{title}</div>
+      {hint && <p className="mt-1 text-xs leading-relaxed text-ink-500">{hint}</p>}
+      <div className="mt-3">{children}</div>
+    </div>
+  )
+}
+
+const inputClass =
+  'w-full rounded-xl border border-ink-100/60 bg-sand-50 px-3.5 py-2.5 text-sm text-ink-900 placeholder:text-ink-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition-colors'
+
+const selectClass =
+  'w-full rounded-xl border border-ink-100/60 bg-sand-50 px-3.5 py-2.5 text-sm text-ink-900 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition-colors'
+
 export default function AddReviewPage() {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
@@ -93,7 +108,6 @@ export default function AddReviewPage() {
 
   const unlistedReviews = useLocalUnlistedPlaceReviews()
 
-  // Find selected DB place by slug
   const selectedPlace = useMemo(
     () => dbPlaces.find((p) => p.slug === placeSlug) ?? null,
     [dbPlaces, placeSlug],
@@ -192,7 +206,6 @@ export default function AddReviewPage() {
         return
       }
 
-      // Unlisted place — stays in localStorage
       const created = addLocalUnlistedPlaceReview({
         placeName: customPlaceName.trim(),
         categoryId: customCategory as CategoryId,
@@ -219,424 +232,485 @@ export default function AddReviewPage() {
   }
 
   return (
-    <div className="py-10 sm:py-12">
+    <div className="py-8 sm:py-12">
       <Container>
-        <SectionHeading
-          eyebrow="Add a review"
-          title="Share what the environment felt like"
-          description="Choose a listed place or add a note for somewhere not on the map yet."
-        />
+        <div className="mb-8">
+          <div className="text-xs font-semibold uppercase tracking-wider text-brand-700">Share your experience</div>
+          <h1 className="mt-2 text-2xl font-semibold tracking-tight text-ink-900 sm:text-3xl">
+            Add a sensory review
+          </h1>
+          <p className="mt-2 text-ink-600">
+            Describe what the environment felt like. Specific details help other families plan.
+          </p>
+        </div>
 
-        <div className="mt-8 grid gap-4 lg:grid-cols-12 lg:items-start">
-          <Card className="p-6 lg:col-span-7">
-            <form className="grid gap-5" onSubmit={handleSubmit}>
-              {submitError ? (
-                <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
-                  <div className="flex items-start gap-2">
-                    <AlertCircle className="mt-0.5 h-4 w-4" aria-hidden="true" />
-                    <div>{submitError}</div>
+        <div className="grid gap-6 lg:grid-cols-12 lg:items-start">
+          <div className="lg:col-span-7">
+            <Card className="divide-y divide-ink-100/60">
+              <form className="divide-y divide-ink-100/60" onSubmit={handleSubmit}>
+                {/* Submit error */}
+                {submitError && (
+                  <div className="p-5">
+                    <div className="flex items-start gap-2.5 rounded-xl border border-red-200 bg-red-50 px-4 py-3.5 text-sm text-red-800">
+                      <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+                      {submitError}
+                    </div>
                   </div>
-                </div>
-              ) : null}
+                )}
 
-              {savedMessage ? (
-                <div className="rounded-2xl border border-brand-200/60 bg-brand-50 p-4 text-sm text-ink-800">
-                  <div className="font-semibold text-ink-900">Review saved</div>
-                  <div className="mt-1 leading-relaxed">{savedMessage}</div>
-                </div>
-              ) : null}
-
-              <div className="rounded-2xl bg-sand-100 p-4">
-                <div className="text-sm font-semibold text-ink-900">Which place?</div>
-                <p className="mt-1 text-sm leading-relaxed text-ink-800">
-                  If the place is not on the map yet, you can still add a note for it.
-                </p>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  <Button
-                    type="button"
-                    variant={reviewMode === 'listed' ? 'secondary' : 'ghost'}
-                    onClick={() => switchMode('listed')}
-                  >
-                    Review a listed place
-                  </Button>
-                  <Button
-                    type="button"
-                    variant={reviewMode === 'unlisted' ? 'secondary' : 'ghost'}
-                    onClick={() => switchMode('unlisted')}
-                  >
-                    Place not listed yet
-                  </Button>
-                </div>
-              </div>
-
-              {reviewMode === 'listed' ? (
-                <label className="grid gap-1 text-sm">
-                  <span className="text-xs font-semibold uppercase tracking-wide text-ink-700">Place</span>
-                  <select
-                    value={placeSlug}
-                    disabled={placesLoading}
-                    onChange={(event) => {
-                      const next = event.target.value
-                      setSearchParams(
-                        (prev) => {
-                          const params = new URLSearchParams(prev)
-                          if (next) params.set('place', next)
-                          else params.delete('place')
-                          return params
-                        },
-                        { replace: true },
-                      )
-                    }}
-                    className="w-full rounded-xl border-ink-100/60 bg-sand-50 text-sm text-ink-900 focus:border-brand-500 focus:ring-brand-500 disabled:opacity-60"
-                  >
-                    <option value="">{placesLoading ? 'Loading places…' : 'Choose a place...'}</option>
-                    {!placesLoading && (
-                      <optgroup label="Places near La Jolla">
-                        {placesForSelect.map((p) => (
-                          <option key={p.id} value={p.slug}>
-                            {p.name}
-                          </option>
-                        ))}
-                      </optgroup>
-                    )}
-                  </select>
-                  {errors.placeId ? <span className="text-xs font-semibold text-red-800">{errors.placeId}</span> : null}
-                </label>
-              ) : (
-                <div className="grid gap-4 rounded-2xl border border-ink-100/60 bg-sand-50 p-5">
-                  <div className="text-sm font-semibold text-ink-900">Place details</div>
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <label className="grid gap-1 text-sm sm:col-span-2">
-                      <span className="text-xs font-semibold uppercase tracking-wide text-ink-700">Place name</span>
-                      <input
-                        value={customPlaceName}
-                        onChange={(event) => setCustomPlaceName(event.target.value)}
-                        placeholder="Example: Small Steps Hair Studio"
-                        className="w-full rounded-xl border-ink-100/60 bg-white text-sm text-ink-900 placeholder:text-ink-700 focus:border-brand-500 focus:ring-brand-500"
-                      />
-                      {errors.customPlaceName ? (
-                        <span className="text-xs font-semibold text-red-800">{errors.customPlaceName}</span>
-                      ) : null}
-                    </label>
-
-                    <label className="grid gap-1 text-sm">
-                      <span className="text-xs font-semibold uppercase tracking-wide text-ink-700">Category</span>
-                      <select
-                        value={customCategory}
-                        onChange={(event) => setCustomCategory(event.target.value as CategoryId | '')}
-                        className="w-full rounded-xl border-ink-100/60 bg-white text-sm text-ink-900 focus:border-brand-500 focus:ring-brand-500"
-                      >
-                        <option value="">Choose...</option>
-                        {CATEGORIES.map((category) => (
-                          <option key={category.id} value={category.id}>
-                            {category.label}
-                          </option>
-                        ))}
-                      </select>
-                      {errors.customCategory ? (
-                        <span className="text-xs font-semibold text-red-800">{errors.customCategory}</span>
-                      ) : null}
-                    </label>
-
-                    <label className="grid gap-1 text-sm">
-                      <span className="text-xs font-semibold uppercase tracking-wide text-ink-700">Address or area (optional)</span>
-                      <input
-                        value={customAddress}
-                        onChange={(event) => setCustomAddress(event.target.value)}
-                        placeholder="Example: Near La Jolla Blvd and Pearl St"
-                        className="w-full rounded-xl border-ink-100/60 bg-white text-sm text-ink-900 placeholder:text-ink-700 focus:border-brand-500 focus:ring-brand-500"
-                      />
-                    </label>
+                {/* Saved message */}
+                {savedMessage && (
+                  <div className="p-5">
+                    <div className="flex items-start gap-2.5 rounded-xl border border-brand-200 bg-brand-50 px-4 py-3.5 text-sm text-brand-800">
+                      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+                      {savedMessage}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              <div className="grid gap-4 sm:grid-cols-2">
-                <label className="grid gap-1 text-sm">
-                  <span className="text-xs font-semibold uppercase tracking-wide text-ink-700">Your name (optional)</span>
-                  <input
-                    value={displayName}
-                    onChange={(event) => setDisplayName(event.target.value)}
-                    placeholder={profile?.display_name ?? 'Anonymous'}
-                    maxLength={80}
-                    className="w-full rounded-xl border-ink-100/60 bg-sand-50 text-sm text-ink-900 placeholder:text-ink-700 focus:border-brand-500 focus:ring-brand-500"
-                  />
-                  <span className="text-xs text-ink-700">
-                    {user ? 'Defaults to your account display name.' : 'Leave blank to post as "Anonymous".'}
-                  </span>
-                </label>
-
-                <label className="grid gap-1 text-sm">
-                  <span className="text-xs font-semibold uppercase tracking-wide text-ink-700">Visit time</span>
-                  <select
-                    value={visitTime}
-                    onChange={(event) => setVisitTime(event.target.value as VisitTime | '')}
-                    className="w-full rounded-xl border-ink-100/60 bg-sand-50 text-sm text-ink-900 focus:border-brand-500 focus:ring-brand-500"
+                {/* Place selection */}
+                <div className="p-6">
+                  <FormSection
+                    title="Which place?"
+                    hint="If the place isn't on the map yet, you can still add a note for it."
                   >
-                    <option value="">Choose...</option>
-                    {VISIT_TIMES.map((time) => (
-                      <option key={time} value={time}>
-                        {time}
-                      </option>
-                    ))}
-                  </select>
-                  {errors.visitTime ? <span className="text-xs font-semibold text-red-800">{errors.visitTime}</span> : null}
-                </label>
-              </div>
-
-              <label className="grid gap-1 text-sm">
-                <span className="text-xs font-semibold uppercase tracking-wide text-ink-700">Child age range (optional)</span>
-                <select
-                  value={childAgeRange}
-                  onChange={(event) => setChildAgeRange(event.target.value as ChildAgeRange | '')}
-                  className="w-full rounded-xl border-ink-100/60 bg-sand-50 text-sm text-ink-900 focus:border-brand-500 focus:ring-brand-500"
-                >
-                  <option value="">Prefer not to say</option>
-                  {AGE_RANGES.map((range) => (
-                    <option key={range} value={range}>
-                      {range}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              <div className="rounded-2xl bg-sand-100 p-4">
-                <div className="text-sm font-semibold text-ink-900">Ratings (1–5)</div>
-                <p className="mt-1 text-sm leading-relaxed text-ink-800">
-                  Higher is generally calmer or more accessible for sensory-sensitive families.
-                </p>
-              </div>
-
-              <div className="grid gap-5">
-                <RatingRadioGroup
-                  name="overall"
-                  label="Overall Autism-Friendliness"
-                  description={ratingDescriptions.get('overall') ?? 'Overall'}
-                  value={ratings.overall}
-                  onChange={(value) => setRatings((current) => ({ ...current, overall: value }))}
-                />
-
-                <div className="grid gap-5 sm:grid-cols-2">
-                  <RatingRadioGroup
-                    name="noise"
-                    label="Noise Level"
-                    description={ratingDescriptions.get('noise') ?? 'Noise'}
-                    value={ratings.noise}
-                    onChange={(value) => setRatings((current) => ({ ...current, noise: value }))}
-                  />
-                  <RatingRadioGroup
-                    name="crowdedness"
-                    label="Crowdedness"
-                    description={ratingDescriptions.get('crowdedness') ?? 'Crowdedness'}
-                    value={ratings.crowdedness}
-                    onChange={(value) => setRatings((current) => ({ ...current, crowdedness: value }))}
-                  />
-                  <RatingRadioGroup
-                    name="lighting"
-                    label="Lighting / Sensory Stimuli"
-                    description={ratingDescriptions.get('lighting') ?? 'Lighting'}
-                    value={ratings.lighting}
-                    onChange={(value) => setRatings((current) => ({ ...current, lighting: value }))}
-                  />
-                  <RatingRadioGroup
-                    name="staffHospitality"
-                    label="Staff Hospitality"
-                    description={ratingDescriptions.get('staffHospitality') ?? 'Staff'}
-                    value={ratings.staffHospitality}
-                    onChange={(value) => setRatings((current) => ({ ...current, staffHospitality: value }))}
-                  />
-                  <RatingRadioGroup
-                    name="parking"
-                    label="Parking Accessibility"
-                    description={ratingDescriptions.get('parking') ?? 'Parking'}
-                    value={ratings.parking}
-                    onChange={(value) => setRatings((current) => ({ ...current, parking: value }))}
-                  />
-                  <RatingRadioGroup
-                    name="navigation"
-                    label="Navigation"
-                    description={ratingDescriptions.get('navigation') ?? 'Navigation'}
-                    value={ratings.navigation}
-                    onChange={(value) => setRatings((current) => ({ ...current, navigation: value }))}
-                  />
-                  <RatingRadioGroup
-                    name="elevators"
-                    label="Elevators"
-                    description={ratingDescriptions.get('elevators') ?? 'Elevators'}
-                    value={ratings.elevators}
-                    onChange={(value) => setRatings((current) => ({ ...current, elevators: value }))}
-                  />
-                  <RatingRadioGroup
-                    name="stairs"
-                    label="Stairs"
-                    description={ratingDescriptions.get('stairs') ?? 'Stairs'}
-                    value={ratings.stairs}
-                    onChange={(value) => setRatings((current) => ({ ...current, stairs: value }))}
-                  />
-                </div>
-              </div>
-
-              <fieldset className="grid gap-2">
-                <legend className="text-sm font-semibold text-ink-900">
-                  Would you recommend it for sensory-sensitive families?
-                </legend>
-                <div className="flex flex-wrap gap-2">
-                  {(['yes', 'no'] as const).map((value) => (
-                    <label
-                      key={value}
-                      className={`cursor-pointer rounded-xl px-4 py-2 text-sm font-semibold ring-1 ring-inset transition-colors focus-within:ring-2 focus-within:ring-brand-500 motion-reduce:transition-none ${
-                        recommend === value
-                          ? 'bg-brand-600 text-sand-50 ring-brand-600/20'
-                          : 'bg-sand-50 text-ink-900 ring-ink-100/60 hover:bg-sand-100'
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        name="recommend"
-                        value={value}
-                        checked={recommend === value}
-                        onChange={() => setRecommend(value)}
-                        className="sr-only"
-                      />
-                      {value === 'yes' ? 'Yes' : 'No'}
-                    </label>
-                  ))}
-                </div>
-                {errors.recommend ? <span className="text-xs font-semibold text-red-800">{errors.recommend}</span> : null}
-              </fieldset>
-
-              <fieldset className="grid gap-2">
-                <legend className="text-sm font-semibold text-ink-900">Tags (optional)</legend>
-                <p className="text-xs leading-relaxed text-ink-700">Select any notes that match your experience.</p>
-                <div className="flex flex-wrap gap-2">
-                  {TAGS.map((tag) => {
-                    const checked = tags.includes(tag.id)
-                    return (
-                      <label
-                        key={tag.id}
-                        className={`cursor-pointer rounded-full px-3 py-1.5 text-xs font-semibold ring-1 ring-inset transition-colors focus-within:ring-2 focus-within:ring-brand-500 motion-reduce:transition-none ${
-                          checked
-                            ? 'bg-brand-600 text-sand-50 ring-brand-600/20'
-                            : 'bg-sand-50 text-ink-900 ring-ink-100/60 hover:bg-sand-100'
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => switchMode('listed')}
+                        className={`rounded-lg px-3.5 py-2 text-sm font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 ${
+                          reviewMode === 'listed'
+                            ? 'bg-ink-900 text-sand-50'
+                            : 'bg-sand-100 text-ink-700 hover:bg-sand-200'
                         }`}
                       >
-                        <input
-                          type="checkbox"
-                          checked={checked}
-                          onChange={() =>
-                            setTags((current) => (checked ? current.filter((id) => id !== tag.id) : [...current, tag.id]))
-                          }
-                          className="sr-only"
-                        />
-                        {tag.label}
-                      </label>
-                    )
-                  })}
+                        Listed place
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => switchMode('unlisted')}
+                        className={`rounded-lg px-3.5 py-2 text-sm font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 ${
+                          reviewMode === 'unlisted'
+                            ? 'bg-ink-900 text-sand-50'
+                            : 'bg-sand-100 text-ink-700 hover:bg-sand-200'
+                        }`}
+                      >
+                        Not listed yet
+                      </button>
+                    </div>
+
+                    {reviewMode === 'listed' ? (
+                      <div className="mt-3">
+                        <select
+                          value={placeSlug}
+                          disabled={placesLoading}
+                          onChange={(event) => {
+                            const next = event.target.value
+                            setSearchParams(
+                              (prev) => {
+                                const params = new URLSearchParams(prev)
+                                if (next) params.set('place', next)
+                                else params.delete('place')
+                                return params
+                              },
+                              { replace: true },
+                            )
+                          }}
+                          className={selectClass + ' disabled:opacity-60'}
+                        >
+                          <option value="">{placesLoading ? 'Loading places…' : 'Choose a place…'}</option>
+                          {!placesLoading && (
+                            <optgroup label="Places near La Jolla">
+                              {placesForSelect.map((p) => (
+                                <option key={p.id} value={p.slug}>
+                                  {p.name}
+                                </option>
+                              ))}
+                            </optgroup>
+                          )}
+                        </select>
+                        {errors.placeId && (
+                          <p className="mt-1.5 text-xs font-semibold text-red-700">{errors.placeId}</p>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="mt-4 grid gap-4 rounded-xl border border-ink-100/60 bg-sand-100 p-4 sm:grid-cols-2">
+                        <label className="grid gap-1.5 sm:col-span-2">
+                          <span className="text-xs font-semibold text-ink-600">Place name</span>
+                          <input
+                            value={customPlaceName}
+                            onChange={(e) => setCustomPlaceName(e.target.value)}
+                            placeholder="e.g. Small Steps Hair Studio"
+                            className={inputClass}
+                          />
+                          {errors.customPlaceName && (
+                            <p className="text-xs font-semibold text-red-700">{errors.customPlaceName}</p>
+                          )}
+                        </label>
+                        <label className="grid gap-1.5">
+                          <span className="text-xs font-semibold text-ink-600">Category</span>
+                          <select
+                            value={customCategory}
+                            onChange={(e) => setCustomCategory(e.target.value as CategoryId | '')}
+                            className={selectClass}
+                          >
+                            <option value="">Choose…</option>
+                            {CATEGORIES.map((c) => (
+                              <option key={c.id} value={c.id}>{c.label}</option>
+                            ))}
+                          </select>
+                          {errors.customCategory && (
+                            <p className="text-xs font-semibold text-red-700">{errors.customCategory}</p>
+                          )}
+                        </label>
+                        <label className="grid gap-1.5">
+                          <span className="text-xs font-semibold text-ink-600">Address or area (optional)</span>
+                          <input
+                            value={customAddress}
+                            onChange={(e) => setCustomAddress(e.target.value)}
+                            placeholder="e.g. Near La Jolla Blvd"
+                            className={inputClass}
+                          />
+                        </label>
+                      </div>
+                    )}
+                  </FormSection>
                 </div>
-              </fieldset>
 
-              <label className="grid gap-1 text-sm">
-                <span className="text-sm font-semibold text-ink-900">Your review</span>
-                <span className="text-xs leading-relaxed text-ink-700">
-                  What felt manageable? What was hard? Any tips for timing, entry, or accommodations?
-                </span>
-                <textarea
-                  value={text}
-                  onChange={(event) => setText(event.target.value)}
-                  rows={6}
-                  maxLength={4000}
-                  placeholder="Example: We went at opening and it was calm. The music got louder around 10am. Staff were kind when we asked to sit away from speakers..."
-                  className="w-full rounded-xl border-ink-100/60 bg-sand-50 text-sm text-ink-900 placeholder:text-ink-700 focus:border-brand-500 focus:ring-brand-500"
-                />
-                {errors.text ? <span className="text-xs font-semibold text-red-800">{errors.text}</span> : null}
-              </label>
+                {/* Visitor info */}
+                <div className="grid gap-5 p-6 sm:grid-cols-2">
+                  <label className="grid gap-1.5">
+                    <span className="text-xs font-semibold text-ink-600">Your name (optional)</span>
+                    <input
+                      value={displayName}
+                      onChange={(e) => setDisplayName(e.target.value)}
+                      placeholder={profile?.display_name ?? 'Anonymous'}
+                      maxLength={80}
+                      className={inputClass}
+                    />
+                    <span className="text-xs text-ink-400">
+                      {user ? 'Defaults to your display name.' : 'Leave blank to post as "Anonymous".'}
+                    </span>
+                  </label>
 
-              <div className="flex flex-wrap items-center gap-3 pt-2">
-                <Button type="submit" variant="secondary" size="lg" disabled={!canSubmit || submitting}>
-                  {submitting ? 'Saving…' : reviewMode === 'listed' ? 'Save review' : 'Save note'}
-                </Button>
-                {reviewMode === 'listed' && placeSlug ? (
-                  <ButtonLink to={`/places/${placeSlug}`} variant="ghost" size="lg">
-                    Preview place page
-                  </ButtonLink>
-                ) : null}
-              </div>
-            </form>
-          </Card>
+                  <div className="grid gap-4">
+                    <label className="grid gap-1.5">
+                      <span className="text-xs font-semibold text-ink-600">When did you visit?</span>
+                      <select
+                        value={visitTime}
+                        onChange={(e) => setVisitTime(e.target.value as VisitTime | '')}
+                        className={selectClass}
+                      >
+                        <option value="">Choose…</option>
+                        {VISIT_TIMES.map((t) => (
+                          <option key={t} value={t}>{t}</option>
+                        ))}
+                      </select>
+                      {errors.visitTime && (
+                        <p className="text-xs font-semibold text-red-700">{errors.visitTime}</p>
+                      )}
+                    </label>
 
+                    <label className="grid gap-1.5">
+                      <span className="text-xs font-semibold text-ink-600">Child age range (optional)</span>
+                      <select
+                        value={childAgeRange}
+                        onChange={(e) => setChildAgeRange(e.target.value as ChildAgeRange | '')}
+                        className={selectClass}
+                      >
+                        <option value="">Prefer not to say</option>
+                        {AGE_RANGES.map((r) => (
+                          <option key={r} value={r}>{r}</option>
+                        ))}
+                      </select>
+                    </label>
+                  </div>
+                </div>
+
+                {/* Ratings */}
+                <div className="p-6">
+                  <div className="text-sm font-semibold text-ink-900">Sensory ratings (1–5)</div>
+                  <p className="mt-1 text-xs leading-relaxed text-ink-500">
+                    Higher means calmer or more accessible. Rate each dimension based on your visit.
+                  </p>
+
+                  <div className="mt-5 grid gap-5">
+                    <RatingRadioGroup
+                      name="overall"
+                      label="Overall autism-friendliness"
+                      description={ratingDescriptions.get('overall') ?? ''}
+                      value={ratings.overall}
+                      onChange={(v) => setRatings((r) => ({ ...r, overall: v }))}
+                    />
+
+                    <div className="grid gap-5 sm:grid-cols-2">
+                      <RatingRadioGroup
+                        name="noise"
+                        label="Noise level"
+                        description={ratingDescriptions.get('noise') ?? ''}
+                        value={ratings.noise}
+                        onChange={(v) => setRatings((r) => ({ ...r, noise: v }))}
+                      />
+                      <RatingRadioGroup
+                        name="crowdedness"
+                        label="Crowdedness"
+                        description={ratingDescriptions.get('crowdedness') ?? ''}
+                        value={ratings.crowdedness}
+                        onChange={(v) => setRatings((r) => ({ ...r, crowdedness: v }))}
+                      />
+                      <RatingRadioGroup
+                        name="lighting"
+                        label="Lighting & visual stimuli"
+                        description={ratingDescriptions.get('lighting') ?? ''}
+                        value={ratings.lighting}
+                        onChange={(v) => setRatings((r) => ({ ...r, lighting: v }))}
+                      />
+                      <RatingRadioGroup
+                        name="staffHospitality"
+                        label="Staff hospitality"
+                        description={ratingDescriptions.get('staffHospitality') ?? ''}
+                        value={ratings.staffHospitality}
+                        onChange={(v) => setRatings((r) => ({ ...r, staffHospitality: v }))}
+                      />
+                      <RatingRadioGroup
+                        name="parking"
+                        label="Parking & arrival"
+                        description={ratingDescriptions.get('parking') ?? ''}
+                        value={ratings.parking}
+                        onChange={(v) => setRatings((r) => ({ ...r, parking: v }))}
+                      />
+                      <RatingRadioGroup
+                        name="navigation"
+                        label="Navigation & layout"
+                        description={ratingDescriptions.get('navigation') ?? ''}
+                        value={ratings.navigation}
+                        onChange={(v) => setRatings((r) => ({ ...r, navigation: v }))}
+                      />
+                      <RatingRadioGroup
+                        name="elevators"
+                        label="Elevator access"
+                        description={ratingDescriptions.get('elevators') ?? ''}
+                        value={ratings.elevators}
+                        onChange={(v) => setRatings((r) => ({ ...r, elevators: v }))}
+                      />
+                      <RatingRadioGroup
+                        name="stairs"
+                        label="Stairs & step-free options"
+                        description={ratingDescriptions.get('stairs') ?? ''}
+                        value={ratings.stairs}
+                        onChange={(v) => setRatings((r) => ({ ...r, stairs: v }))}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Recommendation */}
+                <div className="p-6">
+                  <fieldset>
+                    <legend className="text-sm font-semibold text-ink-900">
+                      Would you recommend it for sensory-sensitive families?
+                    </legend>
+                    <div className="mt-3 flex gap-2.5">
+                      {(['yes', 'no'] as const).map((val) => (
+                        <label
+                          key={val}
+                          className={`cursor-pointer rounded-xl px-5 py-2.5 text-sm font-semibold ring-1 ring-inset transition-colors focus-within:ring-2 focus-within:ring-brand-500 motion-reduce:transition-none ${
+                            recommend === val
+                              ? 'bg-brand-600 text-sand-50 ring-brand-600/20'
+                              : 'bg-sand-100 text-ink-800 ring-ink-100/60 hover:bg-sand-200'
+                          }`}
+                        >
+                          <input
+                            type="radio"
+                            name="recommend"
+                            value={val}
+                            checked={recommend === val}
+                            onChange={() => setRecommend(val)}
+                            className="sr-only"
+                          />
+                          {val === 'yes' ? "Yes, I'd recommend it" : 'Not for us'}
+                        </label>
+                      ))}
+                    </div>
+                    {errors.recommend && (
+                      <p className="mt-1.5 text-xs font-semibold text-red-700">{errors.recommend}</p>
+                    )}
+                  </fieldset>
+                </div>
+
+                {/* Tags */}
+                <div className="p-6">
+                  <fieldset>
+                    <legend className="text-sm font-semibold text-ink-900">Tags <span className="font-normal text-ink-400">(optional)</span></legend>
+                    <p className="mt-1 text-xs text-ink-500">Select any that match your experience.</p>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {TAGS.map((tag) => {
+                        const checked = tags.includes(tag.id)
+                        return (
+                          <label
+                            key={tag.id}
+                            className={`cursor-pointer rounded-full px-3 py-1.5 text-xs font-semibold ring-1 ring-inset transition-colors focus-within:ring-2 focus-within:ring-brand-500 motion-reduce:transition-none ${
+                              checked
+                                ? 'bg-brand-600 text-sand-50 ring-brand-600/20'
+                                : 'bg-sand-100 text-ink-700 ring-ink-100/60 hover:bg-sand-200'
+                            }`}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={checked}
+                              onChange={() =>
+                                setTags((curr) =>
+                                  checked ? curr.filter((id) => id !== tag.id) : [...curr, tag.id],
+                                )
+                              }
+                              className="sr-only"
+                            />
+                            {tag.label}
+                          </label>
+                        )
+                      })}
+                    </div>
+                  </fieldset>
+                </div>
+
+                {/* Review text */}
+                <div className="p-6">
+                  <label className="grid gap-1.5">
+                    <span className="text-sm font-semibold text-ink-900">Your review</span>
+                    <span className="text-xs text-ink-500">
+                      What felt manageable? What was hard? Any tips for timing, entry, or accommodations?
+                    </span>
+                    <textarea
+                      value={text}
+                      onChange={(e) => setText(e.target.value)}
+                      rows={6}
+                      maxLength={4000}
+                      placeholder="e.g. We went at opening and it was calm. Music got louder around 10am. Staff were kind when we asked to sit away from speakers…"
+                      className={inputClass + ' resize-none'}
+                    />
+                    <div className="flex items-center justify-between">
+                      {errors.text && (
+                        <p className="text-xs font-semibold text-red-700">{errors.text}</p>
+                      )}
+                      <p className="ml-auto text-xs text-ink-400 tabular-nums">
+                        {text.length}/4000
+                      </p>
+                    </div>
+                  </label>
+                </div>
+
+                {/* Submit */}
+                <div className="flex flex-wrap items-center gap-3 p-6">
+                  {reviewMode === 'listed' && !user ? (
+                    <>
+                      <ButtonLink
+                        to={`/sign-in?returnTo=${encodeURIComponent('/add-review' + (placeSlug ? `?place=${placeSlug}` : ''))}`}
+                        variant="secondary"
+                        size="lg"
+                      >
+                        Sign in to post review
+                      </ButtonLink>
+                      <span className="text-sm text-ink-500">
+                        An account is required to post reviews.
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <Button
+                        type="submit"
+                        variant="secondary"
+                        size="lg"
+                        disabled={!canSubmit || submitting}
+                      >
+                        {submitting ? 'Saving…' : reviewMode === 'listed' ? 'Save review' : 'Save note'}
+                      </Button>
+                      {reviewMode === 'listed' && placeSlug && (
+                        <ButtonLink to={`/places/${placeSlug}`} variant="ghost" size="lg">
+                          View place page
+                        </ButtonLink>
+                      )}
+                    </>
+                  )}
+                </div>
+              </form>
+            </Card>
+          </div>
+
+          {/* ── Sidebar ── */}
           <div className="lg:col-span-5">
-            <Card className="p-6">
+            {/* Place preview */}
+            <Card className="p-5">
               <div className="text-sm font-semibold text-ink-900">Place preview</div>
 
               {reviewMode === 'listed' ? (
                 selectedPlace ? (
-                  <div className="mt-4 grid gap-3">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <CategoryBadge categoryId={selectedPlace.categoryId} />
-                    </div>
-                    <div className="text-lg font-semibold text-ink-900">{selectedPlace.name}</div>
-                    <div className="text-sm text-ink-700">{selectedPlace.address}</div>
-                    <p className="text-sm leading-relaxed text-ink-800">{selectedPlace.shortDescription}</p>
+                  <div className="mt-4 grid gap-2.5">
+                    <CategoryBadge categoryId={selectedPlace.categoryId} />
+                    <div className="text-base font-semibold text-ink-900">{selectedPlace.name}</div>
+                    <div className="text-sm text-ink-500">{selectedPlace.address}</div>
+                    <p className="text-sm leading-relaxed text-ink-600">{selectedPlace.shortDescription}</p>
                   </div>
                 ) : (
-                  <div className="mt-4 rounded-2xl bg-sand-100 p-4 text-sm text-ink-800">
-                    {placesLoading ? 'Loading places…' : 'Choose a listed place to preview it here.'}
-                  </div>
-                )
-              ) : isNonEmpty(customPlaceName) || customCategory || isNonEmpty(customAddress) ? (
-                <div className="mt-4 grid gap-3">
-                  {customCategory ? (
-                    <div className="flex flex-wrap items-center gap-2">
-                      <CategoryBadge categoryId={customCategory as CategoryId} />
-                    </div>
-                  ) : null}
-                  <div className="text-lg font-semibold text-ink-900">
-                    {isNonEmpty(customPlaceName) ? customPlaceName.trim() : 'Your place name'}
-                  </div>
-                  {isNonEmpty(customAddress) ? <div className="text-sm text-ink-700">{customAddress.trim()}</div> : null}
-                  <p className="text-sm leading-relaxed text-ink-800">
-                    This note will appear in the saved notes section below.
+                  <p className="mt-3 text-sm text-ink-500">
+                    {placesLoading ? 'Loading places…' : 'Choose a place above to see a preview.'}
                   </p>
+                )
+              ) : isNonEmpty(customPlaceName) || customCategory ? (
+                <div className="mt-4 grid gap-2.5">
+                  {customCategory && <CategoryBadge categoryId={customCategory as CategoryId} />}
+                  <div className="text-base font-semibold text-ink-900">
+                    {isNonEmpty(customPlaceName) ? customPlaceName : 'Your place name'}
+                  </div>
+                  {isNonEmpty(customAddress) && (
+                    <div className="text-sm text-ink-500">{customAddress}</div>
+                  )}
+                  <p className="text-sm text-ink-500">This note will be saved locally.</p>
                 </div>
               ) : (
-                <div className="mt-4 rounded-2xl bg-sand-100 p-4 text-sm text-ink-800">
-                  Start typing the place name and category, and you'll see the preview here.
-                </div>
+                <p className="mt-3 text-sm text-ink-500">
+                  Fill in the place name and category above to see a preview.
+                </p>
               )}
             </Card>
 
-            <Card className="mt-4 p-6">
-              <div className="flex items-center justify-between gap-3">
+            {/* Saved notes */}
+            <Card className="mt-3 p-5">
+              <div className="flex items-center justify-between">
                 <div className="text-sm font-semibold text-ink-900">Your saved notes</div>
-                <Badge className="bg-sand-100">{unlistedReviews.length}</Badge>
+                <Badge className="bg-sand-100 text-ink-600">{unlistedReviews.length}</Badge>
               </div>
-              <p className="mt-2 text-sm leading-relaxed text-ink-800">
-                Notes you've added for places not on the map yet.
+              <p className="mt-1.5 text-xs leading-relaxed text-ink-500">
+                Notes for places not yet on the map. Stored in your browser.
               </p>
 
               {unlistedReviews.length > 0 ? (
-                <div className="mt-4 grid max-h-[36rem] gap-4 overflow-auto pr-1">
+                <div className="mt-4 grid max-h-96 gap-3 overflow-auto">
                   {unlistedReviews.map((review) => (
                     <UnlistedPlaceReviewCard key={review.id} review={review} />
                   ))}
                 </div>
               ) : (
-                <div className="mt-4 rounded-2xl bg-sand-100 p-4 text-sm text-ink-800">
-                  Add a note for a place not on the map yet. It'll show up here.
-                </div>
+                <p className="mt-3 text-xs text-ink-400">None yet.</p>
               )}
             </Card>
 
-            <Card className="mt-4 p-6">
-              <div className="text-sm font-semibold text-ink-900">Categories</div>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {CATEGORIES.map((category) => (
-                  <Badge key={category.id} className="bg-sand-100">
-                    {category.label}
-                  </Badge>
+            {/* Guidelines */}
+            <div className="mt-3 rounded-2xl border border-ink-100/60 bg-sand-100 p-5">
+              <div className="text-xs font-semibold text-ink-700 mb-2">What makes a helpful review</div>
+              <ul className="space-y-1.5">
+                {[
+                  'Describe specific sensory details, not just a score.',
+                  'Note the time and day if it changed the experience.',
+                  'Mention what helped: a staff accommodation, a quieter spot.',
+                  'Be honest. Families rely on honest information.',
+                ].map((item) => (
+                  <li key={item} className="flex gap-2 text-xs leading-relaxed text-ink-600">
+                    <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-brand-500" />
+                    {item}
+                  </li>
                 ))}
-              </div>
-            </Card>
+              </ul>
+            </div>
           </div>
         </div>
       </Container>

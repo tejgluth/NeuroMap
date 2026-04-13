@@ -1,21 +1,27 @@
-import { Link } from 'react-router-dom'
+import { MapPin } from 'lucide-react'
 
 import Container from '../components/ui/Container'
+import { ButtonLink } from '../components/ui/Button'
 
 export default function NotFoundPage() {
   return (
-    <div className="py-16">
+    <div className="py-24">
       <Container>
-        <div className="rounded-2xl border border-ink-100/60 bg-sand-50 p-8 shadow-card">
-          <h1 className="text-2xl font-semibold text-ink-900">Page not found</h1>
-          <p className="mt-2 text-ink-700">That page doesn’t exist.</p>
-          <div className="mt-6">
-            <Link
-              to="/"
-              className="rounded-xl bg-ink-900 px-4 py-2 text-sm font-semibold text-sand-50 no-underline shadow-soft transition-colors hover:bg-ink-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 motion-reduce:transition-none"
-            >
+        <div className="mx-auto max-w-md text-center">
+          <div className="mb-5 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-100 text-brand-700">
+            <MapPin className="h-7 w-7" aria-hidden="true" />
+          </div>
+          <h1 className="text-2xl font-semibold tracking-tight text-ink-900">Page not found</h1>
+          <p className="mt-2 text-ink-600">
+            We couldn't find that page. Try exploring the map or heading home.
+          </p>
+          <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
+            <ButtonLink to="/" variant="primary">
               Back to Home
-            </Link>
+            </ButtonLink>
+            <ButtonLink to="/map" variant="ghost">
+              Explore Map
+            </ButtonLink>
           </div>
         </div>
       </Container>

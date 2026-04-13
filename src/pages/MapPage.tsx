@@ -1,14 +1,10 @@
-import { Filter, Search, SlidersHorizontal } from 'lucide-react'
+import { RotateCcw, Search, SlidersHorizontal } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import PlaceMap, { type MapPlace } from '../components/map/PlaceMap'
 import CategoryBadge from '../components/places/CategoryBadge'
 import Container from '../components/ui/Container'
-import SectionHeading from '../components/ui/SectionHeading'
-import Card from '../components/ui/Card'
-import RatingMeter from '../components/ui/RatingMeter'
-import Badge from '../components/ui/Badge'
 import { CATEGORIES } from '../data/categories'
 import type { CategoryId } from '../types'
 import { cn } from '../lib/cn'
@@ -23,10 +19,22 @@ function numberInput(value: string) {
 
 function PlaceSkeleton() {
   return (
-    <div className="grid gap-3">
-      {[0, 1, 2].map((i) => (
-        <div key={i} className="animate-pulse rounded-2xl bg-sand-100 h-24" />
+    <div className="grid gap-2.5 p-3">
+      {[0, 1, 2, 3].map((i) => (
+        <div key={i} className="animate-pulse rounded-xl bg-sand-200 h-20" />
       ))}
+    </div>
+  )
+}
+
+function RatingPill({ value, label }: { value: number | null | undefined; label: string }) {
+  const has = typeof value === 'number' && Number.isFinite(value)
+  return (
+    <div className="flex items-center gap-1.5 text-xs text-ink-600">
+      <span className="font-medium">{label}</span>
+      <span className={cn('font-semibold tabular-nums', has ? 'text-ink-900' : 'text-ink-400')}>
+        {has ? (value as number).toFixed(1) : '—'}
+      </span>
     </div>
   )
 }
@@ -78,43 +86,73 @@ export default function MapPage() {
       }) as Array<MapPlace & { reviewCount: number }>
   }, [advanced, category, minCrowds, minNoise, minOverall, placesWithRatings, query])
 
-  return (
-    <div className="py-10 sm:py-12">
-      <Container>
-        <SectionHeading
-          eyebrow="Explore"
-          title="Find sensory-friendly places near La Jolla"
-          description="Browse places around La Jolla, filter by category or sensory ratings, and open any place for a full breakdown."
-        />
+  const hasFilters = query || category !== 'all' || minOverall > 0 || minNoise > 0 || minCrowds > 0
 
-        <div className="mt-8 grid gap-4 lg:grid-cols-12">
+  function resetFilters() {
+    setQuery('')
+    setCategory('all')
+    setMinOverall(0)
+    setMinNoise(0)
+    setMinCrowds(0)
+    setAdvanced(false)
+  }
+
+  return (
+    <div className="py-8 sm:py-12">
+      <Container>
+        <div className="mb-6">
+          <h1 className="text-2xl font-semibold tracking-tight text-ink-900 sm:text-3xl">
+            Sensory-friendly places near La Jolla
+          </h1>
+          <p className="mt-1.5 text-ink-600">
+            Browse and filter by category, noise level, or crowd density.
+          </p>
+        </div>
+
+        <div className="grid gap-4 lg:grid-cols-12">
+          {/* ── Sidebar ── */}
           <div className="lg:col-span-4">
-            <Card className="p-6">
-              <div className="flex items-center gap-2 text-sm font-semibold text-ink-900">
-                <Filter className="h-4 w-4 text-brand-700" aria-hidden="true" />
-                Filters
+            {/* Filters */}
+            <div className="rounded-2xl border border-ink-100/60 bg-sand-50 p-5 shadow-card">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 text-sm font-semibold text-ink-900">
+                  <SlidersHorizontal className="h-4 w-4 text-brand-600" aria-hidden="true" />
+                  Filters
+                </div>
+                {hasFilters && (
+                  <button
+                    type="button"
+                    onClick={resetFilters}
+                    className="inline-flex items-center gap-1 text-xs font-medium text-ink-500 hover:text-ink-800 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded"
+                  >
+                    <RotateCcw className="h-3 w-3" aria-hidden="true" />
+                    Reset
+                  </button>
+                )}
               </div>
 
-              <div className="mt-4 grid gap-3">
-                <label className="grid gap-1 text-sm">
-                  <span className="text-xs font-semibold uppercase tracking-wide text-ink-700">Search</span>
+              <div className="mt-4 grid gap-4">
+                {/* Search */}
+                <label className="grid gap-1.5">
+                  <span className="text-xs font-semibold text-ink-500 uppercase tracking-wide">Search</span>
                   <div className="relative">
-                    <Search className="pointer-events-none absolute left-3 top-2.5 h-4 w-4 text-ink-700" aria-hidden="true" />
+                    <Search className="pointer-events-none absolute left-3 top-2.5 h-4 w-4 text-ink-400" aria-hidden="true" />
                     <input
                       value={query}
                       onChange={(e) => setQuery(e.target.value)}
                       placeholder="Place name or address"
-                      className="w-full rounded-xl border-ink-100/60 bg-sand-50 pl-9 text-sm text-ink-900 placeholder:text-ink-700 focus:border-brand-500 focus:ring-brand-500"
+                      className="w-full rounded-xl border border-ink-100/60 bg-sand-100 py-2 pl-9 pr-3 text-sm text-ink-900 placeholder:text-ink-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition-colors"
                     />
                   </div>
                 </label>
 
-                <label className="grid gap-1 text-sm">
-                  <span className="text-xs font-semibold uppercase tracking-wide text-ink-700">Category</span>
+                {/* Category */}
+                <label className="grid gap-1.5">
+                  <span className="text-xs font-semibold text-ink-500 uppercase tracking-wide">Category</span>
                   <select
                     value={category}
                     onChange={(e) => setCategory(e.target.value as CategoryFilter)}
-                    className="w-full rounded-xl border-ink-100/60 bg-sand-50 text-sm text-ink-900 focus:border-brand-500 focus:ring-brand-500"
+                    className="w-full rounded-xl border border-ink-100/60 bg-sand-100 py-2 px-3 text-sm text-ink-900 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition-colors"
                   >
                     <option value="all">All categories</option>
                     {CATEGORIES.map((c) => (
@@ -125,12 +163,15 @@ export default function MapPage() {
                   </select>
                 </label>
 
-                <label className="grid gap-2 text-sm">
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="text-xs font-semibold uppercase tracking-wide text-ink-700">
+                {/* Min overall */}
+                <label className="grid gap-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-ink-500 uppercase tracking-wide">
                       Min. overall
                     </span>
-                    <span className="text-xs font-semibold text-ink-800 tabular-nums">{minOverall.toFixed(1)}</span>
+                    <span className="text-xs font-semibold tabular-nums text-ink-800">
+                      {minOverall > 0 ? minOverall.toFixed(1) : 'Any'}
+                    </span>
                   </div>
                   <input
                     type="range"
@@ -139,32 +180,32 @@ export default function MapPage() {
                     step={0.5}
                     value={minOverall}
                     onChange={(e) => setMinOverall(numberInput(e.target.value))}
-                    className="w-full accent-brand-700"
+                    className="w-full"
                     aria-label="Minimum overall rating"
                   />
                 </label>
 
+                {/* Advanced toggle */}
                 <button
                   type="button"
-                  className="mt-1 inline-flex items-center justify-between rounded-xl bg-sand-50 px-3 py-2 text-sm font-semibold text-ink-900 ring-1 ring-inset ring-ink-100/60 hover:bg-sand-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                   onClick={() => setAdvanced((v) => !v)}
+                  className="flex items-center justify-between rounded-xl border border-ink-100/60 bg-sand-100 px-3 py-2 text-sm font-medium text-ink-700 hover:bg-sand-200 hover:text-ink-900 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                   aria-expanded={advanced}
                 >
-                  <span className="inline-flex items-center gap-2">
-                    <SlidersHorizontal className="h-4 w-4 text-brand-700" aria-hidden="true" />
-                    More filters
-                  </span>
-                  <span className="text-xs text-ink-700">{advanced ? 'Hide' : 'Show'}</span>
+                  <span>More filters</span>
+                  <span className="text-xs text-ink-400">{advanced ? 'Hide' : 'Show'}</span>
                 </button>
 
-                {advanced ? (
-                  <div className="grid gap-3 rounded-2xl bg-sand-100 p-4">
-                    <label className="grid gap-2 text-sm">
-                      <div className="flex items-center justify-between gap-3">
-                        <span className="text-xs font-semibold uppercase tracking-wide text-ink-700">
-                          Quietness
+                {advanced && (
+                  <div className="grid gap-4 rounded-xl bg-sand-100 p-4">
+                    <label className="grid gap-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-semibold text-ink-500 uppercase tracking-wide">
+                          Min. quietness
                         </span>
-                        <span className="text-xs font-semibold text-ink-800 tabular-nums">{minNoise.toFixed(1)}</span>
+                        <span className="text-xs font-semibold tabular-nums text-ink-800">
+                          {minNoise > 0 ? minNoise.toFixed(1) : 'Any'}
+                        </span>
                       </div>
                       <input
                         type="range"
@@ -173,17 +214,18 @@ export default function MapPage() {
                         step={0.5}
                         value={minNoise}
                         onChange={(e) => setMinNoise(numberInput(e.target.value))}
-                        className="w-full accent-brand-700"
+                        className="w-full"
                         aria-label="Minimum noise rating"
                       />
                     </label>
-
-                    <label className="grid gap-2 text-sm">
-                      <div className="flex items-center justify-between gap-3">
-                        <span className="text-xs font-semibold uppercase tracking-wide text-ink-700">
-                          Spaciousness
+                    <label className="grid gap-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-semibold text-ink-500 uppercase tracking-wide">
+                          Min. spaciousness
                         </span>
-                        <span className="text-xs font-semibold text-ink-800 tabular-nums">{minCrowds.toFixed(1)}</span>
+                        <span className="text-xs font-semibold tabular-nums text-ink-800">
+                          {minCrowds > 0 ? minCrowds.toFixed(1) : 'Any'}
+                        </span>
                       </div>
                       <input
                         type="range"
@@ -192,127 +234,110 @@ export default function MapPage() {
                         step={0.5}
                         value={minCrowds}
                         onChange={(e) => setMinCrowds(numberInput(e.target.value))}
-                        className="w-full accent-brand-700"
+                        className="w-full"
                         aria-label="Minimum crowdedness rating"
                       />
                     </label>
                   </div>
-                ) : null}
-
-                <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                  <Badge className="bg-sand-100">{loading ? '…' : `${filtered.length} shown`}</Badge>
-                  <button
-                    type="button"
-                    className="text-xs font-semibold text-ink-800 underline decoration-brand-300 underline-offset-4 hover:decoration-brand-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-                    onClick={() => {
-                      setQuery('')
-                      setCategory('all')
-                      setMinOverall(0)
-                      setMinNoise(0)
-                      setMinCrowds(0)
-                      setAdvanced(false)
-                    }}
-                  >
-                    Reset
-                  </button>
-                </div>
+                )}
               </div>
-            </Card>
+            </div>
 
-            <div className="mt-4">
-              <Card className="overflow-hidden">
-                <div className="border-b border-ink-100/60 bg-sand-100 px-4 py-3">
-                  <div className="text-sm font-semibold text-ink-900">Places</div>
-                  <div className="mt-1 text-xs text-ink-700">Sorted by rating (if available), then review count.</div>
-                </div>
+            {/* Place list */}
+            <div className="mt-3 rounded-2xl border border-ink-100/60 bg-sand-50 shadow-card overflow-hidden">
+              <div className="flex items-center justify-between border-b border-ink-100/60 px-4 py-3">
+                <div className="text-sm font-semibold text-ink-900">Places</div>
+                <span className="rounded-full bg-sand-100 px-2.5 py-0.5 text-xs font-medium text-ink-600">
+                  {loading ? '…' : `${filtered.length}`}
+                </span>
+              </div>
 
-                <div className="max-h-[55dvh] overflow-auto p-3 lg:max-h-[70dvh]">
-                  {loading ? (
-                    <PlaceSkeleton />
-                  ) : error ? (
-                    <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
-                      Could not load places. Please refresh.
-                    </div>
-                  ) : filtered.length === 0 ? (
-                    <div className="rounded-2xl bg-sand-100 p-4 text-sm text-ink-800">
-                      No places match your filters. Try adjusting the sliders.
-                    </div>
-                  ) : (
-                    <div className="grid gap-3">
-                      {filtered.map((p) => (
-                        <button
-                          key={p.id}
-                          type="button"
-                          onClick={() => setActivePlaceId(p.id)}
-                          className={cn(
-                            'rounded-2xl border bg-sand-50 p-4 text-left shadow-sm transition-colors hover:bg-sand-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 motion-reduce:transition-none',
-                            activePlaceId === p.id ? 'border-brand-300 ring-1 ring-brand-300/60' : 'border-ink-100/60',
-                          )}
-                        >
-                          <div className="flex items-start justify-between gap-3">
-                            <div>
-                              <div className="text-sm font-semibold text-ink-900">{p.name}</div>
-                              <div className="mt-1 flex flex-wrap items-center gap-2">
-                                <CategoryBadge categoryId={p.categoryId} />
-                                <span className="text-xs text-ink-700">{p.address}</span>
-                              </div>
+              <div className="max-h-[52dvh] overflow-auto lg:max-h-[68dvh]">
+                {loading ? (
+                  <PlaceSkeleton />
+                ) : error ? (
+                  <div className="m-3 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+                    Could not load places. Please refresh.
+                  </div>
+                ) : filtered.length === 0 ? (
+                  <div className="p-6 text-center">
+                    <p className="text-sm font-medium text-ink-700">No places match your filters.</p>
+                    <button
+                      type="button"
+                      onClick={resetFilters}
+                      className="mt-3 text-xs font-semibold text-brand-700 hover:text-brand-800 underline underline-offset-2"
+                    >
+                      Clear filters
+                    </button>
+                  </div>
+                ) : (
+                  <div className="grid gap-0 divide-y divide-ink-100/60">
+                    {filtered.map((p) => (
+                      <button
+                        key={p.id}
+                        type="button"
+                        onClick={() => setActivePlaceId(p.id)}
+                        className={cn(
+                          'w-full p-4 text-left transition-colors hover:bg-sand-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-brand-500 motion-reduce:transition-none',
+                          activePlaceId === p.id ? 'bg-brand-50 border-l-2 border-brand-400' : '',
+                        )}
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <div className="text-sm font-semibold text-ink-900 truncate">{p.name}</div>
+                            <div className="mt-1">
+                              <CategoryBadge categoryId={p.categoryId} />
                             </div>
-                            <div className="shrink-0 rounded-2xl bg-sand-100 px-3 py-2 text-center">
-                              <div className="text-xs font-semibold uppercase tracking-wide text-ink-700">Overall</div>
-                              <div className="mt-1 text-lg font-semibold text-ink-900 tabular-nums">
-                                {typeof p.computedRatings.overall === 'number' ? p.computedRatings.overall.toFixed(1) : '—'}
-                              </div>
+                          </div>
+                          <div className="shrink-0 text-right">
+                            <div className="text-lg font-semibold tabular-nums text-ink-900">
+                              {typeof p.computedRatings.overall === 'number'
+                                ? p.computedRatings.overall.toFixed(1)
+                                : '—'}
                             </div>
+                            <div className="text-xs text-ink-400">overall</div>
                           </div>
+                        </div>
 
-                          <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                            <RatingMeter value={p.computedRatings.noise} label="Noise" />
-                            <RatingMeter value={p.computedRatings.crowdedness} label="Crowds" />
-                          </div>
+                        <div className="mt-2.5 flex items-center gap-4">
+                          <RatingPill value={p.computedRatings.noise} label="Noise" />
+                          <RatingPill value={p.computedRatings.crowdedness} label="Crowds" />
+                        </div>
 
-                          <div className="mt-3 flex flex-wrap gap-2">
-                            <Link
-                              to={`/places/${p.slug}`}
-                              className="rounded-xl bg-ink-900 px-3 py-2 text-xs font-semibold text-sand-50 no-underline ring-1 ring-inset ring-ink-900/10 hover:bg-ink-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              View
-                            </Link>
-                            <Link
-                              to={`/add-review?place=${encodeURIComponent(p.slug)}`}
-                              className="rounded-xl bg-brand-600 px-3 py-2 text-xs font-semibold text-sand-50 no-underline ring-1 ring-inset ring-brand-600/10 hover:bg-brand-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              Add review
-                            </Link>
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </Card>
+                        <div className="mt-2.5 flex gap-2">
+                          <Link
+                            to={`/places/${p.slug}`}
+                            className="rounded-lg bg-ink-900 px-2.5 py-1 text-xs font-semibold text-sand-50 no-underline hover:bg-ink-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 transition-colors"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            View details
+                          </Link>
+                          <Link
+                            to={`/add-review?place=${encodeURIComponent(p.slug)}`}
+                            className="rounded-lg bg-brand-600 px-2.5 py-1 text-xs font-semibold text-sand-50 no-underline hover:bg-brand-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 transition-colors"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            Add review
+                          </Link>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
+          {/* ── Map ── */}
           <div className="lg:col-span-8">
-            <Card className="overflow-hidden">
-              <div className="border-b border-ink-100/60 bg-sand-100 px-4 py-3">
-                <div className="text-sm font-semibold text-ink-900">Map</div>
-                <div className="mt-1 text-xs text-ink-700">Tap a marker for a quick summary and actions.</div>
-              </div>
-              <div className="h-[55dvh] w-full lg:h-[74dvh]">
+            <div className="overflow-hidden rounded-2xl border border-ink-100/60 shadow-card">
+              <div className="h-[52dvh] w-full lg:h-[76dvh]">
                 <PlaceMap places={filtered} activePlaceId={activePlaceId} onActivatePlace={setActivePlaceId} />
               </div>
-            </Card>
-
-            <Card className="mt-4 p-6">
-              <div className="text-sm font-semibold text-ink-900">About these ratings</div>
-              <p className="mt-2 text-sm leading-relaxed text-ink-800">
-                Ratings reflect parent-reported experiences and can change day to day. NeuroMap does not provide medical
-                advice.
-              </p>
-            </Card>
+            </div>
+            <p className="mt-3 text-xs text-ink-500">
+              Tap a marker to preview a place. Ratings reflect parent-reported experiences and may vary by time of day or season.
+            </p>
           </div>
         </div>
       </Container>

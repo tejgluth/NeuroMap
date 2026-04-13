@@ -43,8 +43,8 @@ export default function SignInPage() {
     <Container className="py-16 flex justify-center">
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
-          <h1 className="text-2xl font-bold text-ink-900 tracking-tight">Welcome back</h1>
-          <p className="mt-2 text-sm text-ink-600">Sign in to save places and share your experiences.</p>
+          <h1 className="text-2xl font-semibold tracking-tight text-ink-900">Welcome back</h1>
+          <p className="mt-2 text-sm text-ink-700">Sign in to save places and share your experiences.</p>
         </div>
 
         <Card className="p-8">
@@ -99,7 +99,7 @@ export default function SignInPage() {
           </form>
         </Card>
 
-        <p className="mt-6 text-center text-sm text-ink-600">
+        <p className="mt-6 text-center text-sm text-ink-700">
           Don't have an account?{' '}
           <Link to="/sign-up" className="font-semibold text-brand-700 hover:text-brand-800 underline underline-offset-2">
             Create one

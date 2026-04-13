@@ -7,13 +7,18 @@
     color-scheme: light;
   }
 
-  html,
-  body {
+  html {
     height: 100%;
+    scroll-behavior: smooth;
   }
 
   body {
+    height: 100%;
     @apply bg-sand-100 text-ink-900 antialiased;
+  }
+
+  h1, h2, h3, h4 {
+    @apply text-balance;
   }
 
   a {
@@ -21,10 +26,15 @@
   }
 
   ::selection {
-    background: rgb(68 164 172 / 0.25);
+    background: rgb(68 164 172 / 0.22);
+  }
+
+  *:focus-visible {
+    @apply outline-none ring-2 ring-brand-500 ring-offset-2 ring-offset-sand-100;
   }
 }
 
+/* Leaflet map styles */
 .leaflet-container {
   font: inherit;
 }
@@ -54,4 +64,9 @@
 
 .leaflet-control-zoom a:hover {
   background: #f4f4ec;
+}
+
+/* Clean range input */
+input[type='range'] {
+  @apply accent-brand-700;
 }

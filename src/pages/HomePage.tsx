@@ -1,4 +1,11 @@
-import { ArrowRight, CheckCircle2, HeartHandshake, Search } from 'lucide-react'
+import {
+  ArrowRight,
+  CheckCircle2,
+  Clock,
+  MapPin,
+  MessageSquarePlus,
+  Search,
+} from 'lucide-react'
 
 import HeroSection from '../components/home/HeroSection'
 import StatCard from '../components/home/StatCard'
@@ -6,114 +13,142 @@ import StoryCard from '../components/home/StoryCard'
 import Container from '../components/ui/Container'
 import SectionHeading from '../components/ui/SectionHeading'
 import { ButtonLink } from '../components/ui/Button'
-import Card from '../components/ui/Card'
 import { RATING_DIMENSIONS } from '../data/ratings'
 import { STORY_CARDS } from '../data/stories'
 
 export default function HomePage() {
   return (
-    <div className="pb-14">
+    <div>
       <HeroSection />
 
-      <section className="py-10">
+      {/* ── The reality section ── */}
+      <section className="border-b border-ink-100/60 py-16 sm:py-20">
         <Container>
           <SectionHeading
             eyebrow="The problem"
-            title={'\u201cAutism-friendly\u201d labels are often vague.'}
-            description="Families are left guessing: Is it loud? Crowded? Will staff be patient? Will there be a quiet place to reset? A single label can't answer the questions that matter most."
+            title={`\u201cAutism-friendly\u201d labels aren\u2019t enough.`}
+            description="Families need specifics, not a sticker. A single label doesn't tell you whether it's loud, how staff respond, or when to avoid the busiest hours."
           />
 
-          <div className="mt-8 grid gap-4 md:grid-cols-3">
-            <StatCard
-              value="70%"
-              label="Parents feel unwelcome in public"
-              supporting="Many families avoid outings entirely because they've faced judgment or felt unwanted."
-            />
-            <StatCard
-              value="21%"
-              label="Have been asked to leave"
-              supporting="Even careful planning isn't enough when the environment itself isn't prepared."
-            />
-            <StatCard
-              value="1 in 31"
-              label="Children in the U.S. are autistic"
-              supporting="This is not a niche problem. Communities need practical, specific accessibility information."
-            />
+          <div className="mt-12 grid gap-px divide-y divide-ink-100/60 sm:divide-y-0 sm:grid-cols-3 sm:divide-x rounded-2xl border border-ink-100/60 bg-ink-100/40 overflow-hidden">
+            <div className="bg-sand-50 px-8 py-8">
+              <StatCard
+                value="70%"
+                label="of parents feel unwelcome in public"
+                supporting="Many families avoid outings entirely after being stared at, questioned, or asked to leave."
+              />
+            </div>
+            <div className="bg-sand-50 px-8 py-8">
+              <StatCard
+                value="21%"
+                label="have been asked to leave a venue"
+                supporting="Even careful planning fails when the environment itself isn't prepared or responsive."
+              />
+            </div>
+            <div className="bg-sand-50 px-8 py-8">
+              <StatCard
+                value="1 in 31"
+                label="children in the U.S. are autistic"
+                supporting="This is not a niche issue. Every community needs honest, practical sensory information."
+              />
+            </div>
           </div>
         </Container>
       </section>
 
-      <section className="py-10">
+      {/* ── Nine dimensions ── */}
+      <section className="py-16 sm:py-20">
         <Container>
-          <SectionHeading
-            eyebrow="The approach"
-            title="Nine dimensions parents actually use."
-            description="NeuroMap focuses on the details caregivers use to decide: sensory load, predictability, transitions, and what helps."
-          />
+          <div className="lg:grid lg:grid-cols-12 lg:gap-12 lg:items-start">
+            <div className="lg:col-span-4">
+              <SectionHeading
+                eyebrow="What we rate"
+                title="Nine dimensions parents actually use."
+                description="NeuroMap focuses on the signals that tell you whether a place is genuinely manageable: noise, predictability, layout, staff, and more."
+              />
+              <div className="mt-8">
+                <ButtonLink to="/map" variant="primary">
+                  See places on the map
+                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                </ButtonLink>
+              </div>
+            </div>
 
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {RATING_DIMENSIONS.map((dim) => (
-              <Card key={dim.key} className="p-6">
-                <div className="mb-3 flex items-center gap-2">
-                  <span className="h-2 w-2 rounded-full bg-brand-600" aria-hidden="true" />
-                  <div className="text-sm font-semibold text-ink-900">{dim.label}</div>
-                </div>
-                <p className="text-sm leading-relaxed text-ink-800">{dim.description}</p>
-              </Card>
-            ))}
+            <div className="mt-10 lg:col-span-8 lg:mt-0">
+              <div className="grid gap-3 sm:grid-cols-2">
+                {RATING_DIMENSIONS.map((dim) => (
+                  <div
+                    key={dim.key}
+                    className="flex items-start gap-3.5 rounded-2xl border border-ink-100/60 bg-sand-50 px-5 py-4 shadow-card"
+                  >
+                    <span
+                      className="mt-0.5 h-2 w-2 shrink-0 rounded-full bg-brand-500"
+                      aria-hidden="true"
+                    />
+                    <div>
+                      <div className="text-sm font-semibold text-ink-900">{dim.label}</div>
+                      <p className="mt-1 text-xs leading-relaxed text-ink-600">{dim.description}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </Container>
       </section>
 
-      <section className="py-10">
+      {/* ── How it works ── */}
+      <section className="border-y border-ink-100/60 bg-sand-50 py-16 sm:py-20">
         <Container>
           <SectionHeading
             eyebrow="How it works"
-            title="A simple flow for calmer outings"
-            description="The goal isn't perfection, it's predictability. Small details reduce planning stress and prevent surprises."
+            title="Calmer outings start before you leave."
+            description="The goal isn't a perfect place. It's knowing what to expect before you arrive."
+            centered
           />
 
-          <div className="mt-8 grid gap-4 md:grid-cols-3">
-            <Card className="p-6">
-              <div className="flex items-center gap-2 text-sm font-semibold text-ink-900">
-                <Search className="h-4 w-4 text-brand-700" aria-hidden="true" />
-                Search
+          <div className="mt-12 grid gap-6 md:grid-cols-3">
+            <div className="relative rounded-2xl border border-ink-100/60 bg-sand-100 p-7">
+              <div className="mb-4 inline-flex h-9 w-9 items-center justify-center rounded-xl bg-brand-600 text-sand-50">
+                <Search className="h-4 w-4" aria-hidden="true" />
               </div>
-              <p className="mt-2 text-sm leading-relaxed text-ink-800">
-                Find places near you and filter by category or overall autism-friendliness.
+              <div className="text-sm font-semibold text-ink-900">Search the map</div>
+              <p className="mt-2 text-sm leading-relaxed text-ink-600">
+                Browse places near La Jolla. Filter by category, noise level, or crowd density to narrow your options.
               </p>
-            </Card>
-            <Card className="p-6">
-              <div className="flex items-center gap-2 text-sm font-semibold text-ink-900">
-                <HeartHandshake className="h-4 w-4 text-brand-700" aria-hidden="true" />
-                Read reviews
+            </div>
+            <div className="relative rounded-2xl border border-ink-100/60 bg-sand-100 p-7">
+              <div className="mb-4 inline-flex h-9 w-9 items-center justify-center rounded-xl bg-brand-600 text-sand-50">
+                <Clock className="h-4 w-4" aria-hidden="true" />
               </div>
-              <p className="mt-2 text-sm leading-relaxed text-ink-800">
-                Read specific sensory notes: noise spikes, lighting, crowds, transitions, and what helped.
+              <div className="text-sm font-semibold text-ink-900">Read parent reviews</div>
+              <p className="mt-2 text-sm leading-relaxed text-ink-600">
+                Get specific notes: when it gets noisy, where to sit, what triggers to expect, and the best time to visit.
               </p>
-            </Card>
-            <Card className="p-6">
-              <div className="flex items-center gap-2 text-sm font-semibold text-ink-900">
-                <CheckCircle2 className="h-4 w-4 text-brand-700" aria-hidden="true" />
-                Plan with confidence
+            </div>
+            <div className="relative rounded-2xl border border-ink-100/60 bg-sand-100 p-7">
+              <div className="mb-4 inline-flex h-9 w-9 items-center justify-center rounded-xl bg-brand-600 text-sand-50">
+                <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
               </div>
-              <p className="mt-2 text-sm leading-relaxed text-ink-800">
-                Choose the best time to visit and bring the right supports before you go.
+              <div className="text-sm font-semibold text-ink-900">Plan with confidence</div>
+              <p className="mt-2 text-sm leading-relaxed text-ink-600">
+                Choose the right timing, bring the right supports, and reduce the uncertainty that drains everyone's energy.
               </p>
-            </Card>
+            </div>
           </div>
         </Container>
       </section>
 
-      <section className="py-10">
+      {/* ── Real moments ── */}
+      <section className="py-16 sm:py-20">
         <Container>
           <SectionHeading
             eyebrow="Real moments"
-            title="Small details decide the outing."
-            description="These are the moments families described: an outing is going fine, then one sensory detail changes everything."
+            title="One detail can change everything."
+            description="These are situations families described to us. An outing starts fine, then something shifts."
           />
 
-          <div className="mt-8 grid gap-4 lg:grid-cols-2">
+          <div className="mt-10 grid gap-4 lg:grid-cols-2">
             {STORY_CARDS.map((story) => (
               <StoryCard
                 key={story.id}
@@ -126,119 +161,112 @@ export default function HomePage() {
         </Container>
       </section>
 
-      <section className="py-10">
+      {/* ── What families need ── */}
+      <section className="border-y border-ink-100/60 bg-sand-50 py-16 sm:py-20">
         <Container>
-          <SectionHeading
-            eyebrow="What we heard"
-            title="Families need specifics, not scores."
-            description="Caregivers don't need a perfect rating. They need honest, practical information and a community that understands why details matter."
-          />
-
-          <div className="mt-8 grid gap-4 md:grid-cols-2">
-            <Card className="p-6">
-              <div className="text-sm font-semibold text-ink-900">What we heard again and again</div>
-              <ul className="mt-3 space-y-2 text-sm leading-relaxed text-ink-800">
-                <li className="flex gap-2">
-                  <span className="mt-2 h-1.5 w-1.5 rounded-full bg-brand-700" />
-                  "I need to know what the wait feels like."
-                </li>
-                <li className="flex gap-2">
-                  <span className="mt-2 h-1.5 w-1.5 rounded-full bg-brand-700" />
-                  "We can handle noise, just not surprise noise."
-                </li>
-                <li className="flex gap-2">
-                  <span className="mt-2 h-1.5 w-1.5 rounded-full bg-brand-700" />
-                  "If I can plan an exit, we can try."
-                </li>
+          <div className="grid gap-10 lg:grid-cols-2 lg:gap-14">
+            <div>
+              <SectionHeading
+                eyebrow="What we heard"
+                title="Families need specifics, not scores."
+              />
+              <ul className="mt-8 space-y-4">
+                {[
+                  '"I need to know what the wait feels like."',
+                  '"We can handle noise — just not surprise noise."',
+                  '"If I can plan an exit, we can try."',
+                  '"Tell me whether the staff have been there before."',
+                ].map((quote) => (
+                  <li key={quote} className="flex gap-4">
+                    <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-500" aria-hidden="true" />
+                    <span className="text-ink-700 leading-relaxed">{quote}</span>
+                  </li>
+                ))}
               </ul>
-            </Card>
-            <Card className="p-6">
-              <div className="text-sm font-semibold text-ink-900">A community-powered approach</div>
-              <p className="mt-2 text-sm leading-relaxed text-ink-800">
-                NeuroMap treats you as the expert in your own experience. Reviews focus on sensory reality and
-                practical accommodations, not marketing.
-              </p>
-              <div className="mt-4">
+            </div>
+
+            <div className="rounded-2xl border border-ink-100/60 bg-sand-100 p-8">
+              <div className="text-sm font-semibold text-ink-900">What NeuroMap does differently</div>
+              <ul className="mt-5 space-y-4">
+                {[
+                  'Rates nine specific sensory dimensions, not just an overall score.',
+                  'Written by parents who have been in your situation.',
+                  'Focuses on practical planning: best times, common triggers, what helps.',
+                  'Treats caregivers as the experts in their own experience.',
+                ].map((item) => (
+                  <li key={item} className="flex items-start gap-3">
+                    <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-brand-600" aria-hidden="true" />
+                    <span className="text-sm leading-relaxed text-ink-700">{item}</span>
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-7">
                 <ButtonLink to="/map" variant="ghost">
                   Explore the map
                   <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </ButtonLink>
               </div>
-            </Card>
+            </div>
           </div>
         </Container>
       </section>
 
-      <section className="py-14">
+      {/* ── Impact section ── */}
+      <section className="py-16 sm:py-20">
         <Container>
           <SectionHeading
-            eyebrow="The difference it makes"
-            title="More participation, less stress"
-            description="NeuroMap helps families plan around sensory needs so outings are more likely to end with pride, not recovery."
+            eyebrow="Why it matters"
+            title="More participation. Less recovery."
+            description="When families know what to expect, they can prepare instead of dread. That changes what's possible."
           />
 
-          <Card className="mt-8 p-6">
-            <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 text-sm leading-relaxed text-ink-800">
-              <li className="flex gap-3">
-                <span className="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-100 text-brand-800">
-                  1
+          <div className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {[
+              'Anticipate triggers and choose calmer timing to prevent meltdowns.',
+              'Replace trial-and-error with clear expectations and practical tips.',
+              "Skip outings that won\u2019t work. Commit to ones that will.",
+              'Participate more fully: parks, restaurants, errands, and events.',
+              'Feel genuinely welcomed, not just tolerated, in your community.',
+            ].map((item, i) => (
+              <div
+                key={item}
+                className="flex items-start gap-3 rounded-2xl border border-ink-100/60 bg-sand-50 px-5 py-4 shadow-card"
+              >
+                <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand-100 text-xs font-bold text-brand-800">
+                  {i + 1}
                 </span>
-                Avoid meltdowns by anticipating triggers and choosing calmer timing.
-              </li>
-              <li className="flex gap-3">
-                <span className="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-100 text-brand-800">
-                  2
-                </span>
-                Reduce planning stress with clear expectations and practical tips.
-              </li>
-              <li className="flex gap-3">
-                <span className="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-100 text-brand-800">
-                  3
-                </span>
-                Save time by avoiding trial-and-error outings that drain everyone's energy.
-              </li>
-              <li className="flex gap-3">
-                <span className="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-100 text-brand-800">
-                  4
-                </span>
-                Participate more fully in community life: parks, restaurants, errands, and events.
-              </li>
-              <li className="flex gap-3">
-                <span className="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-100 text-brand-800">
-                  5
-                </span>
-                Feel welcomed through transparency and shared understanding.
-              </li>
-            </ul>
-          </Card>
+                <p className="text-sm leading-relaxed text-ink-700">{item}</p>
+              </div>
+            ))}
+          </div>
         </Container>
       </section>
 
-      <section className="py-10">
+      {/* ── Final CTA ── */}
+      <section className="border-t border-ink-100/60 bg-ink-900 py-16 sm:py-20">
         <Container>
-          <Card className="p-8 sm:p-10">
-            <div className="grid gap-6 lg:grid-cols-12 lg:items-center">
-              <div className="lg:col-span-8">
-                <h2 className="text-balance text-2xl font-semibold tracking-tight text-ink-900 sm:text-3xl">
-                  Ready to plan your next outing?
-                </h2>
-                <p className="mt-3 text-pretty text-base leading-relaxed text-ink-800">
-                  Explore the map, read parent reviews, and add your own experience to help the next family plan.
-                </p>
-              </div>
-              <div className="flex flex-wrap gap-3 lg:col-span-4 lg:justify-end">
-                <ButtonLink to="/map" variant="primary" size="lg">
-                  Explore Map
-                </ButtonLink>
-                <ButtonLink to="/add-review" variant="secondary" size="lg">
-                  Add a Review
-                </ButtonLink>
-                <ButtonLink to="/about" variant="ghost" size="lg">
-                  Learn About Us
-                </ButtonLink>
-              </div>
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="text-3xl font-semibold tracking-tight text-sand-50 sm:text-4xl">
+              Ready to plan your next outing?
+            </h2>
+            <p className="mt-4 text-lg leading-relaxed text-ink-200">
+              Explore the map, read parent reviews, and add your own to help the next family.
+            </p>
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+              <ButtonLink to="/map" variant="secondary" size="lg">
+                <MapPin className="h-5 w-5" aria-hidden="true" />
+                Explore Map
+              </ButtonLink>
+              <ButtonLink
+                to="/add-review"
+                size="lg"
+                className="bg-sand-50 text-ink-900 ring-sand-200/20 hover:bg-sand-100"
+              >
+                <MessageSquarePlus className="h-5 w-5" aria-hidden="true" />
+                Add a Review
+              </ButtonLink>
             </div>
-          </Card>
+          </div>
         </Container>
       </section>
     </div>
