@@ -11,12 +11,15 @@ import Card from '../components/ui/Card'
 import Container from '../components/ui/Container'
 import SectionHeading from '../components/ui/SectionHeading'
 import { CATEGORIES } from '../data/categories'
-import { PLACES, PLACE_BY_SLUG } from '../data/places'
 import { RATING_DIMENSIONS } from '../data/ratings'
 import { TAGS } from '../data/tags'
 import { useLocalUnlistedPlaceReviews } from '../hooks/useLocalReviews'
-import { addLocalReview, addLocalUnlistedPlaceReview } from '../lib/reviewsStorage'
+import { addLocalUnlistedPlaceReview } from '../lib/reviewsStorage'
+import { usePlaces } from '../hooks/usePlaces'
+import { useSubmitReview } from '../hooks/useReviews'
+import { useAuth } from '../contexts/AuthContext'
 import type { CategoryId, ChildAgeRange, Ratings, Review, TagId, VisitTime } from '../types'
+import type { ReviewInsert } from '../lib/database.types'
 
 const DEFAULT_RATINGS: Ratings = {
   noise: 3,
@@ -41,7 +44,8 @@ function isNonEmpty(text: string) {
 
 function validateReview(input: {
   mode: ReviewMode
-  placeId: string
+  placeSlug: string
+  placeExists: boolean
   customPlaceName: string
   customCategory: CategoryId | ''
   visitTime: VisitTime | ''
@@ -51,7 +55,7 @@ function validateReview(input: {
   const errors: Record<string, string> = {}
 
   if (input.mode === 'listed') {
-    if (!PLACE_BY_SLUG[input.placeId]) errors.placeId = 'Please choose a place.'
+    if (!input.placeSlug || !input.placeExists) errors.placeId = 'Please choose a place.'
   } else {
     if (!isNonEmpty(input.customPlaceName)) errors.customPlaceName = 'Please enter the place name.'
     if (!input.customCategory) errors.customCategory = 'Please choose a category.'
@@ -66,9 +70,14 @@ function validateReview(input: {
 export default function AddReviewPage() {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
-  const placeId = searchParams.get('place') || ''
+  const placeSlug = searchParams.get('place') || ''
+
+  const { places: dbPlaces, loading: placesLoading } = usePlaces()
+  const { submit, loading: submitting } = useSubmitReview()
+  const { user, profile } = useAuth()
+
   const [reviewMode, setReviewMode] = useState<ReviewMode>('listed')
-  const [displayName, setDisplayName] = useState('')
+  const [displayName, setDisplayName] = useState(profile?.display_name ?? '')
   const [visitTime, setVisitTime] = useState<VisitTime | ''>('')
   const [childAgeRange, setChildAgeRange] = useState<ChildAgeRange | ''>('')
   const [recommend, setRecommend] = useState<Review['recommendForSensorySensitiveFamilies'] | ''>('')
@@ -82,18 +91,29 @@ export default function AddReviewPage() {
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [savedMessage, setSavedMessage] = useState<string | null>(null)
 
-  const place = placeId ? PLACE_BY_SLUG[placeId] : undefined
   const unlistedReviews = useLocalUnlistedPlaceReviews()
 
-  const placesForSelect = useMemo(() => [...PLACES].sort((a, b) => a.name.localeCompare(b.name)), [])
+  // Find selected DB place by slug
+  const selectedPlace = useMemo(
+    () => dbPlaces.find((p) => p.slug === placeSlug) ?? null,
+    [dbPlaces, placeSlug],
+  )
 
-  const ratingDescriptions = useMemo(() => new Map(RATING_DIMENSIONS.map((d) => [d.key, d.description])), [])
+  const placesForSelect = useMemo(
+    () => [...dbPlaces].sort((a, b) => a.name.localeCompare(b.name)),
+    [dbPlaces],
+  )
+
+  const ratingDescriptions = useMemo(
+    () => new Map(RATING_DIMENSIONS.map((d) => [d.key, d.description])),
+    [],
+  )
 
   const canSubmit =
-    reviewMode === 'listed' ? Boolean(placeId) : isNonEmpty(customPlaceName) && Boolean(customCategory)
+    reviewMode === 'listed' ? Boolean(placeSlug) : isNonEmpty(customPlaceName) && Boolean(customCategory)
 
   function resetSharedReviewFields() {
-    setDisplayName('')
+    setDisplayName(profile?.display_name ?? '')
     setVisitTime('')
     setChildAgeRange('')
     setRecommend('')
@@ -119,6 +139,85 @@ export default function AddReviewPage() {
     }
   }
 
+  async function handleSubmit(event: React.FormEvent) {
+    event.preventDefault()
+    setSubmitError(null)
+    setSavedMessage(null)
+
+    const nextErrors = validateReview({
+      mode: reviewMode,
+      placeSlug,
+      placeExists: Boolean(selectedPlace),
+      customPlaceName,
+      customCategory,
+      visitTime,
+      recommend,
+      text,
+    })
+    setErrors(nextErrors)
+    if (Object.keys(nextErrors).length > 0) return
+
+    try {
+      if (reviewMode === 'listed') {
+        if (!selectedPlace) { setSubmitError('Place not found. Please try again.'); return }
+
+        const resolvedName = isNonEmpty(displayName)
+          ? displayName.trim()
+          : (profile?.display_name ?? 'Anonymous')
+
+        const payload: ReviewInsert = {
+          place_id: selectedPlace.id,
+          display_name: resolvedName,
+          review_text: text.trim(),
+          visit_time: visitTime as VisitTime,
+          child_age_range: childAgeRange ? (childAgeRange as ChildAgeRange) : null,
+          recommend: recommend ? (recommend as Review['recommendForSensorySensitiveFamilies']) : null,
+          tags: tags.length > 0 ? tags : null,
+          user_id: user?.id ?? null,
+          rating_overall: ratings.overall,
+          rating_noise: ratings.noise,
+          rating_crowdedness: ratings.crowdedness,
+          rating_staff_hospitality: ratings.staffHospitality,
+          rating_lighting: ratings.lighting,
+          rating_parking: ratings.parking,
+          rating_navigation: ratings.navigation,
+          rating_elevators: ratings.elevators,
+          rating_stairs: ratings.stairs,
+        }
+
+        const { error } = await submit(payload)
+        if (error) { setSubmitError(`Could not save your review. ${error}`); return }
+
+        navigate(`/places/${selectedPlace.slug}?reviewed=1`, { replace: true })
+        return
+      }
+
+      // Unlisted place — stays in localStorage
+      const created = addLocalUnlistedPlaceReview({
+        placeName: customPlaceName.trim(),
+        categoryId: customCategory as CategoryId,
+        address: isNonEmpty(customAddress) ? customAddress.trim() : undefined,
+        displayName: isNonEmpty(displayName) ? displayName.trim() : 'Anonymous',
+        visitTime: visitTime as VisitTime,
+        childAgeRange: childAgeRange ? (childAgeRange as ChildAgeRange) : undefined,
+        ratings,
+        recommendForSensorySensitiveFamilies: recommend as Review['recommendForSensorySensitiveFamilies'],
+        tags,
+        text: text.trim(),
+      })
+
+      resetSharedReviewFields()
+      setCustomPlaceName('')
+      setCustomAddress('')
+      setCustomCategory('')
+      setErrors({})
+      setSavedMessage(`Review saved for ${created.placeName}. It now appears below.`)
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error'
+      setSubmitError(`Could not save your review. ${message}`)
+    }
+  }
+
   return (
     <div className="py-10 sm:py-12">
       <Container>
@@ -130,67 +229,7 @@ export default function AddReviewPage() {
 
         <div className="mt-8 grid gap-4 lg:grid-cols-12 lg:items-start">
           <Card className="p-6 lg:col-span-7">
-            <form
-              className="grid gap-5"
-              onSubmit={(event) => {
-                event.preventDefault()
-                setSubmitError(null)
-                setSavedMessage(null)
-
-                const nextErrors = validateReview({
-                  mode: reviewMode,
-                  placeId,
-                  customPlaceName,
-                  customCategory,
-                  visitTime,
-                  recommend,
-                  text,
-                })
-                setErrors(nextErrors)
-                if (Object.keys(nextErrors).length > 0) return
-
-                try {
-                  if (reviewMode === 'listed') {
-                    const created = addLocalReview({
-                      placeId,
-                      displayName: isNonEmpty(displayName) ? displayName.trim() : 'Anonymous',
-                      visitTime: visitTime as VisitTime,
-                      childAgeRange: childAgeRange ? (childAgeRange as ChildAgeRange) : undefined,
-                      ratings,
-                      recommendForSensorySensitiveFamilies: recommend as Review['recommendForSensorySensitiveFamilies'],
-                      tags,
-                      text: text.trim(),
-                    })
-
-                    navigate(`/places/${created.placeId}?reviewed=1`, { replace: true })
-                    return
-                  }
-
-                  const created = addLocalUnlistedPlaceReview({
-                    placeName: customPlaceName.trim(),
-                    categoryId: customCategory as CategoryId,
-                    address: isNonEmpty(customAddress) ? customAddress.trim() : undefined,
-                    displayName: isNonEmpty(displayName) ? displayName.trim() : 'Anonymous',
-                    visitTime: visitTime as VisitTime,
-                    childAgeRange: childAgeRange ? (childAgeRange as ChildAgeRange) : undefined,
-                    ratings,
-                    recommendForSensorySensitiveFamilies: recommend as Review['recommendForSensorySensitiveFamilies'],
-                    tags,
-                    text: text.trim(),
-                  })
-
-                  resetSharedReviewFields()
-                  setCustomPlaceName('')
-                  setCustomAddress('')
-                  setCustomCategory('')
-                  setErrors({})
-                  setSavedMessage(`Review saved for ${created.placeName}. It now appears below.`)
-                } catch (error) {
-                  const message = error instanceof Error ? error.message : 'Unknown error'
-                  setSubmitError(`Could not save your review. ${message}`)
-                }
-              }}
-            >
+            <form className="grid gap-5" onSubmit={handleSubmit}>
               {submitError ? (
                 <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
                   <div className="flex items-start gap-2">
@@ -234,7 +273,8 @@ export default function AddReviewPage() {
                 <label className="grid gap-1 text-sm">
                   <span className="text-xs font-semibold uppercase tracking-wide text-ink-700">Place</span>
                   <select
-                    value={placeId}
+                    value={placeSlug}
+                    disabled={placesLoading}
                     onChange={(event) => {
                       const next = event.target.value
                       setSearchParams(
@@ -247,16 +287,18 @@ export default function AddReviewPage() {
                         { replace: true },
                       )
                     }}
-                    className="w-full rounded-xl border-ink-100/60 bg-sand-50 text-sm text-ink-900 focus:border-brand-500 focus:ring-brand-500"
+                    className="w-full rounded-xl border-ink-100/60 bg-sand-50 text-sm text-ink-900 focus:border-brand-500 focus:ring-brand-500 disabled:opacity-60"
                   >
-                    <option value="">Choose a place...</option>
-                    <optgroup label="Places near La Jolla">
-                      {placesForSelect.map((listedPlace) => (
-                        <option key={listedPlace.id} value={listedPlace.id}>
-                          {listedPlace.name}
-                        </option>
-                      ))}
-                    </optgroup>
+                    <option value="">{placesLoading ? 'Loading places…' : 'Choose a place...'}</option>
+                    {!placesLoading && (
+                      <optgroup label="Places near La Jolla">
+                        {placesForSelect.map((p) => (
+                          <option key={p.id} value={p.slug}>
+                            {p.name}
+                          </option>
+                        ))}
+                      </optgroup>
+                    )}
                   </select>
                   {errors.placeId ? <span className="text-xs font-semibold text-red-800">{errors.placeId}</span> : null}
                 </label>
@@ -315,10 +357,13 @@ export default function AddReviewPage() {
                   <input
                     value={displayName}
                     onChange={(event) => setDisplayName(event.target.value)}
-                    placeholder="Anonymous"
+                    placeholder={profile?.display_name ?? 'Anonymous'}
+                    maxLength={80}
                     className="w-full rounded-xl border-ink-100/60 bg-sand-50 text-sm text-ink-900 placeholder:text-ink-700 focus:border-brand-500 focus:ring-brand-500"
                   />
-                  <span className="text-xs text-ink-700">Leave blank to post as “Anonymous”.</span>
+                  <span className="text-xs text-ink-700">
+                    {user ? 'Defaults to your account display name.' : 'Leave blank to post as "Anonymous".'}
+                  </span>
                 </label>
 
                 <label className="grid gap-1 text-sm">
@@ -499,6 +544,7 @@ export default function AddReviewPage() {
                   value={text}
                   onChange={(event) => setText(event.target.value)}
                   rows={6}
+                  maxLength={4000}
                   placeholder="Example: We went at opening and it was calm. The music got louder around 10am. Staff were kind when we asked to sit away from speakers..."
                   className="w-full rounded-xl border-ink-100/60 bg-sand-50 text-sm text-ink-900 placeholder:text-ink-700 focus:border-brand-500 focus:ring-brand-500"
                 />
@@ -506,16 +552,15 @@ export default function AddReviewPage() {
               </label>
 
               <div className="flex flex-wrap items-center gap-3 pt-2">
-                <Button type="submit" variant="secondary" size="lg" disabled={!canSubmit}>
-                  {reviewMode === 'listed' ? 'Save review' : 'Save note'}
+                <Button type="submit" variant="secondary" size="lg" disabled={!canSubmit || submitting}>
+                  {submitting ? 'Saving…' : reviewMode === 'listed' ? 'Save review' : 'Save note'}
                 </Button>
-                {reviewMode === 'listed' && placeId ? (
-                  <ButtonLink to={`/places/${placeId}`} variant="ghost" size="lg">
+                {reviewMode === 'listed' && placeSlug ? (
+                  <ButtonLink to={`/places/${placeSlug}`} variant="ghost" size="lg">
                     Preview place page
                   </ButtonLink>
                 ) : null}
               </div>
-
             </form>
           </Card>
 
@@ -524,18 +569,18 @@ export default function AddReviewPage() {
               <div className="text-sm font-semibold text-ink-900">Place preview</div>
 
               {reviewMode === 'listed' ? (
-                place ? (
+                selectedPlace ? (
                   <div className="mt-4 grid gap-3">
                     <div className="flex flex-wrap items-center gap-2">
-                      <CategoryBadge categoryId={place.categoryId} />
+                      <CategoryBadge categoryId={selectedPlace.categoryId} />
                     </div>
-                    <div className="text-lg font-semibold text-ink-900">{place.name}</div>
-                    <div className="text-sm text-ink-700">{place.address}</div>
-                    <p className="text-sm leading-relaxed text-ink-800">{place.shortDescription}</p>
+                    <div className="text-lg font-semibold text-ink-900">{selectedPlace.name}</div>
+                    <div className="text-sm text-ink-700">{selectedPlace.address}</div>
+                    <p className="text-sm leading-relaxed text-ink-800">{selectedPlace.shortDescription}</p>
                   </div>
                 ) : (
                   <div className="mt-4 rounded-2xl bg-sand-100 p-4 text-sm text-ink-800">
-                    Choose a listed place to preview it here.
+                    {placesLoading ? 'Loading places…' : 'Choose a listed place to preview it here.'}
                   </div>
                 )
               ) : isNonEmpty(customPlaceName) || customCategory || isNonEmpty(customAddress) ? (
@@ -555,7 +600,7 @@ export default function AddReviewPage() {
                 </div>
               ) : (
                 <div className="mt-4 rounded-2xl bg-sand-100 p-4 text-sm text-ink-800">
-                  Start typing the place name and category, and you’ll see the preview here.
+                  Start typing the place name and category, and you'll see the preview here.
                 </div>
               )}
             </Card>

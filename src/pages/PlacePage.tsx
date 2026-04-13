@@ -7,16 +7,38 @@ import ReviewCard from '../components/places/ReviewCard'
 import Container from '../components/ui/Container'
 import SectionHeading from '../components/ui/SectionHeading'
 import Card from '../components/ui/Card'
+import Spinner from '../components/ui/Spinner'
 import { ButtonLink } from '../components/ui/Button'
-import { PLACE_BY_SLUG } from '../data/places'
-import { useLocalReviewsForPlace } from '../hooks/useLocalReviews'
-import { averageRatings, mergeComputedRatings } from '../lib/ratings'
+import { usePlace } from '../hooks/usePlaces'
+import { useReviews, useDeleteReview, useReportReview, dbReviewToLegacy } from '../hooks/useReviews'
+import { useFavorites } from '../hooks/useFavorites'
+import { useAuth } from '../contexts/AuthContext'
+import { cn } from '../lib/cn'
 
 export default function PlacePage() {
   const { slug } = useParams()
   const [searchParams] = useSearchParams()
-  const place = slug ? PLACE_BY_SLUG[slug] : undefined
-  const localReviews = useLocalReviewsForPlace(place?.id)
+  const { place, loading: placeLoading } = usePlace(slug)
+  const { rows, loading: reviewsLoading, refetch } = useReviews(place?.id)
+  const { user } = useAuth()
+  const { favoriteIds, toggling, toggle } = useFavorites()
+  const { deleteReview } = useDeleteReview()
+  const { report } = useReportReview()
+
+  const isFavorite = place ? favoriteIds.has(place.id) : false
+  const isToggling = place ? toggling === place.id : false
+
+  if (placeLoading) {
+    return (
+      <div className="py-16">
+        <Container>
+          <div className="flex justify-center">
+            <Spinner />
+          </div>
+        </Container>
+      </div>
+    )
+  }
 
   if (!place) {
     return (
@@ -24,7 +46,7 @@ export default function PlacePage() {
         <Container>
           <Card className="p-8">
             <h1 className="text-2xl font-semibold text-ink-900">Place not found</h1>
-            <p className="mt-2 text-ink-700">We couldn’t find that place. Try exploring the map instead.</p>
+            <p className="mt-2 text-ink-700">We couldn't find that place. Try exploring the map instead.</p>
             <div className="mt-6 flex flex-wrap gap-3">
               <ButtonLink to="/map" variant="primary">
                 Explore Map
@@ -39,8 +61,7 @@ export default function PlacePage() {
     )
   }
 
-  const reviews = [...place.seededReviews, ...localReviews]
-  const ratings = mergeComputedRatings(averageRatings(reviews), place.seededRatings)
+  const ratings = place.computedRatings
   const reviewed = searchParams.get('reviewed') === '1'
   const hasStructuredRatings = Object.values(ratings).some((v) => typeof v === 'number' && Number.isFinite(v))
 
@@ -50,6 +71,16 @@ export default function PlacePage() {
     Boolean(place.commonTriggers?.length) ||
     Boolean(place.helpfulAccommodations?.length) ||
     Boolean(place.parentTips?.length)
+
+  async function handleDelete(reviewId: string) {
+    await deleteReview(reviewId)
+    refetch()
+  }
+
+  async function handleReport(reviewId: string, reason: string) {
+    if (!user) return
+    await report(reviewId, user.id, reason)
+  }
 
   return (
     <div className="py-10 sm:py-12">
@@ -83,6 +114,36 @@ export default function PlacePage() {
                 <MessageSquarePlus className="h-4 w-4" aria-hidden="true" />
                 Add a Review
               </ButtonLink>
+
+              {user ? (
+                <button
+                  type="button"
+                  onClick={() => toggle(place.id)}
+                  disabled={isToggling}
+                  aria-label={isFavorite ? 'Remove from saved places' : 'Save this place'}
+                  className={cn(
+                    'inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold ring-1 ring-inset transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 motion-reduce:transition-none disabled:opacity-50 shadow-sm',
+                    isFavorite
+                      ? 'bg-brand-100 text-brand-900 ring-brand-200/70 hover:bg-brand-200'
+                      : 'bg-sand-50 text-ink-900 ring-ink-100/60 hover:bg-sand-100',
+                  )}
+                >
+                  <Heart
+                    className={cn('h-4 w-4', isFavorite ? 'fill-brand-700 text-brand-700' : 'text-ink-600')}
+                    aria-hidden="true"
+                  />
+                  {isFavorite ? 'Saved' : 'Save place'}
+                </button>
+              ) : (
+                <Link
+                  to={`/sign-in?returnTo=/places/${place.slug}`}
+                  className="inline-flex items-center gap-2 rounded-xl bg-sand-50 px-4 py-2 text-sm font-semibold text-ink-900 no-underline ring-1 ring-inset ring-ink-100/60 transition-colors hover:bg-sand-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 shadow-sm"
+                >
+                  <Heart className="h-4 w-4 text-ink-600" aria-hidden="true" />
+                  Save place
+                </Link>
+              )}
+
               <Link
                 to="/map"
                 className="rounded-xl bg-sand-50 px-4 py-2 text-sm font-semibold text-ink-900 no-underline ring-1 ring-inset ring-ink-100/60 transition-colors hover:bg-sand-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 motion-reduce:transition-none"
@@ -175,7 +236,7 @@ export default function PlacePage() {
                 <ul className="mt-2 space-y-2 text-sm leading-relaxed text-ink-800">
                   {place.bestTimesToVisit.map((t) => (
                     <li key={t} className="flex gap-2">
-                      <span className="mt-2 h-1.5 w-1.5 rounded-full bg-brand-700" />
+                      <span className="mt-2 h-1.5 w-1.5 rounded-full bg-brand-700 shrink-0" />
                       {t}
                     </li>
                   ))}
@@ -192,7 +253,7 @@ export default function PlacePage() {
                 <ul className="mt-2 space-y-2 text-sm leading-relaxed text-ink-800">
                   {place.commonTriggers.map((t) => (
                     <li key={t} className="flex gap-2">
-                      <span className="mt-2 h-1.5 w-1.5 rounded-full bg-brand-700" />
+                      <span className="mt-2 h-1.5 w-1.5 rounded-full bg-brand-700 shrink-0" />
                       {t}
                     </li>
                   ))}
@@ -209,7 +270,7 @@ export default function PlacePage() {
                 <ul className="mt-2 space-y-2 text-sm leading-relaxed text-ink-800">
                   {place.helpfulAccommodations.map((t) => (
                     <li key={t} className="flex gap-2">
-                      <span className="mt-2 h-1.5 w-1.5 rounded-full bg-brand-700" />
+                      <span className="mt-2 h-1.5 w-1.5 rounded-full bg-brand-700 shrink-0" />
                       {t}
                     </li>
                   ))}
@@ -226,7 +287,7 @@ export default function PlacePage() {
                 <ul className="mt-2 grid gap-2 text-sm leading-relaxed text-ink-800 sm:grid-cols-2">
                   {place.parentTips.map((t) => (
                     <li key={t} className="flex gap-2">
-                      <span className="mt-2 h-1.5 w-1.5 rounded-full bg-brand-700" />
+                      <span className="mt-2 h-1.5 w-1.5 rounded-full bg-brand-700 shrink-0" />
                       {t}
                     </li>
                   ))}
@@ -247,16 +308,30 @@ export default function PlacePage() {
           <SectionHeading
             eyebrow="Reviews"
             title="Parent reviews"
-            description="Shared by parents and caregivers. Your added reviews appear here too."
+            description="Shared by parents and caregivers."
           />
 
           <div className="mt-6 grid gap-4">
-            {place.seededReviews.map((r) => (
-              <ReviewCard key={r.id} review={r} />
-            ))}
-            {localReviews.map((r) => (
-              <ReviewCard key={r.id} review={r} />
-            ))}
+            {reviewsLoading ? (
+              <div className="flex justify-center py-6">
+                <Spinner />
+              </div>
+            ) : rows.length === 0 ? (
+              <Card className="p-6">
+                <p className="text-sm text-ink-700">No reviews yet. Be the first to share your experience.</p>
+              </Card>
+            ) : (
+              rows.map((row) => (
+                <ReviewCard
+                  key={row.id}
+                  review={dbReviewToLegacy(row)}
+                  currentUserId={user?.id}
+                  reviewUserId={row.user_id}
+                  onDelete={handleDelete}
+                  onReport={handleReport}
+                />
+              ))
+            )}
           </div>
 
           <div className="mt-8">

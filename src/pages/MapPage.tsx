@@ -9,18 +9,26 @@ import SectionHeading from '../components/ui/SectionHeading'
 import Card from '../components/ui/Card'
 import RatingMeter from '../components/ui/RatingMeter'
 import Badge from '../components/ui/Badge'
-import { PLACES } from '../data/places'
 import { CATEGORIES } from '../data/categories'
-import type { CategoryId, Review } from '../types'
-import { averageRatings, mergeComputedRatings } from '../lib/ratings'
+import type { CategoryId } from '../types'
 import { cn } from '../lib/cn'
-import { useLocalReviews } from '../hooks/useLocalReviews'
+import { usePlaces } from '../hooks/usePlaces'
 
 type CategoryFilter = CategoryId | 'all'
 
 function numberInput(value: string) {
   const n = Number.parseFloat(value)
   return Number.isFinite(n) ? n : 0
+}
+
+function PlaceSkeleton() {
+  return (
+    <div className="grid gap-3">
+      {[0, 1, 2].map((i) => (
+        <div key={i} className="animate-pulse rounded-2xl bg-sand-100 h-24" />
+      ))}
+    </div>
+  )
 }
 
 export default function MapPage() {
@@ -32,26 +40,7 @@ export default function MapPage() {
   const [advanced, setAdvanced] = useState(false)
   const [activePlaceId, setActivePlaceId] = useState<string | undefined>(undefined)
 
-  const localReviews = useLocalReviews()
-
-  const placesWithRatings: Array<MapPlace & { reviewCount: number }> = useMemo(() => {
-    const byPlace = new Map<string, Review[]>()
-    for (const r of localReviews) {
-      const arr = byPlace.get(r.placeId) ?? []
-      arr.push(r)
-      byPlace.set(r.placeId, arr)
-    }
-
-    return PLACES.map((p) => {
-      const extra = byPlace.get(p.id) ?? []
-      const allReviews = [...p.seededReviews, ...extra]
-      return {
-        ...p,
-        computedRatings: mergeComputedRatings(averageRatings(allReviews), p.seededRatings),
-        reviewCount: allReviews.length,
-      }
-    })
-  }, [localReviews])
+  const { places: placesWithRatings, loading, error } = usePlaces()
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -83,10 +72,10 @@ export default function MapPage() {
         const aRated = typeof aOverall === 'number' && Number.isFinite(aOverall)
         const bRated = typeof bOverall === 'number' && Number.isFinite(bOverall)
         if (aRated !== bRated) return aRated ? -1 : 1
-        if (aRated && bRated && aOverall !== bOverall) return bOverall - aOverall
+        if (aRated && bRated && aOverall !== bOverall) return (bOverall as number) - (aOverall as number)
         if (a.reviewCount !== b.reviewCount) return b.reviewCount - a.reviewCount
         return a.name.localeCompare(b.name)
-      })
+      }) as Array<MapPlace & { reviewCount: number }>
   }, [advanced, category, minCrowds, minNoise, minOverall, placesWithRatings, query])
 
   return (
@@ -211,7 +200,7 @@ export default function MapPage() {
                 ) : null}
 
                 <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                  <Badge className="bg-sand-100">{filtered.length} shown</Badge>
+                  <Badge className="bg-sand-100">{loading ? '…' : `${filtered.length} shown`}</Badge>
                   <button
                     type="button"
                     className="text-xs font-semibold text-ink-800 underline decoration-brand-300 underline-offset-4 hover:decoration-brand-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
@@ -238,7 +227,13 @@ export default function MapPage() {
                 </div>
 
                 <div className="max-h-[55dvh] overflow-auto p-3 lg:max-h-[70dvh]">
-                  {filtered.length === 0 ? (
+                  {loading ? (
+                    <PlaceSkeleton />
+                  ) : error ? (
+                    <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+                      Could not load places. Please refresh.
+                    </div>
+                  ) : filtered.length === 0 ? (
                     <div className="rounded-2xl bg-sand-100 p-4 text-sm text-ink-800">
                       No places match your filters. Try adjusting the sliders.
                     </div>

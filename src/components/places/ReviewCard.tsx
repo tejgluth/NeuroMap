@@ -1,4 +1,5 @@
-import { ThumbsDown, ThumbsUp } from 'lucide-react'
+import { Flag, ThumbsDown, ThumbsUp, Trash2 } from 'lucide-react'
+import { useState } from 'react'
 
 import type { Review } from '../../types'
 import { TAG_BY_ID } from '../../data/tags'
@@ -7,7 +8,40 @@ import Card from '../ui/Card'
 import RatingMeter from '../ui/RatingMeter'
 import { formatDate } from '../../lib/time'
 
-export default function ReviewCard({ review }: { review: Review }) {
+const REPORT_REASONS = [
+  'Inaccurate information',
+  'Spam',
+  'Offensive language',
+  'Other',
+] as const
+
+type ReviewCardProps = {
+  review: Review
+  /** The signed-in user's ID (from useAuth) */
+  currentUserId?: string | null
+  /** The review author's user_id from the DB row (null for seed/anonymous) */
+  reviewUserId?: string | null
+  onDelete?: (reviewId: string) => Promise<void>
+  onReport?: (reviewId: string, reason: string) => Promise<void>
+}
+
+export default function ReviewCard({
+  review,
+  currentUserId,
+  reviewUserId,
+  onDelete,
+  onReport,
+}: ReviewCardProps) {
+  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+  const [isReporting, setIsReporting] = useState(false)
+  const [reportReason, setReportReason] = useState<string>(REPORT_REASONS[0])
+  const [reporting, setReporting] = useState(false)
+  const [reportDone, setReportDone] = useState(false)
+
+  const isOwn = Boolean(currentUserId && reviewUserId && currentUserId === reviewUserId)
+  const canReport = Boolean(currentUserId && !isOwn && onReport)
+
   const recommend =
     review.recommendForSensorySensitiveFamilies === 'yes'
       ? 'yes'
@@ -27,6 +61,24 @@ export default function ReviewCard({ review }: { review: Review }) {
   const noise = typeof review.ratings?.noise === 'number' ? review.ratings.noise : null
   const showRatings = overall !== null || noise !== null
 
+  async function handleDelete() {
+    if (!onDelete) return
+    setDeleting(true)
+    await onDelete(review.id)
+    setDeleting(false)
+    setIsConfirmingDelete(false)
+  }
+
+  async function handleReport(e: React.FormEvent) {
+    e.preventDefault()
+    if (!onReport) return
+    setReporting(true)
+    await onReport(review.id, reportReason)
+    setReporting(false)
+    setReportDone(true)
+    setIsReporting(false)
+  }
+
   return (
     <Card className="p-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -35,13 +87,64 @@ export default function ReviewCard({ review }: { review: Review }) {
           {meta.length > 0 ? <div className="mt-1 text-xs text-ink-700">{meta.join(' • ')}</div> : null}
         </div>
 
-        {recommend ? (
-          <Badge className={recommend === 'yes' ? 'bg-brand-100 text-brand-900 ring-brand-200/70' : 'bg-sand-100 text-ink-900'}>
-            {recommend === 'yes' ? <ThumbsUp className="h-3.5 w-3.5" aria-hidden="true" /> : null}
-            {recommend === 'no' ? <ThumbsDown className="h-3.5 w-3.5" aria-hidden="true" /> : null}
-            {recommend === 'yes' ? 'Recommended' : 'Not recommended'}
-          </Badge>
-        ) : null}
+        <div className="flex items-center gap-2">
+          {recommend ? (
+            <Badge className={recommend === 'yes' ? 'bg-brand-100 text-brand-900 ring-brand-200/70' : 'bg-sand-100 text-ink-900'}>
+              {recommend === 'yes' ? <ThumbsUp className="h-3.5 w-3.5" aria-hidden="true" /> : null}
+              {recommend === 'no' ? <ThumbsDown className="h-3.5 w-3.5" aria-hidden="true" /> : null}
+              {recommend === 'yes' ? 'Recommended' : 'Not recommended'}
+            </Badge>
+          ) : null}
+
+          {/* Owner actions */}
+          {isOwn && onDelete && (
+            isConfirmingDelete ? (
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={handleDelete}
+                  disabled={deleting}
+                  className="rounded-lg bg-red-600 px-2.5 py-1 text-xs font-semibold text-white hover:bg-red-700 disabled:opacity-50 transition-colors"
+                >
+                  {deleting ? 'Deleting…' : 'Delete'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsConfirmingDelete(false)}
+                  className="rounded-lg bg-sand-100 px-2.5 py-1 text-xs font-semibold text-ink-800 hover:bg-sand-200 transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setIsConfirmingDelete(true)}
+                className="rounded-lg p-1.5 text-ink-400 hover:text-red-600 hover:bg-red-50 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                aria-label="Delete review"
+              >
+                <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
+              </button>
+            )
+          )}
+
+          {/* Report action for other users */}
+          {canReport && (
+            reportDone ? (
+              <span className="text-xs text-ink-500">Reported</span>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setIsReporting((v) => !v)}
+                className="rounded-lg p-1.5 text-ink-400 hover:text-ink-700 hover:bg-sand-100 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                aria-label="Report review"
+                aria-expanded={isReporting}
+              >
+                <Flag className="h-3.5 w-3.5" aria-hidden="true" />
+              </button>
+            )
+          )}
+        </div>
       </div>
 
       {showRatings ? (
@@ -62,6 +165,40 @@ export default function ReviewCard({ review }: { review: Review }) {
           ))}
         </div>
       ) : null}
+
+      {/* Report form */}
+      {isReporting && !reportDone && (
+        <form onSubmit={handleReport} className="mt-4 rounded-2xl border border-ink-100/60 bg-sand-100 p-4">
+          <label className="block text-xs font-semibold text-ink-800 mb-1.5">
+            Reason for report
+          </label>
+          <select
+            value={reportReason}
+            onChange={(e) => setReportReason(e.target.value)}
+            className="w-full rounded-xl border-ink-100/60 bg-white text-sm text-ink-900 focus:border-brand-500 focus:ring-brand-500 mb-3"
+          >
+            {REPORT_REASONS.map((r) => (
+              <option key={r} value={r}>{r}</option>
+            ))}
+          </select>
+          <div className="flex gap-2">
+            <button
+              type="submit"
+              disabled={reporting}
+              className="rounded-lg bg-ink-900 px-3 py-1.5 text-xs font-semibold text-sand-50 hover:bg-ink-800 disabled:opacity-50 transition-colors"
+            >
+              {reporting ? 'Submitting…' : 'Submit report'}
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsReporting(false)}
+              className="rounded-lg bg-sand-200 px-3 py-1.5 text-xs font-semibold text-ink-800 hover:bg-sand-300 transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      )}
     </Card>
   )
 }
