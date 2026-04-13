@@ -15,6 +15,10 @@ type AuthContextValue = AuthState & {
   signIn: (email: string, password: string) => Promise<{ error: string | null }>
   signOut: () => Promise<void>
   updateProfile: (displayName: string) => Promise<{ error: string | null }>
+  updateEmail: (email: string) => Promise<{ error: string | null }>
+  updatePassword: (password: string) => Promise<{ error: string | null }>
+  sendPasswordReset: (email: string) => Promise<{ error: string | null }>
+  deleteAccount: () => Promise<{ error: string | null }>
   refreshProfile: () => Promise<void>
 }
 
@@ -87,6 +91,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error: error?.message ?? null }
   }
 
+  async function updateEmail(email: string) {
+    const { error } = await supabase.auth.updateUser({ email: email.trim() })
+    return { error: error?.message ?? null }
+  }
+
+  async function updatePassword(password: string) {
+    const { error } = await supabase.auth.updateUser({ password })
+    return { error: error?.message ?? null }
+  }
+
+  async function sendPasswordReset(email: string) {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    })
+    return { error: error?.message ?? null }
+  }
+
+  async function deleteAccount() {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (supabase as any).rpc('delete_own_account')
+    if (!error) {
+      await supabase.auth.signOut()
+    }
+    return { error: error?.message ?? null }
+  }
+
   async function refreshProfile() {
     if (session) await fetchProfile(session.user.id)
   }
@@ -102,6 +132,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         signIn,
         signOut,
         updateProfile,
+        updateEmail,
+        updatePassword,
+        sendPasswordReset,
+        deleteAccount,
         refreshProfile,
       }}
     >

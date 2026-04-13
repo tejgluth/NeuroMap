@@ -9,12 +9,10 @@ import {
 
 import HeroSection from '../components/home/HeroSection'
 import StatCard from '../components/home/StatCard'
-import StoryCard from '../components/home/StoryCard'
 import Container from '../components/ui/Container'
 import SectionHeading from '../components/ui/SectionHeading'
 import { ButtonLink } from '../components/ui/Button'
 import { RATING_DIMENSIONS } from '../data/ratings'
-import { STORY_CARDS } from '../data/stories'
 
 export default function HomePage() {
   return (
@@ -135,28 +133,6 @@ export default function HomePage() {
                 Choose the right timing, bring the right supports, and reduce the uncertainty that drains everyone's energy.
               </p>
             </div>
-          </div>
-        </Container>
-      </section>
-
-      {/* ── Real moments ── */}
-      <section className="py-16 sm:py-20">
-        <Container>
-          <SectionHeading
-            eyebrow="Real moments"
-            title="One detail can change everything."
-            description="These are situations families described to us. An outing starts fine, then something shifts."
-          />
-
-          <div className="mt-10 grid gap-4 lg:grid-cols-2">
-            {STORY_CARDS.map((story) => (
-              <StoryCard
-                key={story.id}
-                title={story.title}
-                scenario={story.scenario}
-                whyItMatters={story.whyItMatters}
-              />
-            ))}
           </div>
         </Container>
       </section>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { MapPin, Star, Heart, User } from 'lucide-react'
+import { MapPin, Star, Heart, User, AlertTriangle } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { useFavorites, useMyFavoritePlaces, useMyReviews } from '../../hooks/useFavorites'
 import { useDeleteReview } from '../../hooks/useReviews'
@@ -26,73 +26,209 @@ function SkeletonList() {
 }
 
 function ProfileTab() {
-  const { user, profile, updateProfile } = useAuth()
-  // Initialized from profile; component is remounted via key when profile.display_name changes
+  const { user, profile, updateProfile, updateEmail, deleteAccount } = useAuth()
+  const navigate = useNavigate()
+
+  // Display name form
   const [displayName, setDisplayName] = useState(profile?.display_name ?? '')
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [profileError, setProfileError] = useState<string | null>(null)
+
+  // Email change form
+  const [newEmail, setNewEmail] = useState('')
+  const [emailSaving, setEmailSaving] = useState(false)
+  const [emailSent, setEmailSent] = useState(false)
+  const [emailError, setEmailError] = useState<string | null>(null)
+
+  // Delete account
+  const [deleteConfirm, setDeleteConfirm] = useState(false)
+  const [deleteInput, setDeleteInput] = useState('')
+  const [deleting, setDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()
-    if (!displayName.trim()) { setError('Display name cannot be empty.'); return }
-    setError(null)
+    if (!displayName.trim()) { setProfileError('Display name cannot be empty.'); return }
+    setProfileError(null)
     setSaving(true)
     const { error } = await updateProfile(displayName)
     setSaving(false)
     if (error) {
-      setError(error)
+      setProfileError(error)
     } else {
       setSaved(true)
       setTimeout(() => setSaved(false), 3000)
     }
   }
 
+  async function handleEmailChange(e: React.FormEvent) {
+    e.preventDefault()
+    setEmailError(null)
+    setEmailSaving(true)
+    const { error } = await updateEmail(newEmail)
+    setEmailSaving(false)
+    if (error) {
+      setEmailError(error)
+    } else {
+      setEmailSent(true)
+      setNewEmail('')
+    }
+  }
+
+  async function handleDeleteAccount() {
+    setDeleteError(null)
+    setDeleting(true)
+    const { error } = await deleteAccount()
+    setDeleting(false)
+    if (error) {
+      setDeleteError(error)
+    } else {
+      navigate('/', { replace: true })
+    }
+  }
+
   return (
-    <Card className="p-6 md:p-8">
-      <h2 className="text-base font-semibold text-ink-900 mb-6">Profile settings</h2>
+    <div className="flex flex-col gap-6">
+      {/* Profile settings */}
+      <Card className="p-6 md:p-8">
+        <h2 className="text-base font-semibold text-ink-900 mb-6">Profile settings</h2>
 
-      {error && (
-        <div className="mb-5 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">{error}</div>
-      )}
-      {saved && (
-        <div className="mb-5 rounded-2xl border border-green-200 bg-green-50 p-4 text-sm text-green-800">Profile updated.</div>
-      )}
+        {profileError && (
+          <div className="mb-5 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">{profileError}</div>
+        )}
+        {saved && (
+          <div className="mb-5 rounded-2xl border border-green-200 bg-green-50 p-4 text-sm text-green-800">Profile updated.</div>
+        )}
 
-      <form onSubmit={handleSave} className="flex flex-col gap-5">
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="email-ro" className="text-sm font-semibold text-ink-800">Email</label>
-          <input id="email-ro" type="email" value={user?.email ?? ''} readOnly disabled className={inputClass} />
+        <form onSubmit={handleSave} className="flex flex-col gap-5">
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="email-ro" className="text-sm font-semibold text-ink-800">Email</label>
+            <input id="email-ro" type="email" value={user?.email ?? ''} readOnly disabled className={inputClass} />
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="display-name" className="text-sm font-semibold text-ink-800">Display name</label>
+            <input
+              id="display-name"
+              type="text"
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+              maxLength={80}
+              placeholder="Your name or nickname"
+              className={inputClass}
+            />
+            <p className="text-xs text-ink-500">This appears on reviews you write.</p>
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-sm font-semibold text-ink-800">Member since</label>
+            <p className="text-sm text-ink-600">
+              {profile?.created_at
+                ? new Date(profile.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long' })
+                : '—'}
+            </p>
+          </div>
+
+          <Button type="submit" variant="secondary" size="md" disabled={saving} className="self-start">
+            {saving ? 'Saving…' : 'Save changes'}
+          </Button>
+        </form>
+      </Card>
+
+      {/* Email change */}
+      <Card className="p-6 md:p-8">
+        <h2 className="text-base font-semibold text-ink-900 mb-1">Change email</h2>
+        <p className="text-xs text-ink-500 mb-6">A confirmation link will be sent to your new address. Your email won't change until you click it.</p>
+
+        {emailError && (
+          <div className="mb-5 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">{emailError}</div>
+        )}
+        {emailSent && (
+          <div className="mb-5 rounded-2xl border border-green-200 bg-green-50 p-4 text-sm text-green-800">
+            Confirmation email sent. Check your new inbox and click the link to confirm the change.
+          </div>
+        )}
+
+        <form onSubmit={handleEmailChange} className="flex flex-col gap-4">
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="new-email" className="text-sm font-semibold text-ink-800">New email address</label>
+            <input
+              id="new-email"
+              type="email"
+              autoComplete="email"
+              required
+              value={newEmail}
+              onChange={(e) => { setNewEmail(e.target.value); setEmailSent(false) }}
+              placeholder="new@example.com"
+              className={inputClass}
+            />
+          </div>
+
+          <Button type="submit" variant="secondary" size="md" disabled={emailSaving || !newEmail} className="self-start">
+            {emailSaving ? 'Sending…' : 'Send confirmation'}
+          </Button>
+        </form>
+      </Card>
+
+      {/* Danger zone */}
+      <Card className="p-6 md:p-8 border border-red-200">
+        <div className="flex items-center gap-2 mb-1">
+          <AlertTriangle className="h-4 w-4 text-red-600 shrink-0" aria-hidden="true" />
+          <h2 className="text-base font-semibold text-red-700">Delete account</h2>
         </div>
+        <p className="text-xs text-ink-500 mb-6">Permanently deletes your account, reviews, and saved places. This cannot be undone.</p>
 
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="display-name" className="text-sm font-semibold text-ink-800">Display name</label>
-          <input
-            id="display-name"
-            type="text"
-            value={displayName}
-            onChange={(e) => setDisplayName(e.target.value)}
-            maxLength={80}
-            placeholder="Your name or nickname"
-            className={inputClass}
-          />
-          <p className="text-xs text-ink-500">This appears on reviews you write.</p>
-        </div>
+        {deleteError && (
+          <div className="mb-5 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">{deleteError}</div>
+        )}
 
-        <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-semibold text-ink-800">Member since</label>
-          <p className="text-sm text-ink-600">
-            {profile?.created_at
-              ? new Date(profile.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long' })
-              : '—'}
-          </p>
-        </div>
-
-        <Button type="submit" variant="secondary" size="md" disabled={saving} className="self-start">
-          {saving ? 'Saving…' : 'Save changes'}
-        </Button>
-      </form>
-    </Card>
+        {!deleteConfirm ? (
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => setDeleteConfirm(true)}
+            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+          >
+            Delete my account
+          </Button>
+        ) : (
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="delete-confirm" className="text-sm font-semibold text-ink-800">
+                Type <span className="font-mono text-red-700">DELETE</span> to confirm
+              </label>
+              <input
+                id="delete-confirm"
+                type="text"
+                value={deleteInput}
+                onChange={(e) => setDeleteInput(e.target.value)}
+                placeholder="DELETE"
+                className={inputClass}
+              />
+            </div>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={handleDeleteAccount}
+                disabled={deleting || deleteInput !== 'DELETE'}
+                className="rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              >
+                {deleting ? 'Deleting…' : 'Delete account'}
+              </button>
+              <button
+                type="button"
+                onClick={() => { setDeleteConfirm(false); setDeleteInput('') }}
+                className="rounded-xl bg-sand-100 px-4 py-2 text-sm font-semibold text-ink-800 hover:bg-sand-200 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
+      </Card>
+    </div>
   )
 }
 

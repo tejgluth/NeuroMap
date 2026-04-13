@@ -9,15 +9,14 @@ export default function Footer() {
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {/* Brand */}
           <div className="lg:col-span-2">
-            <div className="flex items-center gap-2.5">
+            <div className="h-14 w-28 overflow-hidden rounded-lg bg-sand-50">
               <img
                 src="/logo.png"
-                alt=""
-                className="h-7 w-7 rounded-lg"
-                width={28}
-                height={28}
+                alt="NeuroMap"
+                className="-translate-y-7 h-28 w-28"
+                width={112}
+                height={112}
               />
-              <span className="text-sm font-semibold text-ink-900">NeuroMap</span>
             </div>
             <p className="mt-3 max-w-sm text-sm leading-relaxed text-ink-600">
               A parent-powered platform for sensory-aware place reviews. Ratings reflect real family visits and may vary by time of day or staffing.
@@ -37,6 +36,7 @@ export default function Footer() {
                 { to: '/map', label: 'Find Places' },
                 { to: '/add-review', label: 'Add a Review' },
                 { to: '/about', label: 'About NeuroMap' },
+                { to: '/contact', label: 'Contact Us' },
               ].map(({ to, label }) => (
                 <li key={to}>
                   <Link
@@ -78,9 +78,14 @@ export default function Footer() {
           <p className="text-xs text-ink-500">
             © {new Date().getFullYear()} NeuroMap · A Social Innovation project · The Bishop's School
           </p>
-          <p className="text-xs text-ink-400">
-            Built to help families plan with confidence.
-          </p>
+          <div className="flex items-center gap-4">
+            <Link to="/terms" className="text-xs text-ink-400 hover:text-ink-700 transition-colors">
+              Terms
+            </Link>
+            <Link to="/privacy" className="text-xs text-ink-400 hover:text-ink-700 transition-colors">
+              Privacy
+            </Link>
+          </div>
         </div>
       </Container>
     </footer>

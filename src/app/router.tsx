@@ -38,6 +38,26 @@ export const router = createBrowserRouter([
         path: 'account',
         lazy: async () => ({ Component: (await import('../pages/account/AccountPage')).default }),
       },
+      {
+        path: 'forgot-password',
+        lazy: async () => ({ Component: (await import('../pages/auth/ForgotPasswordPage')).default }),
+      },
+      {
+        path: 'reset-password',
+        lazy: async () => ({ Component: (await import('../pages/auth/ResetPasswordPage')).default }),
+      },
+      {
+        path: 'terms',
+        lazy: async () => ({ Component: (await import('../pages/legal/TermsPage')).default }),
+      },
+      {
+        path: 'privacy',
+        lazy: async () => ({ Component: (await import('../pages/legal/PrivacyPage')).default }),
+      },
+      {
+        path: 'contact',
+        lazy: async () => ({ Component: (await import('../pages/ContactPage')).default }),
+      },
       { path: '*', element: <NotFoundPage /> },
     ],
   },

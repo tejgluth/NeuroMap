@@ -211,7 +211,7 @@ export default function Navbar() {
           className="flex items-center no-underline focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded-lg"
           aria-label="NeuroMap — Home"
         >
-          <div className="h-12 w-24 overflow-hidden rounded-lg">
+          <div className="h-12 w-24 overflow-hidden rounded-lg bg-sand-100">
             <img
               src="/logo.png"
               alt="NeuroMap"

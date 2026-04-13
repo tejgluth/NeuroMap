@@ -42,15 +42,15 @@ export default function HeroSection() {
             <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-ink-500">
               What parents look for
             </p>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
               {[
                 'Noise levels & sudden spikes',
                 'Crowd density & transitions',
                 'Staff patience & flexibility',
                 'Best times to visit',
               ].map((item) => (
-                <div key={item} className="flex items-start gap-2 text-sm text-ink-700">
-                  <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-500" aria-hidden="true" />
+                <div key={item} className="flex items-center gap-2 text-sm text-ink-700">
+                  <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-brand-500" aria-hidden="true" />
                   {item}
                 </div>
               ))}

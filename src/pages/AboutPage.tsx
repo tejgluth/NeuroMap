@@ -1,4 +1,4 @@
-import { ArrowRight, GraduationCap, HeartHandshake, MapPin, MessageSquarePlus } from 'lucide-react'
+import { ArrowRight, GraduationCap, HeartHandshake, Mail, MapPin, MessageSquarePlus } from 'lucide-react'
 
 import Container from '../components/ui/Container'
 import Card from '../components/ui/Card'
@@ -149,6 +149,23 @@ export default function AboutPage() {
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </ButtonLink>
           </div>
+        </div>
+
+        {/* ── Contact ── */}
+        <div className="mt-8 rounded-2xl border border-ink-100/60 bg-sand-100 p-8">
+          <div className="flex items-center gap-3 mb-4">
+            <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-brand-100 text-brand-700">
+              <Mail className="h-5 w-5" aria-hidden="true" />
+            </span>
+            <h2 className="text-base font-semibold text-ink-900">Get in touch</h2>
+          </div>
+          <p className="text-sm leading-relaxed text-ink-700 mb-5">
+            Have a question, suggestion, or something to report? We'd love to hear from you.
+          </p>
+          <ButtonLink to="/contact" variant="secondary" size="lg">
+            <Mail className="h-4 w-4" aria-hidden="true" />
+            Contact us
+          </ButtonLink>
         </div>
       </Container>
     </div>
