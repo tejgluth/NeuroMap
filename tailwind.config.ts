@@ -7,11 +7,11 @@ export default {
     extend: {
       colors: {
         sand: {
-          50: '#FCFCF8',
-          100: '#F4F4EC',
-          200: '#EAE9DD',
-          300: '#DDDCCB',
-          400: '#CCC9B3',
+          50: '#FAF4F0',
+          100: '#F2ECE4',
+          200: '#E8E1D6',
+          300: '#DBD3C4',
+          400: '#CAC0AC',
         },
         ink: {
           50: '#EFF4F7',

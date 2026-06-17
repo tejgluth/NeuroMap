@@ -62,7 +62,7 @@ export default function HomePage() {
               <SectionHeading
                 eyebrow="What we rate"
                 title="Nine dimensions parents actually use."
-                description="NeuroMap focuses on the signals that tell you whether a place is genuinely manageable: noise, predictability, layout, staff, and more."
+                description="NeuroMaps focuses on the signals that tell you whether a place is genuinely manageable: noise, predictability, layout, staff, and more."
               />
               <div className="mt-8">
                 <ButtonLink to="/map" variant="primary">
@@ -162,7 +162,7 @@ export default function HomePage() {
             </div>
 
             <div className="rounded-2xl border border-ink-100/60 bg-sand-100 p-8">
-              <div className="text-sm font-semibold text-ink-900">What NeuroMap does differently</div>
+              <div className="text-sm font-semibold text-ink-900">What NeuroMaps does differently</div>
               <ul className="mt-5 space-y-4">
                 {[
                   'Rates nine specific sensory dimensions, not just an overall score.',

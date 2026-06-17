@@ -8,19 +8,14 @@ export default function HeroSection() {
     <section className="border-b border-ink-100/60 bg-sand-50 py-16 sm:py-20">
       <Container>
         <div className="mx-auto max-w-3xl">
-          <div className="inline-flex items-center gap-2 rounded-full border border-brand-200 bg-brand-50 px-3.5 py-1.5 text-xs font-semibold text-brand-800">
-            <span className="inline-block h-1.5 w-1.5 rounded-full bg-brand-500" aria-hidden="true" />
-            Parent-powered sensory reviews · La Jolla, CA
-          </div>
-
-          <h1 className="mt-5 text-4xl font-semibold tracking-tight text-ink-900 sm:text-5xl lg:text-6xl">
+          <h1 className="text-4xl font-semibold tracking-tight text-ink-900 sm:text-5xl lg:text-6xl">
             Plan outings without
             <br className="hidden sm:block" />
             {' '}the guesswork.
           </h1>
 
           <p className="mt-5 max-w-2xl text-lg leading-relaxed text-ink-700 sm:text-xl">
-            NeuroMap helps families find sensory-aware places, rated by parents who know what noise, crowds, and sensory triggers actually feel like.
+            NeuroMaps helps families find sensory-aware places, rated by parents who know what noise, crowds, and sensory triggers actually feel like.
           </p>
 
           <div className="mt-8 flex flex-wrap items-center gap-3">

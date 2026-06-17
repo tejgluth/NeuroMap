@@ -18,15 +18,15 @@ export default function TermsPage() {
           <p className="mt-2 text-sm text-ink-500">Last updated: April 2025</p>
         </div>
 
-        <Section title="1. About NeuroMap">
+        <Section title="1. About NeuroMaps">
           <p>
-            NeuroMap is a community platform that helps families find sensory-friendly places. It is a student Social Innovation project from The Bishop's School and is provided free of charge.
+            NeuroMaps is a community platform that helps families find sensory-friendly places. It is a student Social Innovation project from The Bishop's School and is provided free of charge.
           </p>
         </Section>
 
         <Section title="2. Acceptance of terms">
           <p>
-            By accessing or using NeuroMap, you agree to be bound by these Terms of Service. If you do not agree, please do not use the platform.
+            By accessing or using NeuroMaps, you agree to be bound by these Terms of Service. If you do not agree, please do not use the platform.
           </p>
         </Section>
 
@@ -41,7 +41,7 @@ export default function TermsPage() {
 
         <Section title="4. User content">
           <p>
-            You retain ownership of reviews and content you submit. By posting, you grant NeuroMap a non-exclusive, royalty-free license to display and distribute that content on the platform.
+            You retain ownership of reviews and content you submit. By posting, you grant NeuroMaps a non-exclusive, royalty-free license to display and distribute that content on the platform.
           </p>
           <p>
             You agree not to post content that is false, defamatory, harassing, hateful, or otherwise harmful. We reserve the right to remove content that violates these terms.
@@ -50,13 +50,13 @@ export default function TermsPage() {
 
         <Section title="5. Not medical advice">
           <p>
-            Reviews and ratings on NeuroMap reflect individual family experiences and are not medical or therapeutic advice. Sensory environments vary by time of day, staffing, and other factors. Always use your own judgment when visiting a place.
+            Reviews and ratings on NeuroMaps reflect individual family experiences and are not medical or therapeutic advice. Sensory environments vary by time of day, staffing, and other factors. Always use your own judgment when visiting a place.
           </p>
         </Section>
 
         <Section title="6. Accuracy of information">
           <p>
-            Place information and reviews are user-generated and may be out of date. NeuroMap makes no guarantees about the accuracy, completeness, or timeliness of any content.
+            Place information and reviews are user-generated and may be out of date. NeuroMaps makes no guarantees about the accuracy, completeness, or timeliness of any content.
           </p>
         </Section>
 
@@ -79,7 +79,7 @@ export default function TermsPage() {
 
         <Section title="9. Limitation of liability">
           <p>
-            NeuroMap is provided "as is" without warranties of any kind. To the fullest extent permitted by law, NeuroMap and its operators shall not be liable for any indirect, incidental, or consequential damages arising from your use of the platform.
+            NeuroMaps is provided "as is" without warranties of any kind. To the fullest extent permitted by law, NeuroMaps and its operators shall not be liable for any indirect, incidental, or consequential damages arising from your use of the platform.
           </p>
         </Section>
 

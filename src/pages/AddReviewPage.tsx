@@ -1,24 +1,22 @@
-import { AlertCircle, CheckCircle2 } from 'lucide-react'
+import { AlertCircle } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import CategoryBadge from '../components/places/CategoryBadge'
 import RatingRadioGroup from '../components/reviews/RatingRadioGroup'
-import UnlistedPlaceReviewCard from '../components/reviews/UnlistedPlaceReviewCard'
-import Badge from '../components/ui/Badge'
+import AddressAutocomplete from '../components/ui/AddressAutocomplete'
 import { Button, ButtonLink } from '../components/ui/Button'
 import Card from '../components/ui/Card'
 import Container from '../components/ui/Container'
 import { CATEGORIES } from '../data/categories'
 import { RATING_DIMENSIONS } from '../data/ratings'
 import { TAGS } from '../data/tags'
-import { useLocalUnlistedPlaceReviews } from '../hooks/useLocalReviews'
-import { addLocalUnlistedPlaceReview } from '../lib/reviewsStorage'
-import { usePlaces } from '../hooks/usePlaces'
+import { geocodeAddress, slugify, type AddressSuggestion } from '../lib/geocoding'
+import { usePlaces, useSubmitPlace } from '../hooks/usePlaces'
 import { useSubmitReview } from '../hooks/useReviews'
 import { useAuth } from '../contexts/AuthContext'
 import type { CategoryId, ChildAgeRange, Ratings, Review, TagId, VisitTime } from '../types'
-import type { ReviewInsert } from '../lib/database.types'
+import type { PlaceInsert, ReviewInsert } from '../lib/database.types'
 
 const DEFAULT_RATINGS: Ratings = {
   noise: 3,
@@ -46,6 +44,7 @@ function validateReview(input: {
   placeSlug: string
   placeExists: boolean
   customPlaceName: string
+  customAddress: string
   customCategory: CategoryId | ''
   visitTime: VisitTime | ''
   recommend: Review['recommendForSensorySensitiveFamilies'] | ''
@@ -58,6 +57,7 @@ function validateReview(input: {
   } else {
     if (!isNonEmpty(input.customPlaceName)) errors.customPlaceName = 'Please enter the place name.'
     if (!input.customCategory) errors.customCategory = 'Please choose a category.'
+    if (!isNonEmpty(input.customAddress)) errors.customAddress = 'Please enter the specific address.'
   }
 
   if (!input.visitTime) errors.visitTime = 'Please choose a visit time.'
@@ -88,7 +88,9 @@ export default function AddReviewPage() {
   const placeSlug = searchParams.get('place') || ''
 
   const { places: dbPlaces, loading: placesLoading } = usePlaces()
-  const { submit, loading: submitting } = useSubmitReview()
+  const { submit, loading: submittingReview } = useSubmitReview()
+  const { submit: submitPlace, loading: submittingPlace } = useSubmitPlace()
+  const submitting = submittingReview || submittingPlace
   const { user, profile } = useAuth()
 
   const [reviewMode, setReviewMode] = useState<ReviewMode>('listed')
@@ -101,12 +103,11 @@ export default function AddReviewPage() {
   const [ratings, setRatings] = useState<Ratings>({ ...DEFAULT_RATINGS })
   const [customPlaceName, setCustomPlaceName] = useState('')
   const [customAddress, setCustomAddress] = useState('')
+  const [customAddressCoords, setCustomAddressCoords] = useState<{ lat: number; lng: number } | null>(null)
   const [customCategory, setCustomCategory] = useState<CategoryId | ''>('')
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [submitError, setSubmitError] = useState<string | null>(null)
-  const [savedMessage, setSavedMessage] = useState<string | null>(null)
-
-  const unlistedReviews = useLocalUnlistedPlaceReviews()
+  const [reviewPreviewText, setReviewPreviewText] = useState('')
 
   const selectedPlace = useMemo(
     () => dbPlaces.find((p) => p.slug === placeSlug) ?? null,
@@ -124,23 +125,14 @@ export default function AddReviewPage() {
   )
 
   const canSubmit =
-    reviewMode === 'listed' ? Boolean(placeSlug) : isNonEmpty(customPlaceName) && Boolean(customCategory)
-
-  function resetSharedReviewFields() {
-    setDisplayName(profile?.display_name ?? '')
-    setVisitTime('')
-    setChildAgeRange('')
-    setRecommend('')
-    setTags([])
-    setText('')
-    setRatings({ ...DEFAULT_RATINGS })
-  }
+    reviewMode === 'listed'
+      ? Boolean(placeSlug)
+      : isNonEmpty(customPlaceName) && Boolean(customCategory) && isNonEmpty(customAddress)
 
   function switchMode(nextMode: ReviewMode) {
     setReviewMode(nextMode)
     setErrors({})
     setSubmitError(null)
-    setSavedMessage(null)
     if (nextMode === 'unlisted') {
       setSearchParams(
         (prev) => {
@@ -156,13 +148,13 @@ export default function AddReviewPage() {
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault()
     setSubmitError(null)
-    setSavedMessage(null)
 
     const nextErrors = validateReview({
       mode: reviewMode,
       placeSlug,
       placeExists: Boolean(selectedPlace),
       customPlaceName,
+      customAddress,
       customCategory,
       visitTime,
       recommend,
@@ -171,13 +163,27 @@ export default function AddReviewPage() {
     setErrors(nextErrors)
     if (Object.keys(nextErrors).length > 0) return
 
+    if (!user) { setSubmitError('Please sign in to post a review.'); return }
+
+    const resolvedName = isNonEmpty(displayName)
+      ? displayName.trim()
+      : (profile?.display_name ?? 'Anonymous')
+
+    const ratingFields = {
+      rating_overall: ratings.overall,
+      rating_noise: ratings.noise,
+      rating_crowdedness: ratings.crowdedness,
+      rating_staff_hospitality: ratings.staffHospitality,
+      rating_lighting: ratings.lighting,
+      rating_parking: ratings.parking,
+      rating_navigation: ratings.navigation,
+      rating_elevators: ratings.elevators,
+      rating_stairs: ratings.stairs,
+    }
+
     try {
       if (reviewMode === 'listed') {
         if (!selectedPlace) { setSubmitError('Place not found. Please try again.'); return }
-
-        const resolvedName = isNonEmpty(displayName)
-          ? displayName.trim()
-          : (profile?.display_name ?? 'Anonymous')
 
         const payload: ReviewInsert = {
           place_id: selectedPlace.id,
@@ -187,16 +193,8 @@ export default function AddReviewPage() {
           child_age_range: childAgeRange ? (childAgeRange as ChildAgeRange) : null,
           recommend: recommend ? (recommend as Review['recommendForSensorySensitiveFamilies']) : null,
           tags: tags.length > 0 ? tags : null,
-          user_id: user?.id ?? null,
-          rating_overall: ratings.overall,
-          rating_noise: ratings.noise,
-          rating_crowdedness: ratings.crowdedness,
-          rating_staff_hospitality: ratings.staffHospitality,
-          rating_lighting: ratings.lighting,
-          rating_parking: ratings.parking,
-          rating_navigation: ratings.navigation,
-          rating_elevators: ratings.elevators,
-          rating_stairs: ratings.stairs,
+          user_id: user.id,
+          ...ratingFields,
         }
 
         const { error } = await submit(payload)
@@ -206,25 +204,39 @@ export default function AddReviewPage() {
         return
       }
 
-      const created = addLocalUnlistedPlaceReview({
-        placeName: customPlaceName.trim(),
-        categoryId: customCategory as CategoryId,
-        address: isNonEmpty(customAddress) ? customAddress.trim() : undefined,
-        displayName: isNonEmpty(displayName) ? displayName.trim() : 'Anonymous',
-        visitTime: visitTime as VisitTime,
-        childAgeRange: childAgeRange ? (childAgeRange as ChildAgeRange) : undefined,
-        ratings,
-        recommendForSensorySensitiveFamilies: recommend as Review['recommendForSensorySensitiveFamilies'],
-        tags,
-        text: text.trim(),
-      })
+      const { lat, lng } = customAddressCoords ?? (await geocodeAddress(customAddress.trim()))
 
-      resetSharedReviewFields()
-      setCustomPlaceName('')
-      setCustomAddress('')
-      setCustomCategory('')
-      setErrors({})
-      setSavedMessage(`Review saved for ${created.placeName}. It now appears below.`)
+      const placePayload: PlaceInsert = {
+        name: customPlaceName.trim(),
+        slug: slugify(customPlaceName.trim()),
+        category_id: customCategory as CategoryId,
+        address: customAddress.trim(),
+        lat,
+        lng,
+      }
+
+      const { id: newPlaceId, error: placeError } = await submitPlace(placePayload)
+      if (placeError || !newPlaceId) {
+        setSubmitError(`Could not save this place. ${placeError ?? 'Unknown error'}`)
+        return
+      }
+
+      const reviewPayload: ReviewInsert = {
+        place_id: newPlaceId,
+        display_name: resolvedName,
+        review_text: text.trim(),
+        visit_time: visitTime as VisitTime,
+        child_age_range: childAgeRange ? (childAgeRange as ChildAgeRange) : null,
+        recommend: recommend ? (recommend as Review['recommendForSensorySensitiveFamilies']) : null,
+        tags: tags.length > 0 ? tags : null,
+        user_id: user.id,
+        ...ratingFields,
+      }
+
+      const { error: reviewError } = await submit(reviewPayload)
+      if (reviewError) { setSubmitError(`Could not save your review. ${reviewError}`); return }
+
+      navigate(`/places/${placePayload.slug}?reviewed=1`, { replace: true })
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error'
       setSubmitError(`Could not save your review. ${message}`)
@@ -254,16 +266,6 @@ export default function AddReviewPage() {
                     <div className="flex items-start gap-2.5 rounded-xl border border-red-200 bg-red-50 px-4 py-3.5 text-sm text-red-800">
                       <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
                       {submitError}
-                    </div>
-                  </div>
-                )}
-
-                {/* Saved message */}
-                {savedMessage && (
-                  <div className="p-5">
-                    <div className="flex items-start gap-2.5 rounded-xl border border-brand-200 bg-brand-50 px-4 py-3.5 text-sm text-brand-800">
-                      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
-                      {savedMessage}
                     </div>
                   </div>
                 )}
@@ -364,13 +366,26 @@ export default function AddReviewPage() {
                           )}
                         </label>
                         <label className="grid gap-1.5">
-                          <span className="text-xs font-semibold text-ink-600">Address or area (optional)</span>
-                          <input
+                          <span className="text-xs font-semibold text-ink-600">Address</span>
+                          <AddressAutocomplete
                             value={customAddress}
-                            onChange={(e) => setCustomAddress(e.target.value)}
-                            placeholder="e.g. Near La Jolla Blvd"
+                            onChange={(next) => {
+                              setCustomAddress(next)
+                              setCustomAddressCoords(null)
+                            }}
+                            onSelect={(suggestion: AddressSuggestion) => {
+                              setCustomAddress(suggestion.placeName)
+                              setCustomAddressCoords({ lat: suggestion.lat, lng: suggestion.lng })
+                            }}
+                            placeholder="Start typing, e.g. 7855 Fay Ave…"
                             className={inputClass}
                           />
+                          <span className="text-xs text-ink-400">
+                            Start typing and choose your address from the suggestions.
+                          </span>
+                          {errors.customAddress && (
+                            <p className="text-xs font-semibold text-red-700">{errors.customAddress}</p>
+                          )}
                         </label>
                       </div>
                     )}
@@ -583,6 +598,7 @@ export default function AddReviewPage() {
                     <textarea
                       value={text}
                       onChange={(e) => setText(e.target.value)}
+                      onBlur={(e) => setReviewPreviewText(e.target.value)}
                       rows={6}
                       maxLength={4000}
                       placeholder="e.g. We went at opening and it was calm. Music got louder around 10am. Staff were kind when we asked to sit away from speakers…"
@@ -601,7 +617,7 @@ export default function AddReviewPage() {
 
                 {/* Submit */}
                 <div className="flex flex-wrap items-center gap-3 p-6">
-                  {reviewMode === 'listed' && !user ? (
+                  {!user ? (
                     <>
                       <ButtonLink
                         to={`/sign-in?returnTo=${encodeURIComponent('/add-review' + (placeSlug ? `?place=${placeSlug}` : ''))}`}
@@ -622,7 +638,7 @@ export default function AddReviewPage() {
                         size="lg"
                         disabled={!canSubmit || submitting}
                       >
-                        {submitting ? 'Saving…' : reviewMode === 'listed' ? 'Save review' : 'Save note'}
+                        {submitting ? 'Saving…' : reviewMode === 'listed' ? 'Save review' : 'Add place & save review'}
                       </Button>
                       {reviewMode === 'listed' && placeSlug && (
                         <ButtonLink to={`/places/${placeSlug}`} variant="ghost" size="lg">
@@ -664,33 +680,21 @@ export default function AddReviewPage() {
                   {isNonEmpty(customAddress) && (
                     <div className="text-sm text-ink-500">{customAddress}</div>
                   )}
-                  <p className="text-sm text-ink-500">This note will be saved locally.</p>
+                  <p className="text-sm text-ink-500">This place and your review will be added to the map.</p>
                 </div>
               ) : (
                 <p className="mt-3 text-sm text-ink-500">
                   Fill in the place name and category above to see a preview.
                 </p>
               )}
-            </Card>
 
-            {/* Saved notes */}
-            <Card className="mt-3 p-5">
-              <div className="flex items-center justify-between">
-                <div className="text-sm font-semibold text-ink-900">Your saved notes</div>
-                <Badge className="bg-sand-100 text-ink-600">{unlistedReviews.length}</Badge>
-              </div>
-              <p className="mt-1.5 text-xs leading-relaxed text-ink-500">
-                Notes for places not yet on the map. Stored in your browser.
-              </p>
-
-              {unlistedReviews.length > 0 ? (
-                <div className="mt-4 grid max-h-96 gap-3 overflow-auto">
-                  {unlistedReviews.map((review) => (
-                    <UnlistedPlaceReviewCard key={review.id} review={review} />
-                  ))}
+              {isNonEmpty(reviewPreviewText) && (
+                <div className="mt-4 border-t border-ink-100/60 pt-4">
+                  <div className="text-xs font-semibold text-ink-600">Your review</div>
+                  <p className="mt-1.5 text-sm leading-relaxed text-ink-700 whitespace-pre-wrap">
+                    {reviewPreviewText}
+                  </p>
                 </div>
-              ) : (
-                <p className="mt-3 text-xs text-ink-400">None yet.</p>
               )}
             </Card>
 

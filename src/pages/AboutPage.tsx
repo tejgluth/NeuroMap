@@ -32,7 +32,7 @@ export default function AboutPage() {
             Social Innovation · The Bishop's School
           </div>
           <h1 className="mt-3 text-3xl font-semibold tracking-tight text-ink-900 sm:text-4xl">
-            We built NeuroMap to help families plan outings with confidence.
+            We built NeuroMaps to help families plan outings with confidence.
           </h1>
           <p className="mt-4 text-lg leading-relaxed text-ink-700">
             We kept hearing the same need from parents of autistic children: specific, honest information about sensory environments. Not vague labels, not a generic star rating.
@@ -49,7 +49,7 @@ export default function AboutPage() {
               <h2 className="text-base font-semibold text-ink-900">Why we started</h2>
             </div>
             <p className="text-sm leading-relaxed text-ink-700">
-              Our team grew up alongside cousins with autism. Through personal experience, parent interviews, and community conversations, we kept hearing the same thing: families need honest, specific sensory information. Not a score. Not a certification. NeuroMap is our attempt to make that information easier to find and use before you leave home.
+              Our team grew up alongside cousins with autism. Through personal experience, parent interviews, and community conversations, we kept hearing the same thing: families need honest, specific sensory information. Not a score. Not a certification. NeuroMaps is our attempt to make that information easier to find and use before you leave home.
             </p>
           </div>
 
@@ -76,7 +76,7 @@ export default function AboutPage() {
             Community knowledge, not corporate ratings.
           </h2>
           <p className="mt-3 max-w-2xl text-ink-700 leading-relaxed">
-            NeuroMap treats caregivers as the experts in their own experience. We don't certify places or assign official status. We give families the tools to share what they observed, so the next family can prepare, not guess.
+            NeuroMaps treats caregivers as the experts in their own experience. We don't certify places or assign official status. We give families the tools to share what they observed, so the next family can prepare, not guess.
           </p>
 
           <div className="mt-8 grid gap-4 sm:grid-cols-3">

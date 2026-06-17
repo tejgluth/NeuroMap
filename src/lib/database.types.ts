@@ -340,6 +340,7 @@ export type FavoriteRow = Database["public"]["Tables"]["favorites"]["Row"]
 export type ReviewReportRow = Database["public"]["Tables"]["review_reports"]["Row"]
 
 export type ReviewInsert = Database["public"]["Tables"]["reviews"]["Insert"]
+export type PlaceInsert = Database["public"]["Tables"]["places"]["Insert"]
 export type ProfileUpdate = Database["public"]["Tables"]["profiles"]["Update"]
 
 export type PlacesWithRatingsRow =

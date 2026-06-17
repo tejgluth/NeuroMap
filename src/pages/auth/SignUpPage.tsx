@@ -91,7 +91,7 @@ export default function SignUpPage() {
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
           <h1 className="text-2xl font-semibold tracking-tight text-ink-900">Create an account</h1>
-          <p className="mt-2 text-sm text-ink-700">Join NeuroMap to save places and share your experience.</p>
+          <p className="mt-2 text-sm text-ink-700">Join NeuroMaps to save places and share your experience.</p>
         </div>
 
         <Card className="p-8">

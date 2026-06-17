@@ -209,18 +209,16 @@ export default function Navbar() {
         <Link
           to="/"
           className="flex items-center no-underline focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded-lg"
-          aria-label="NeuroMap — Home"
+          aria-label="NeuroMaps — Home"
         >
-          <div className="h-12 w-24 overflow-hidden rounded-lg bg-sand-100">
-            <img
-              src="/logo.png"
-              alt="NeuroMap"
-              className="-translate-y-6 h-24 w-24"
-              width={96}
-              height={96}
-              loading="eager"
-            />
-          </div>
+          <img
+            src="/logo-full.png"
+            alt="NeuroMaps"
+            className="h-9 w-auto object-contain"
+            width={1075}
+            height={351}
+            loading="eager"
+          />
         </Link>
 
         <nav aria-label="Primary" className="hidden items-center gap-0.5 md:flex">

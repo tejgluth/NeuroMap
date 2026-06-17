@@ -1,4 +1,4 @@
-# NeuroMap — Design Notes
+# NeuroMaps — Design Notes
 
 This site’s visual language is derived from `public/logo.png`:
 

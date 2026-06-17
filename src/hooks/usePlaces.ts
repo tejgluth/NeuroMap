@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { mergeComputedRatings } from '../lib/ratings'
-import type { PlacesWithRatingsRow } from '../lib/database.types'
+import type { PlaceInsert, PlacesWithRatingsRow } from '../lib/database.types'
 import type { CategoryId, ComputedRatings, Place, Ratings } from '../types'
 
 export type DbPlace = Place & {
@@ -93,4 +93,17 @@ export function usePlace(slug: string | undefined) {
   const { places, loading, error } = usePlaces()
   const place = slug ? places.find((p) => p.slug === slug) ?? null : null
   return { place, loading, error }
+}
+
+export function useSubmitPlace() {
+  const [loading, setLoading] = useState(false)
+
+  async function submit(payload: PlaceInsert): Promise<{ id: string | null; error: string | null }> {
+    setLoading(true)
+    const { data, error } = await supabase.from('places').insert(payload).select('id').single()
+    setLoading(false)
+    return { id: data?.id ?? null, error: error?.message ?? null }
+  }
+
+  return { submit, loading }
 }

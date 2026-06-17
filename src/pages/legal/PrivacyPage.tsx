@@ -35,7 +35,7 @@ export default function PrivacyPage() {
         <Section title="2. How we use your information">
           <p>We use your information to:</p>
           <ul className="list-disc pl-5 space-y-1">
-            <li>Operate and improve the NeuroMap platform</li>
+            <li>Operate and improve the NeuroMaps platform</li>
             <li>Display your reviews and display name to other users</li>
             <li>Send account-related emails (confirmation, password reset)</li>
             <li>Detect and prevent abuse</li>
@@ -51,7 +51,7 @@ export default function PrivacyPage() {
 
         <Section title="4. Cookies and local storage">
           <p>
-            NeuroMap stores your authentication session in your browser's local storage to keep you signed in across visits. No third-party advertising cookies are used.
+            NeuroMaps stores your authentication session in your browser's local storage to keep you signed in across visits. No third-party advertising cookies are used.
           </p>
         </Section>
 
@@ -79,7 +79,7 @@ export default function PrivacyPage() {
 
         <Section title="8. Changes to this policy">
           <p>
-            We may update this policy as the platform evolves. The date of the latest update is shown at the top of this page. Continued use of NeuroMap after changes constitutes acceptance.
+            We may update this policy as the platform evolves. The date of the latest update is shown at the top of this page. Continued use of NeuroMaps after changes constitutes acceptance.
           </p>
         </Section>
 

@@ -1,6 +1,6 @@
-# NeuroMap
+# NeuroMaps
 
-NeuroMap is a **sensory-accessibility review platform** for families with autistic children. Parents browse, rate, and review real-world places on 9 sensory dimensions — noise, crowdedness, lighting, staff hospitality, parking, navigation, elevators, stairs, and overall — so other families can plan outings with confidence.
+NeuroMaps is a **sensory-accessibility review platform** for families with autistic children. Parents browse, rate, and review real-world places on 9 sensory dimensions — noise, crowdedness, lighting, staff hospitality, parking, navigation, elevators, stairs, and overall — so other families can plan outings with confidence.
 
 **Current focus:** La Jolla, CA — 18 seeded places.
 
@@ -168,4 +168,4 @@ public/
 
 ## Health + safety disclaimer
 
-NeuroMap does not provide medical advice. Ratings and reviews reflect parent-reported experiences; they are not official or verified accessibility assessments. Always use your best judgment and consult qualified professionals for individualized guidance.
+NeuroMaps does not provide medical advice. Ratings and reviews reflect parent-reported experiences; they are not official or verified accessibility assessments. Always use your best judgment and consult qualified professionals for individualized guidance.
