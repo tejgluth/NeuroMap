@@ -11,7 +11,7 @@ This site’s visual language is derived from `public/logo.png`:
 - **Calm + clarity**: generous spacing, rounded cards, and restrained visual density
 - **Caregiver-friendly**: readable hierarchy, clear CTAs, and predictable layouts
 - **Accessibility-first**: semantic structure, keyboard-friendly navigation, visible focus states, reduced-motion friendly behavior
-- **“Health-adjacent nonprofit-tech” feel**: warm, mission-driven copy and a clean, trustworthy UI without startup hype
+- **“Health-adjacent nonprofit-tech” feel**: warm, mission-driven copy and a clean, trustworthy UI without startup hype, purposely not built like "AI slop"
 
 ## UI decisions tied to the logo
 
