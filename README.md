@@ -2,7 +2,7 @@
 
 NeuroMaps is a **sensory-accessibility review platform** for families with autistic children. Parents browse, rate, and review real-world places on 9 sensory dimensions — noise, crowdedness, lighting, staff hospitality, parking, navigation, elevators, stairs, and overall — so other families can plan outings with confidence.
 
-**Current focus:** La Jolla, CA — 18 seeded places.
+**Current focus:** San Diego, CA, with support for discovering places throughout the United States.
 
 ---
 
@@ -46,6 +46,10 @@ npm run lint       # lint check
 | `VITE_SUPABASE_URL` | Supabase project URL |
 | `VITE_SUPABASE_PUBLISHABLE_KEY` | Supabase anon/publishable key |
 | `VITE_SITE_URL` | Site origin (used for auth redirect URLs) |
+| `VITE_MAPBOX_TOKEN` | Public Mapbox token for POI search and map tiles |
+| `RESEND_KEY` | Server-only Resend API key used by the Cloudflare email function |
+| `RESEND_FROM` | Verified Resend sender, for example `NeuroMaps <hello@example.com>` |
+| `CONTACT_EMAIL` | Inbox that receives contact and feedback submissions |
 
 ---
 
@@ -57,7 +61,7 @@ npm run lint       # lint check
 
 **SPA routing:** `public/_redirects` handles React Router client-side routing on Cloudflare Pages.
 
-**Environment variables:** Set `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, and `VITE_SITE_URL` in the Cloudflare Pages project settings (Settings → Environment variables).
+**Environment variables:** Set the variables above in the Cloudflare Pages project settings. Never prefix the Resend key with `VITE_`; it must only be available to the server-side Pages Function.
 
 ---
 
@@ -107,8 +111,7 @@ Ratings are **1–5 where higher = calmer / more accessible**. The seed JSON sto
 
 | Limitation | Reason | Impact |
 |---|---|---|
-| Email confirmation required on signup | Supabase default; no SMTP configured | Users must confirm email before signing in. For staging testing, disable "Confirm email" in Supabase Auth → Settings. |
-| No password reset flow | Requires SMTP for outbound email | Sign-up works; password reset UI not yet built |
+| Auth email delivery requires dashboard setup | Supabase custom SMTP must point to Resend | Configure Resend SMTP once in Supabase Auth settings |
 | No Google OAuth | Not yet configured in Supabase Auth | Email/password only |
 | No CAPTCHA | Turnstile not yet configured | Forms are open; fine for staging scale |
 | No custom domain | Not yet purchased/configured | Served from `*.pages.dev` |
@@ -119,8 +122,9 @@ Ratings are **1–5 where higher = calmer / more accessible**. The seed JSON sto
 ## Remaining steps for full public launch
 
 1. **SMTP / transactional email**
-   - Configure a provider (Resend, SendGrid, Postmark) in Supabase Auth → SMTP settings
-   - This unblocks: email confirmation on signup, password reset emails, magic links
+   - Verify a sending domain in Resend
+   - Configure Resend SMTP in Supabase Auth → SMTP settings
+   - This routes email confirmation, password reset, and other Supabase Auth messages through Resend
    - Add `VITE_SITE_URL` to Supabase Auth → URL Configuration (redirect URLs)
 
 2. **Google OAuth** (optional)

@@ -58,6 +58,10 @@ export const router = createBrowserRouter([
         path: 'contact',
         lazy: async () => ({ Component: (await import('../pages/ContactPage')).default }),
       },
+      {
+        path: 'feedback',
+        lazy: async () => ({ Component: (await import('../pages/FeedbackPage')).default }),
+      },
       { path: '*', element: <NotFoundPage /> },
     ],
   },

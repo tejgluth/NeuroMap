@@ -174,6 +174,7 @@ function MobileNav({
             <NavItem to="/map" label="Explore Map" onNavigate={close} />
             <NavItem to="/add-review" label="Add a Review" onNavigate={close} />
             <NavItem to="/about" label="About" onNavigate={close} />
+            <NavItem to="/feedback" label="Feedback" onNavigate={close} />
             <hr className="my-2 border-ink-100/60" />
             {user ? (
               <>
@@ -226,6 +227,7 @@ export default function Navbar() {
           <NavItem to="/map" label="Explore Map" />
           <NavItem to="/add-review" label="Add a Review" />
           <NavItem to="/about" label="About" />
+          <NavItem to="/feedback" label="Feedback" />
         </nav>
 
         <div className="hidden md:flex items-center gap-3">

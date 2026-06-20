@@ -7,8 +7,9 @@ import { MapPin, MessageSquarePlus } from 'lucide-react'
 import type { ComputedRatings, Place } from '../../types'
 import CategoryBadge from '../places/CategoryBadge'
 import RatingMeter from '../ui/RatingMeter'
+import { SAN_DIEGO_CENTER, type MapboxPlace } from '../../lib/mapboxSearch'
 
-const BISHOPS_SCHOOL_CENTER = { lat: 32.8439, lng: -117.2746 }
+const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN as string | undefined
 
 function markerColor(overall: number | null) {
   if (typeof overall !== 'number' || !Number.isFinite(overall)) {
@@ -51,6 +52,14 @@ function createMarkerIcon(overall: number | null) {
   })
 }
 
+const discoveredMarkerIcon = L.divIcon({
+  html: '<div style="width:32px;height:32px;border-radius:9999px;background:#F4F4EC;border:3px solid #44A4AC;box-shadow:0 8px 18px rgba(28,52,68,.22);display:flex;align-items:center;justify-content:center;color:#1C3444;font-weight:800;font-size:16px">+</div>',
+  className: '',
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -28],
+})
+
 function MapController({ activePlace }: { activePlace?: Place }) {
   const map = useMap()
 
@@ -74,10 +83,12 @@ export type MapPlace = Place & { computedRatings: ComputedRatings }
 
 export default function PlaceMap({
   places,
+  discoveredPlaces = [],
   activePlaceId,
   onActivatePlace,
 }: {
   places: MapPlace[]
+  discoveredPlaces?: MapboxPlace[]
   activePlaceId?: string
   onActivatePlace?: (placeId: string) => void
 }) {
@@ -86,15 +97,22 @@ export default function PlaceMap({
 
   return (
     <MapContainer
-      center={[BISHOPS_SCHOOL_CENTER.lat, BISHOPS_SCHOOL_CENTER.lng]}
-      zoom={13}
+      center={[SAN_DIEGO_CENTER.lat, SAN_DIEGO_CENTER.lng]}
+      zoom={11}
       scrollWheelZoom={false}
       className="h-full w-full rounded-2xl"
     >
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
+      {MAPBOX_TOKEN ? (
+        <TileLayer
+          attribution='&copy; <a href="https://www.mapbox.com/about/maps/">Mapbox</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+          url={`https://api.mapbox.com/styles/v1/mapbox/streets-v12/tiles/256/{z}/{x}/{y}@2x?access_token=${MAPBOX_TOKEN}`}
+        />
+      ) : (
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+      )}
 
       <MapController activePlace={active} />
 
@@ -145,6 +163,37 @@ export default function PlaceMap({
           </Popup>
         </Marker>
       ))}
+
+      {discoveredPlaces.map((place) => {
+        const params = new URLSearchParams({
+          source: 'mapbox',
+          name: place.name,
+          address: place.address,
+          lat: String(place.lat),
+          lng: String(place.lng),
+          category: place.categoryId,
+        })
+        return (
+          <Marker key={`mapbox-${place.id}`} position={[place.lat, place.lng]} icon={discoveredMarkerIcon}>
+            <Popup>
+              <div className="w-60">
+                <div className="text-sm font-semibold text-ink-900">{place.name}</div>
+                <div className="mt-1 text-xs text-ink-600">{place.address}</div>
+                <p className="mt-2 text-xs leading-relaxed text-ink-600">
+                  Found with Mapbox. No sensory reviews yet.
+                </p>
+                <Link
+                  to={`/add-review?${params.toString()}`}
+                  className="mt-3 inline-flex items-center gap-2 rounded-xl bg-brand-600 px-3 py-2 text-xs font-semibold text-sand-50 no-underline hover:bg-brand-700"
+                >
+                  <MessageSquarePlus className="h-4 w-4" aria-hidden="true" />
+                  Add the first review
+                </Link>
+              </div>
+            </Popup>
+          </Marker>
+        )
+      })}
     </MapContainer>
   )
 }

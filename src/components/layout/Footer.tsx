@@ -35,6 +35,7 @@ export default function Footer() {
                 { to: '/add-review', label: 'Add a Review' },
                 { to: '/about', label: 'About NeuroMaps' },
                 { to: '/contact', label: 'Contact Us' },
+                { to: '/feedback', label: 'Share Feedback' },
               ].map(({ to, label }) => (
                 <li key={to}>
                   <Link

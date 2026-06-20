@@ -1,5 +1,5 @@
 import { RotateCcw, Search, SlidersHorizontal } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import PlaceMap, { type MapPlace } from '../components/map/PlaceMap'
@@ -9,6 +9,7 @@ import { CATEGORIES } from '../data/categories'
 import type { CategoryId } from '../types'
 import { cn } from '../lib/cn'
 import { usePlaces } from '../hooks/usePlaces'
+import { searchMapboxPlaces, type MapboxPlace } from '../lib/mapboxSearch'
 
 type CategoryFilter = CategoryId | 'all'
 
@@ -47,8 +48,35 @@ export default function MapPage() {
   const [minCrowds, setMinCrowds] = useState(0)
   const [advanced, setAdvanced] = useState(false)
   const [activePlaceId, setActivePlaceId] = useState<string | undefined>(undefined)
+  const [discoveredPlaces, setDiscoveredPlaces] = useState<MapboxPlace[]>([])
+  const [searchingMapbox, setSearchingMapbox] = useState(false)
 
   const { places: placesWithRatings, loading, error } = usePlaces()
+
+  useEffect(() => {
+    const controller = new AbortController()
+    const timer = window.setTimeout(async () => {
+      if (query.trim().length < 2) {
+        setDiscoveredPlaces([])
+        setSearchingMapbox(false)
+        return
+      }
+      setSearchingMapbox(true)
+      try {
+        const results = await searchMapboxPlaces(query, controller.signal)
+        const reviewedNames = new Set(placesWithRatings.map((place) => place.name.toLowerCase()))
+        setDiscoveredPlaces(results.filter((place) => !reviewedNames.has(place.name.toLowerCase())))
+      } catch (searchError) {
+        if (!(searchError instanceof DOMException && searchError.name === 'AbortError')) setDiscoveredPlaces([])
+      } finally {
+        if (!controller.signal.aborted) setSearchingMapbox(false)
+      }
+    }, 350)
+    return () => {
+      window.clearTimeout(timer)
+      controller.abort()
+    }
+  }, [placesWithRatings, query])
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -102,10 +130,10 @@ export default function MapPage() {
       <Container>
         <div className="mb-6">
           <h1 className="text-2xl font-semibold tracking-tight text-ink-900 sm:text-3xl">
-            Sensory-friendly places near La Jolla
+            Explore sensory-friendly places
           </h1>
           <p className="mt-1.5 text-ink-600">
-            Browse and filter by category, noise level, or crowd density.
+            Find reviewed places and discover new locations across San Diego and the United States.
           </p>
         </div>
 
@@ -143,6 +171,9 @@ export default function MapPage() {
                       placeholder="Place name or address"
                       className="w-full rounded-xl border border-ink-100/60 bg-sand-100 py-2 pl-9 pr-3 text-sm text-ink-900 placeholder:text-ink-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 transition-colors"
                     />
+                    {searchingMapbox && (
+                      <span className="absolute right-3 top-2.5 text-xs text-ink-400">Searching…</span>
+                    )}
                   </div>
                 </label>
 
@@ -332,11 +363,16 @@ export default function MapPage() {
           <div className="lg:col-span-8">
             <div className="overflow-hidden rounded-2xl border border-ink-100/60 shadow-card">
               <div className="h-[52dvh] w-full lg:h-[76dvh]">
-                <PlaceMap places={filtered} activePlaceId={activePlaceId} onActivatePlace={setActivePlaceId} />
+                <PlaceMap
+                  places={filtered}
+                  discoveredPlaces={discoveredPlaces}
+                  activePlaceId={activePlaceId}
+                  onActivatePlace={setActivePlaceId}
+                />
               </div>
             </div>
             <p className="mt-3 text-xs text-ink-500">
-              Tap a marker to preview a place. Ratings reflect parent-reported experiences and may vary by time of day or season.
+              Rated markers are NeuroMaps places. Plus markers are nearby Mapbox results you can add with the first review. Map labels also show existing local places.
             </p>
           </div>
         </div>

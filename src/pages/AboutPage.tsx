@@ -61,7 +61,7 @@ export default function AboutPage() {
               <h2 className="text-base font-semibold text-ink-900">How it works</h2>
             </div>
             <p className="text-sm leading-relaxed text-ink-700 mb-4">
-              Parents browse places near La Jolla on the map, read sensory reviews written by other families, and filter by noise level, crowd density, staff responsiveness, and more. When they visit, they can add their own review to help the next family plan.
+              Parents explore places on the map, read sensory reviews written by other families, and filter by noise level, crowd density, staff responsiveness, and more. NeuroMaps is starting in San Diego and expanding throughout the United States.
             </p>
             <p className="text-sm leading-relaxed text-ink-700">
               Every review focuses on practical, actionable detail: what time of day was calmer, what sensory triggers were present, and what small accommodations made the difference.
@@ -133,7 +133,7 @@ export default function AboutPage() {
             Ready to explore or contribute?
           </h2>
           <p className="mt-2 text-ink-600 leading-relaxed">
-            Browse places near La Jolla or share your own experience to help other families plan.
+            Explore sensory-friendly places or share your own experience to help other families plan.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <ButtonLink to="/map" variant="primary" size="lg">

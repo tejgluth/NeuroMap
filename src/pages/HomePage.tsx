@@ -112,7 +112,7 @@ export default function HomePage() {
               </div>
               <div className="text-sm font-semibold text-ink-900">Search the map</div>
               <p className="mt-2 text-sm leading-relaxed text-ink-600">
-                Browse places near La Jolla. Filter by category, noise level, or crowd density to narrow your options.
+                Browse sensory-friendly places, starting across San Diego and expanding throughout the United States. Filter by category, noise level, or crowd density.
               </p>
             </div>
             <div className="relative rounded-2xl border border-ink-100/60 bg-sand-100 p-7">

@@ -5,6 +5,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import CategoryBadge from '../components/places/CategoryBadge'
 import RatingRadioGroup from '../components/reviews/RatingRadioGroup'
 import AddressAutocomplete from '../components/ui/AddressAutocomplete'
+import PlaceAutocomplete from '../components/ui/PlaceAutocomplete'
 import { Button, ButtonLink } from '../components/ui/Button'
 import Card from '../components/ui/Card'
 import Container from '../components/ui/Container'
@@ -17,6 +18,7 @@ import { useSubmitReview } from '../hooks/useReviews'
 import { useAuth } from '../contexts/AuthContext'
 import type { CategoryId, ChildAgeRange, Ratings, Review, TagId, VisitTime } from '../types'
 import type { PlaceInsert, ReviewInsert } from '../lib/database.types'
+import type { MapboxPlace } from '../lib/mapboxSearch'
 
 const DEFAULT_RATINGS: Ratings = {
   noise: 3,
@@ -93,7 +95,7 @@ export default function AddReviewPage() {
   const submitting = submittingReview || submittingPlace
   const { user, profile } = useAuth()
 
-  const [reviewMode, setReviewMode] = useState<ReviewMode>('listed')
+  const [reviewMode, setReviewMode] = useState<ReviewMode>(() => searchParams.get('source') === 'mapbox' ? 'unlisted' : 'listed')
   const [displayName, setDisplayName] = useState(profile?.display_name ?? '')
   const [visitTime, setVisitTime] = useState<VisitTime | ''>('')
   const [childAgeRange, setChildAgeRange] = useState<ChildAgeRange | ''>('')
@@ -101,10 +103,17 @@ export default function AddReviewPage() {
   const [tags, setTags] = useState<TagId[]>([])
   const [text, setText] = useState('')
   const [ratings, setRatings] = useState<Ratings>({ ...DEFAULT_RATINGS })
-  const [customPlaceName, setCustomPlaceName] = useState('')
-  const [customAddress, setCustomAddress] = useState('')
-  const [customAddressCoords, setCustomAddressCoords] = useState<{ lat: number; lng: number } | null>(null)
-  const [customCategory, setCustomCategory] = useState<CategoryId | ''>('')
+  const [customPlaceName, setCustomPlaceName] = useState(() => searchParams.get('name') ?? '')
+  const [customAddress, setCustomAddress] = useState(() => searchParams.get('address') ?? '')
+  const [customAddressCoords, setCustomAddressCoords] = useState<{ lat: number; lng: number } | null>(() => {
+    const lat = Number(searchParams.get('lat'))
+    const lng = Number(searchParams.get('lng'))
+    return Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null
+  })
+  const [customCategory, setCustomCategory] = useState<CategoryId | ''>(() => {
+    const category = searchParams.get('category')
+    return CATEGORIES.some((item) => item.id === category) ? category as CategoryId : ''
+  })
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [reviewPreviewText, setReviewPreviewText] = useState('')
@@ -112,11 +121,6 @@ export default function AddReviewPage() {
   const selectedPlace = useMemo(
     () => dbPlaces.find((p) => p.slug === placeSlug) ?? null,
     [dbPlaces, placeSlug],
-  )
-
-  const placesForSelect = useMemo(
-    () => [...dbPlaces].sort((a, b) => a.name.localeCompare(b.name)),
-    [dbPlaces],
   )
 
   const ratingDescriptions = useMemo(
@@ -143,6 +147,28 @@ export default function AddReviewPage() {
         { replace: true },
       )
     }
+  }
+
+  function selectListedPlace(slug: string) {
+    setReviewMode('listed')
+    setSearchParams({ place: slug }, { replace: true })
+    setErrors((current) => ({ ...current, placeId: '' }))
+  }
+
+  function selectMapboxPlace(place: MapboxPlace) {
+    setReviewMode('unlisted')
+    setCustomPlaceName(place.name)
+    setCustomAddress(place.address)
+    setCustomAddressCoords({ lat: place.lat, lng: place.lng })
+    setCustomCategory(place.categoryId)
+    setSearchParams({}, { replace: true })
+    setErrors((current) => ({
+      ...current,
+      placeId: '',
+      customPlaceName: '',
+      customAddress: '',
+      customCategory: '',
+    }))
   }
 
   async function handleSubmit(event: React.FormEvent) {
@@ -303,34 +329,16 @@ export default function AddReviewPage() {
 
                     {reviewMode === 'listed' ? (
                       <div className="mt-3">
-                        <select
-                          value={placeSlug}
-                          disabled={placesLoading}
-                          onChange={(event) => {
-                            const next = event.target.value
-                            setSearchParams(
-                              (prev) => {
-                                const params = new URLSearchParams(prev)
-                                if (next) params.set('place', next)
-                                else params.delete('place')
-                                return params
-                              },
-                              { replace: true },
-                            )
-                          }}
-                          className={selectClass + ' disabled:opacity-60'}
-                        >
-                          <option value="">{placesLoading ? 'Loading places…' : 'Choose a place…'}</option>
-                          {!placesLoading && (
-                            <optgroup label="Places near La Jolla">
-                              {placesForSelect.map((p) => (
-                                <option key={p.id} value={p.slug}>
-                                  {p.name}
-                                </option>
-                              ))}
-                            </optgroup>
-                          )}
-                        </select>
+                        <PlaceAutocomplete
+                          places={dbPlaces}
+                          selectedPlace={selectedPlace}
+                          loading={placesLoading}
+                          onSelectListed={(place) => selectListedPlace(place.slug)}
+                          onSelectMapbox={selectMapboxPlace}
+                        />
+                        <p className="mt-1.5 text-xs text-ink-400">
+                          Search includes reviewed NeuroMaps places and nearby Mapbox results. Choosing a new place will prefill the form.
+                        </p>
                         {errors.placeId && (
                           <p className="mt-1.5 text-xs font-semibold text-red-700">{errors.placeId}</p>
                         )}
