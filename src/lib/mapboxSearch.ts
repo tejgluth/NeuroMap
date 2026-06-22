@@ -175,3 +175,39 @@ export async function searchMapboxPlaces(query: string, signal?: AbortSignal): P
     }]
   })
 }
+
+export async function reverseMapboxPlaces(
+  lat: number,
+  lng: number,
+  signal?: AbortSignal,
+): Promise<MapboxPlace[]> {
+  if (!MAPBOX_TOKEN) return []
+  const params = new URLSearchParams({
+    longitude: String(lng),
+    latitude: String(lat),
+    access_token: MAPBOX_TOKEN,
+    country: 'US',
+    language: 'en',
+    limit: '8',
+  })
+  const response = await fetch(`https://api.mapbox.com/search/searchbox/v1/reverse?${params}`, { signal })
+  if (!response.ok) throw new Error('Mapbox place lookup failed')
+  const data = (await response.json()) as SearchBoxFeatureResponse
+
+  return (data.features ?? []).flatMap((feature) => {
+    const coordinates = feature.geometry?.coordinates
+    const properties = feature.properties
+    const id = properties?.mapbox_id
+    const name = properties?.name
+    if (properties?.feature_type !== 'poi' || !id || !name || !coordinates) return []
+    return [{
+      id,
+      name,
+      address: formatAddress(properties),
+      featureType: 'poi',
+      categoryId: mapCategory(properties.poi_category_ids ?? properties.poi_category),
+      lat: coordinates[1],
+      lng: coordinates[0],
+    }]
+  })
+}

@@ -372,7 +372,7 @@ export default function MapPage() {
               </div>
             </div>
             <p className="mt-3 text-xs text-ink-500">
-              Rated markers are NeuroMaps places. Plus markers are nearby Mapbox results you can add with the first review. Map labels also show existing local places.
+              Click any place label on the map to find nearby places and add a review. Rated markers are existing NeuroMaps places; plus markers are new Mapbox results.
             </p>
           </div>
         </div>
