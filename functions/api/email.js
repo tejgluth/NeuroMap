@@ -10,6 +10,9 @@ const escapeHtml = (value) => String(value)
   .replaceAll('"', '&quot;')
   .replaceAll("'", '&#039;')
 
+const DEFAULT_FROM = 'NeuroMaps <feedback@neuromaps.it.com>'
+const DEFAULT_CONTACT_EMAIL = 'neuromaps27@gmail.com'
+
 export async function onRequest({ request, env }) {
   if (request.method !== 'POST') return json({ error: 'Method not allowed.' }, 405)
 
@@ -53,8 +56,8 @@ export async function onRequest({ request, env }) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      from: env.RESEND_FROM || 'NeuroMaps <onboarding@resend.dev>',
-      to: [env.CONTACT_EMAIL || 'neuromaps27@gmail.com'],
+      from: env.RESEND_FROM || DEFAULT_FROM,
+      to: [env.CONTACT_EMAIL || DEFAULT_CONTACT_EMAIL],
       reply_to: email || undefined,
       subject: `[NeuroMaps ${kind === 'feedback' ? 'Feedback' : 'Contact'}] ${subject}`,
       html: `<div style="font-family:Arial,sans-serif;line-height:1.6;color:#1c3444;max-width:640px"><h1 style="font-size:22px">${heading}</h1>${rows}<p><strong>Subject:</strong> ${escapeHtml(subject)}</p><hr style="border:0;border-top:1px solid #dce3e5"><p style="white-space:pre-wrap">${escapeHtml(message)}</p></div>`,
