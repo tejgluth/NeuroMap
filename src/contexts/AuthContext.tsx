@@ -23,6 +23,7 @@ type AuthContextValue = AuthState & {
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
+const siteUrl = (import.meta.env.VITE_SITE_URL as string | undefined)?.replace(/\/$/, '')
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null)
@@ -103,7 +104,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   async function sendPasswordReset(email: string) {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
+      redirectTo: `${siteUrl || window.location.origin}/reset-password`,
     })
     return { error: error?.message ?? null }
   }
