@@ -1,13 +1,19 @@
 import { Outlet, ScrollRestoration, useNavigation } from 'react-router-dom'
+import { useEffect } from 'react'
 
 import Footer from './Footer'
 import Navbar from './Navbar'
 import SkipToContent from './SkipToContent'
 import { cn } from '../../lib/cn'
+import { clearAssetRecoveryMarker } from '../../lib/assetRecovery'
 
 export default function RootLayout() {
   const navigation = useNavigation()
   const isBusy = navigation.state !== 'idle'
+
+  useEffect(() => {
+    clearAssetRecoveryMarker()
+  }, [])
 
   return (
     <div className="min-h-dvh">
