@@ -146,7 +146,10 @@ function ProfileTab() {
         )}
         {emailSent && (
           <div className="mb-5 rounded-2xl border border-green-200 bg-green-50 p-4 text-sm text-green-800">
-            Confirmation email sent. Check your new inbox and click the link to confirm the change.
+            <p>Confirmation email sent. Check your new inbox and click the link to confirm the change.</p>
+            <p className="mt-2">
+              The email may have gone to your spam folder, kindly mark it as not spam and continue.
+            </p>
           </div>
         )}
 

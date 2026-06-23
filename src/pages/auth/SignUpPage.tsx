@@ -71,6 +71,9 @@ export default function SignUpPage() {
             <p className="text-sm text-ink-700 mb-6">
               We sent a confirmation link to <strong className="text-ink-900">{email}</strong>. Open it to activate your account, then sign in.
             </p>
+            <p className="mb-6 text-sm text-ink-700">
+              The email may have gone to your spam folder, kindly mark it as not spam and continue.
+            </p>
             <Link
               to="/sign-in"
               className="inline-flex items-center justify-center rounded-xl bg-brand-600 px-5 py-2.5 text-sm font-semibold text-sand-50 shadow-sm ring-1 ring-inset ring-brand-600/10 hover:bg-brand-700 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
