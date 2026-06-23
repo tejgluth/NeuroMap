@@ -3,6 +3,11 @@ const json = (body, status = 200) => new Response(JSON.stringify(body), {
   headers: { 'Content-Type': 'application/json; charset=utf-8' },
 })
 
+const MAX_BODY_BYTES = 12_000
+const WINDOW_MS = 60_000
+const MAX_MESSAGES_PER_WINDOW = 5
+const ipBuckets = new Map()
+
 const escapeHtml = (value) => String(value)
   .replaceAll('&', '&amp;')
   .replaceAll('<', '&lt;')
@@ -10,8 +15,41 @@ const escapeHtml = (value) => String(value)
   .replaceAll('"', '&quot;')
   .replaceAll("'", '&#039;')
 
+function isAllowedOrigin(request, env) {
+  const origin = request.headers.get('Origin')
+  if (!origin) return true
+
+  const requestUrl = new URL(request.url)
+  const allowed = new Set([requestUrl.origin])
+  const siteUrl = String(env.VITE_SITE_URL || '').trim()
+  if (siteUrl) allowed.add(new URL(siteUrl).origin)
+
+  return allowed.has(origin)
+}
+
+function isRateLimited(request) {
+  const ip = request.headers.get('CF-Connecting-IP') || 'unknown'
+  const now = Date.now()
+  const current = ipBuckets.get(ip)
+
+  if (!current || now > current.resetAt) {
+    ipBuckets.set(ip, { count: 1, resetAt: now + WINDOW_MS })
+    return false
+  }
+
+  current.count += 1
+  return current.count > MAX_MESSAGES_PER_WINDOW
+}
+
 export async function onRequest({ request, env }) {
   if (request.method !== 'POST') return json({ error: 'Method not allowed.' }, 405)
+  if (!isAllowedOrigin(request, env)) return json({ error: 'Request origin is not allowed.' }, 403)
+  if (!request.headers.get('Content-Type')?.toLowerCase().includes('application/json')) {
+    return json({ error: 'Invalid request.' }, 415)
+  }
+  const contentLength = Number(request.headers.get('Content-Length') || 0)
+  if (contentLength > MAX_BODY_BYTES) return json({ error: 'Message is too large.' }, 413)
+  if (isRateLimited(request)) return json({ error: 'Too many messages. Please try again later.' }, 429)
 
   let payload
   try {

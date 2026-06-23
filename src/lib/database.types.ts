@@ -21,7 +21,7 @@ export type Database = {
         Insert: {
           created_at?: string
           place_id: string
-          user_id: string
+          user_id?: string
         }
         Update: {
           created_at?: string
@@ -151,7 +151,7 @@ export type Database = {
           id?: string
           reason: string
           review_id: string
-          user_id: string
+          user_id?: string
         }
         Update: {
           created_at?: string

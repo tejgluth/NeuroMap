@@ -112,7 +112,7 @@ export default function PlacePage() {
 
   async function handleReport(reviewId: string, reason: string) {
     if (!user) return
-    await report(reviewId, user.id, reason)
+    await report(reviewId, reason)
   }
 
   return (

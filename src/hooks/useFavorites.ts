@@ -29,7 +29,7 @@ export function useFavorites() {
       await supabase.from('favorites').delete().eq('user_id', user.id).eq('place_id', placeId)
       setFavoriteIds((prev) => { const next = new Set(prev); next.delete(placeId); return next })
     } else {
-      await supabase.from('favorites').insert({ user_id: user.id, place_id: placeId })
+      await supabase.from('favorites').insert({ place_id: placeId })
       setFavoriteIds((prev) => new Set([...prev, placeId]))
     }
     setToggling(null)

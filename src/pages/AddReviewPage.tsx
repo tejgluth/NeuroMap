@@ -211,7 +211,7 @@ export default function AddReviewPage() {
       if (reviewMode === 'listed') {
         if (!selectedPlace) { setSubmitError('Place not found. Please try again.'); return }
 
-        const payload: ReviewInsert = {
+        const payload: Omit<ReviewInsert, 'user_id'> = {
           place_id: selectedPlace.id,
           display_name: resolvedName,
           review_text: text.trim(),
@@ -219,7 +219,6 @@ export default function AddReviewPage() {
           child_age_range: childAgeRange ? (childAgeRange as ChildAgeRange) : null,
           recommend: recommend ? (recommend as Review['recommendForSensorySensitiveFamilies']) : null,
           tags: tags.length > 0 ? tags : null,
-          user_id: user.id,
           ...ratingFields,
         }
 
@@ -247,7 +246,7 @@ export default function AddReviewPage() {
         return
       }
 
-      const reviewPayload: ReviewInsert = {
+      const reviewPayload: Omit<ReviewInsert, 'user_id'> = {
         place_id: newPlaceId,
         display_name: resolvedName,
         review_text: text.trim(),
@@ -255,7 +254,6 @@ export default function AddReviewPage() {
         child_age_range: childAgeRange ? (childAgeRange as ChildAgeRange) : null,
         recommend: recommend ? (recommend as Review['recommendForSensorySensitiveFamilies']) : null,
         tags: tags.length > 0 ? tags : null,
-        user_id: user.id,
         ...ratingFields,
       }
 

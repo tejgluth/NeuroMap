@@ -69,7 +69,7 @@ export function useReviews(placeId: string | undefined) {
 export function useSubmitReview() {
   const [loading, setLoading] = useState(false)
 
-  async function submit(payload: ReviewInsert): Promise<{ error: string | null }> {
+  async function submit(payload: Omit<ReviewInsert, 'user_id'>): Promise<{ error: string | null }> {
     setLoading(true)
     const { error } = await supabase.from('reviews').insert(payload)
     setLoading(false)
@@ -97,13 +97,12 @@ export function useReportReview() {
 
   async function report(
     reviewId: string,
-    userId: string,
     reason: string,
   ): Promise<{ error: string | null }> {
     setLoading(true)
     const { error } = await supabase
       .from('review_reports')
-      .insert({ review_id: reviewId, user_id: userId, reason })
+      .insert({ review_id: reviewId, reason })
     setLoading(false)
     return { error: error?.message ?? null }
   }

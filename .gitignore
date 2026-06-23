@@ -20,6 +20,9 @@ dist-ssr
 .env
 .env.*
 
+# Local security review notes
+vibecoder-review.md
+
 # Local virtualenvs
 .venv/
 
