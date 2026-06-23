@@ -1,6 +1,6 @@
 import { ChevronDown, Menu, X } from 'lucide-react'
-import { useEffect, useId, useRef, useState } from 'react'
-import { Link, NavLink, useLocation } from 'react-router-dom'
+import { useCallback, useEffect, useId, useRef, useState } from 'react'
+import { Link, NavLink } from 'react-router-dom'
 
 import { useAuth } from '../../contexts/AuthContext'
 import { cn } from '../../lib/cn'
@@ -10,10 +10,12 @@ function NavItem({
   to,
   label,
   onNavigate,
+  className,
 }: {
   to: string
   label: string
   onNavigate?: () => void
+  className?: string
 }) {
   return (
     <NavLink
@@ -25,6 +27,7 @@ function NavItem({
           isActive
             ? 'bg-sand-200/70 text-ink-900'
             : 'text-ink-700 hover:bg-sand-200/50 hover:text-ink-900',
+          className,
         )
       }
     >
@@ -137,105 +140,151 @@ function UserMenu() {
   )
 }
 
-function MobileNav({
+function MobileNavButton({
+  open,
+  setOpen,
+  mobileNavId,
+}: {
+  open: boolean
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>
+  mobileNavId: string
+}) {
+  return (
+    <button
+      type="button"
+      className="inline-flex items-center justify-center rounded-lg p-2 text-ink-700 transition-colors hover:bg-sand-200/60 hover:text-ink-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 motion-reduce:transition-none md:hidden"
+      aria-label={open ? 'Close menu' : 'Open menu'}
+      aria-expanded={open}
+      aria-controls={mobileNavId}
+      onClick={() => setOpen((v) => !v)}
+    >
+      {open ? <X className="h-5 w-5" aria-hidden="true" /> : <Menu className="h-5 w-5" aria-hidden="true" />}
+    </button>
+  )
+}
+
+function MobileNavPanel({
+  open,
+  mobileNavId,
   user,
   signOut,
+  close,
 }: {
+  open: boolean
+  mobileNavId: string
   user: ReturnType<typeof useAuth>['user']
   signOut: () => Promise<void>
+  close: () => void
 }) {
-  const [open, setOpen] = useState(false)
-  const mobileNavId = useId()
-  const close = () => setOpen(false)
+  useEffect(() => {
+    if (!open) return
+
+    const previousOverflow = document.body.style.overflow
+    const previousDocumentOverflow = document.documentElement.style.overflow
+    document.body.style.overflow = 'hidden'
+    document.documentElement.style.overflow = 'hidden'
+
+    function keyHandler(e: KeyboardEvent) {
+      if (e.key === 'Escape') close()
+    }
+
+    document.addEventListener('keydown', keyHandler)
+    return () => {
+      document.body.style.overflow = previousOverflow
+      document.documentElement.style.overflow = previousDocumentOverflow
+      document.removeEventListener('keydown', keyHandler)
+    }
+  }, [open, close])
+
+  const mobileItemClassName = 'block w-full px-4 py-3 text-base rounded-xl'
 
   return (
-    <>
-      <button
-        type="button"
-        className="inline-flex items-center justify-center rounded-lg p-2 text-ink-700 transition-colors hover:bg-sand-200/60 hover:text-ink-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 motion-reduce:transition-none md:hidden"
-        aria-label={open ? 'Close menu' : 'Open menu'}
-        aria-expanded={open}
-        aria-controls={mobileNavId}
-        onClick={() => setOpen((v) => !v)}
-      >
-        {open ? <X className="h-5 w-5" aria-hidden="true" /> : <Menu className="h-5 w-5" aria-hidden="true" />}
-      </button>
-
-      <div
-        id={mobileNavId}
-        className={cn(
-          'border-t border-ink-100/60 bg-sand-100 md:hidden',
-          open ? 'block' : 'hidden',
-        )}
-      >
-        <Container className="py-3">
-          <div className="flex flex-col gap-0.5">
-            <NavItem to="/" label="Home" onNavigate={close} />
-            <NavItem to="/map" label="Explore Map" onNavigate={close} />
-            <NavItem to="/add-review" label="Add a Review" onNavigate={close} />
-            <NavItem to="/about" label="About" onNavigate={close} />
-            <NavItem to="/feedback" label="Feedback" onNavigate={close} />
-            <hr className="my-2 border-ink-100/60" />
-            {user ? (
-              <>
-                <NavItem to="/account" label="My Account" onNavigate={close} />
-                <button
-                  type="button"
-                  onClick={async () => {
-                    close()
-                    await signOut()
-                  }}
-                  className="rounded-lg px-3 py-1.5 text-left text-sm font-medium text-ink-700 hover:bg-sand-200/50 hover:text-ink-900 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-                >
-                  Sign out
-                </button>
-              </>
-            ) : (
-              <NavItem to="/sign-in" label="Sign in" onNavigate={close} />
-            )}
-          </div>
-        </Container>
-      </div>
-    </>
+    <div
+      id={mobileNavId}
+      className={cn(
+        'fixed inset-x-0 top-14 bottom-0 z-[60] overflow-y-auto overscroll-contain border-t border-ink-100/60 bg-sand-100 shadow-[0_24px_60px_-40px_rgb(28_52_68_/_0.45)] md:hidden',
+        open ? 'block' : 'hidden',
+      )}
+    >
+      <Container className="py-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
+        <nav aria-label="Mobile primary" className="flex min-h-full flex-col gap-1">
+          <NavItem to="/" label="Home" onNavigate={close} className={mobileItemClassName} />
+          <NavItem to="/map" label="Explore Map" onNavigate={close} className={mobileItemClassName} />
+          <NavItem to="/add-review" label="Add a Review" onNavigate={close} className={mobileItemClassName} />
+          <NavItem to="/about" label="About" onNavigate={close} className={mobileItemClassName} />
+          <NavItem to="/feedback" label="Feedback" onNavigate={close} className={mobileItemClassName} />
+          <hr className="my-3 border-ink-100/60" />
+          {user ? (
+            <>
+              <NavItem to="/account" label="My Account" onNavigate={close} className={mobileItemClassName} />
+              <button
+                type="button"
+                onClick={async () => {
+                  close()
+                  await signOut()
+                }}
+                className="rounded-xl px-4 py-3 text-left text-base font-medium text-ink-700 transition-colors hover:bg-sand-200/50 hover:text-ink-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+              >
+                Sign out
+              </button>
+            </>
+          ) : (
+            <NavItem to="/sign-in" label="Sign in" onNavigate={close} className={mobileItemClassName} />
+          )}
+        </nav>
+      </Container>
+    </div>
   )
 }
 
 export default function Navbar() {
-  const location = useLocation()
   const { user, signOut } = useAuth()
+  const [mobileNavOpen, setMobileNavOpen] = useState(false)
+  const mobileNavId = useId()
+  const closeMobileNav = useCallback(() => setMobileNavOpen(false), [])
 
   return (
-    <header className="sticky top-0 z-40 border-b border-ink-100/60 bg-sand-100/90 backdrop-blur-md">
-      <Container className="flex h-14 items-center justify-between gap-4 py-0">
-        <Link
-          to="/"
-          className="flex items-center no-underline focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded-lg"
-          aria-label="NeuroMaps — Home"
-        >
-          <img
-            src="/logo-full.png"
-            alt="NeuroMaps"
-            className="h-9 w-auto object-contain"
-            width={1075}
-            height={351}
-            loading="eager"
-          />
-        </Link>
+    <>
+      <header className="sticky top-0 z-50 border-b border-ink-100/60 bg-sand-100/90 backdrop-blur-md">
+        <Container className="flex h-14 items-center justify-between gap-4 py-0">
+          <Link
+            to="/"
+            onClick={closeMobileNav}
+            className="flex items-center no-underline focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 rounded-lg"
+            aria-label="NeuroMaps — Home"
+          >
+            <img
+              src="/logo-full.png"
+              alt="NeuroMaps"
+              className="h-9 w-auto object-contain"
+              width={1075}
+              height={351}
+              loading="eager"
+            />
+          </Link>
 
-        <nav aria-label="Primary" className="hidden items-center gap-0.5 md:flex">
-          <NavItem to="/" label="Home" />
-          <NavItem to="/map" label="Explore Map" />
-          <NavItem to="/add-review" label="Add a Review" />
-          <NavItem to="/about" label="About" />
-          <NavItem to="/feedback" label="Feedback" />
-        </nav>
+          <nav aria-label="Primary" className="hidden items-center gap-0.5 md:flex">
+            <NavItem to="/" label="Home" />
+            <NavItem to="/map" label="Explore Map" />
+            <NavItem to="/add-review" label="Add a Review" />
+            <NavItem to="/about" label="About" />
+            <NavItem to="/feedback" label="Feedback" />
+          </nav>
 
-        <div className="hidden md:flex items-center gap-3">
-          <UserMenu />
-        </div>
+          <div className="hidden md:flex items-center gap-3">
+            <UserMenu />
+          </div>
 
-        <MobileNav key={location.pathname} user={user} signOut={signOut} />
-      </Container>
-    </header>
+          <MobileNavButton open={mobileNavOpen} setOpen={setMobileNavOpen} mobileNavId={mobileNavId} />
+        </Container>
+      </header>
+      <MobileNavPanel
+        open={mobileNavOpen}
+        mobileNavId={mobileNavId}
+        user={user}
+        signOut={signOut}
+        close={closeMobileNav}
+      />
+    </>
   )
 }
