@@ -96,11 +96,11 @@ Ratings are **1–5 where higher = calmer / more accessible**. The seed JSON sto
 - ✅ Place detail pages with sensory breakdown, planning notes, and community reviews
 - ✅ Email + password sign up and sign in (Supabase Auth)
 - ✅ Auto-created user profiles on signup (via DB trigger)
-- ✅ Account page: edit display name, view my reviews (with delete), view saved places (with unfavorite)
+- ✅ Account page: edit display name, view my reviews (with edit/delete), view saved places (with unfavorite)
 - ✅ Save/unsave places (favorites) — authenticated only
 - ✅ Submit reviews for listed places → saved to Supabase
 - ✅ Review authorship shown via profile display name
-- ✅ Review delete (own reviews only, enforced by RLS)
+- ✅ Review edit/delete (own reviews only, enforced by RLS)
 - ✅ Review reporting (any authenticated user can report any other user's review)
 - ✅ Unlisted place notes (localStorage — for places not yet in the DB)
 - ✅ Fully accessible UI: keyboard navigation, skip-to-content, ARIA labels, reduced-motion support

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
+import type { TagId, VisitTime, YesNo } from '../types'
 
 export function useFavorites() {
   const { user } = useAuth()
@@ -81,7 +82,11 @@ export function useMyReviews() {
     place_id: string
     review_text: string
     rating_overall: number | null
+    visit_time: VisitTime | null
+    recommend: YesNo | null
+    tags: TagId[]
     created_at: string
+    updated_at: string
     place_slug: string
     place_name: string
   }>>([])
@@ -92,7 +97,7 @@ export function useMyReviews() {
     setLoading(true)
     const { data } = await supabase
       .from('reviews')
-      .select('id, place_id, review_text, rating_overall, created_at, places(name, slug)')
+      .select('id, place_id, review_text, rating_overall, visit_time, recommend, tags, created_at, updated_at, places(name, slug)')
       .eq('user_id', user.id)
       .eq('is_seed', false)
       .order('created_at', { ascending: false })
@@ -103,7 +108,11 @@ export function useMyReviews() {
         place_id: row.place_id,
         review_text: row.review_text,
         rating_overall: row.rating_overall,
+        visit_time: row.visit_time as VisitTime | null,
+        recommend: row.recommend as YesNo | null,
+        tags: (row.tags as TagId[] | null) ?? [],
         created_at: row.created_at,
+        updated_at: row.updated_at,
         place_name: place?.name ?? '',
         place_slug: place?.slug ?? '',
       }

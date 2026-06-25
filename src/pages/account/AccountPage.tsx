@@ -1,19 +1,27 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { MapPin, Star, Heart, User, AlertTriangle } from 'lucide-react'
+import { MapPin, Star, Heart, User, AlertTriangle, Pencil } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { useFavorites, useMyFavoritePlaces, useMyReviews } from '../../hooks/useFavorites'
-import { useDeleteReview } from '../../hooks/useReviews'
+import { useDeleteReview, useUpdateReview } from '../../hooks/useReviews'
 import { Button } from '../../components/ui/Button'
 import Card from '../../components/ui/Card'
 import Container from '../../components/ui/Container'
 import Spinner from '../../components/ui/Spinner'
 import { cn } from '../../lib/cn'
+import RatingRadioGroup from '../../components/reviews/RatingRadioGroup'
+import { TAGS } from '../../data/tags'
+import type { TagId, VisitTime, YesNo } from '../../types'
 
 type Tab = 'profile' | 'reviews' | 'favorites'
 
 const inputClass =
   'w-full rounded-xl border border-ink-100/60 bg-white px-4 py-2.5 text-sm text-ink-900 placeholder-ink-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/30 transition-colors disabled:bg-sand-100 disabled:text-ink-500'
+
+const textareaClass =
+  inputClass + ' min-h-32 resize-y leading-relaxed'
+
+const VISIT_TIMES: VisitTime[] = ['Morning', 'Midday', 'Afternoon', 'Evening']
 
 function SkeletonList() {
   return (
@@ -238,8 +246,71 @@ function ProfileTab() {
 function ReviewsTab() {
   const { reviews, loading, refetch } = useMyReviews()
   const { deleteReview } = useDeleteReview()
+  const { updateReview, loading: updating } = useUpdateReview()
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [confirmId, setConfirmId] = useState<string | null>(null)
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editText, setEditText] = useState('')
+  const [editOverall, setEditOverall] = useState(3)
+  const [editVisitTime, setEditVisitTime] = useState<VisitTime | ''>('')
+  const [editRecommend, setEditRecommend] = useState<YesNo | ''>('')
+  const [editTags, setEditTags] = useState<TagId[]>([])
+  const [editError, setEditError] = useState<string | null>(null)
+  const [savedId, setSavedId] = useState<string | null>(null)
+
+  type MyReview = (typeof reviews)[number]
+
+  function startEdit(review: MyReview) {
+    setConfirmId(null)
+    setSavedId(null)
+    setEditError(null)
+    setEditingId(review.id)
+    setEditText(review.review_text)
+    setEditOverall(review.rating_overall ?? 3)
+    setEditVisitTime(review.visit_time ?? '')
+    setEditRecommend(review.recommend ?? '')
+    setEditTags(review.tags ?? [])
+  }
+
+  function cancelEdit() {
+    setEditingId(null)
+    setEditError(null)
+  }
+
+  function toggleEditTag(tagId: TagId) {
+    setEditTags((current) =>
+      current.includes(tagId)
+        ? current.filter((id) => id !== tagId)
+        : [...current, tagId],
+    )
+  }
+
+  async function handleSaveEdit(reviewId: string) {
+    const trimmedText = editText.trim()
+    if (trimmedText.length < 20) {
+      setEditError('Please write at least 20 characters.')
+      return
+    }
+
+    setEditError(null)
+    const { error } = await updateReview(reviewId, {
+      review_text: trimmedText,
+      rating_overall: editOverall,
+      visit_time: editVisitTime || null,
+      recommend: editRecommend || null,
+      tags: editTags.length > 0 ? editTags : null,
+    })
+
+    if (error) {
+      setEditError(`Could not update your review. ${error}`)
+      return
+    }
+
+    await refetch()
+    setEditingId(null)
+    setSavedId(reviewId)
+    window.setTimeout(() => setSavedId(null), 3000)
+  }
 
   async function handleDelete(id: string) {
     setDeletingId(id)
@@ -271,54 +342,192 @@ function ReviewsTab() {
     <div className="flex flex-col gap-3">
       {reviews.map((r) => (
         <Card key={r.id} className="p-4">
-          <div className="flex items-start justify-between gap-4">
-            <div className="min-w-0">
-              <Link
-                to={`/places/${r.place_slug}`}
-                className="text-sm font-semibold text-brand-700 hover:text-brand-800 underline underline-offset-2 truncate block"
-              >
-                {r.place_name}
-              </Link>
-              {r.rating_overall != null && (
-                <p className="text-xs text-ink-500 mt-0.5">Overall: {r.rating_overall}/5</p>
-              )}
-              <p className="mt-1.5 text-sm text-ink-700 line-clamp-2">{r.review_text}</p>
-              <p className="mt-1 text-xs text-ink-400">
-                {new Date(r.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
-              </p>
-            </div>
-
-            <div className="shrink-0">
-              {confirmId === r.id ? (
-                <div className="flex gap-2 items-center">
-                  <button
-                    type="button"
-                    onClick={() => handleDelete(r.id)}
-                    disabled={deletingId === r.id}
-                    className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700 disabled:opacity-50 transition-colors"
-                  >
-                    {deletingId === r.id ? 'Deleting…' : 'Delete'}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setConfirmId(null)}
-                    className="rounded-lg bg-sand-100 px-3 py-1.5 text-xs font-semibold text-ink-800 hover:bg-sand-200 transition-colors"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => setConfirmId(r.id)}
-                  className="rounded-lg p-1.5 text-ink-400 hover:text-red-600 hover:bg-red-50 transition-colors"
-                  aria-label="Delete review"
+          {editingId === r.id ? (
+            <div className="grid gap-5">
+              <div>
+                <Link
+                  to={`/places/${r.place_slug}`}
+                  className="text-sm font-semibold text-brand-700 hover:text-brand-800 underline underline-offset-2"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
-                </button>
+                  {r.place_name}
+                </Link>
+                <p className="mt-1 text-xs text-ink-500">Editing your review</p>
+              </div>
+
+              {editError && (
+                <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+                  {editError}
+                </div>
               )}
+
+              <RatingRadioGroup
+                name={`overall-${r.id}`}
+                label="Overall rating"
+                description="Higher means calmer or more supportive."
+                value={editOverall}
+                onChange={setEditOverall}
+              />
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <label className="grid gap-1.5">
+                  <span className="text-sm font-semibold text-ink-800">Visit time</span>
+                  <select
+                    value={editVisitTime}
+                    onChange={(event) => setEditVisitTime(event.target.value as VisitTime | '')}
+                    className={inputClass}
+                  >
+                    <option value="">Not specified</option>
+                    {VISIT_TIMES.map((time) => (
+                      <option key={time} value={time}>{time}</option>
+                    ))}
+                  </select>
+                </label>
+
+                <fieldset className="grid gap-2">
+                  <legend className="text-sm font-semibold text-ink-800">Recommendation</legend>
+                  <div className="flex flex-wrap gap-2">
+                    {(['yes', 'no'] as const).map((value) => (
+                      <label
+                        key={value}
+                        className={cn(
+                          'cursor-pointer rounded-xl px-4 py-2 text-sm font-semibold ring-1 ring-inset transition-colors focus-within:ring-2 focus-within:ring-brand-500',
+                          editRecommend === value
+                            ? 'bg-brand-600 text-sand-50 ring-brand-600/20'
+                            : 'bg-sand-100 text-ink-700 ring-ink-100/60 hover:bg-sand-200',
+                        )}
+                      >
+                        <input
+                          type="radio"
+                          name={`recommend-${r.id}`}
+                          value={value}
+                          checked={editRecommend === value}
+                          onChange={() => setEditRecommend(value)}
+                          className="sr-only"
+                        />
+                        {value === 'yes' ? 'Recommend' : 'Not for us'}
+                      </label>
+                    ))}
+                  </div>
+                </fieldset>
+              </div>
+
+              <fieldset>
+                <legend className="text-sm font-semibold text-ink-800">Tags</legend>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {TAGS.map((tag) => {
+                    const checked = editTags.includes(tag.id)
+                    return (
+                      <label
+                        key={tag.id}
+                        className={cn(
+                          'cursor-pointer rounded-full px-3 py-1.5 text-xs font-semibold ring-1 ring-inset transition-colors focus-within:ring-2 focus-within:ring-brand-500',
+                          checked
+                            ? 'bg-brand-600 text-sand-50 ring-brand-600/20'
+                            : 'bg-sand-100 text-ink-700 ring-ink-100/60 hover:bg-sand-200',
+                        )}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={() => toggleEditTag(tag.id)}
+                          className="sr-only"
+                        />
+                        {tag.label}
+                      </label>
+                    )
+                  })}
+                </div>
+              </fieldset>
+
+              <label className="grid gap-1.5">
+                <span className="text-sm font-semibold text-ink-800">Review text</span>
+                <textarea
+                  value={editText}
+                  onChange={(event) => setEditText(event.target.value)}
+                  maxLength={4000}
+                  className={textareaClass}
+                />
+                <span className="text-right text-xs text-ink-400 tabular-nums">{editText.length}/4000</span>
+              </label>
+
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  disabled={updating}
+                  onClick={() => handleSaveEdit(r.id)}
+                >
+                  {updating ? 'Saving…' : 'Save review'}
+                </Button>
+                <Button type="button" variant="ghost" size="sm" onClick={cancelEdit}>
+                  Cancel
+                </Button>
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="flex items-start justify-between gap-4">
+              <div className="min-w-0">
+                <Link
+                  to={`/places/${r.place_slug}`}
+                  className="text-sm font-semibold text-brand-700 hover:text-brand-800 underline underline-offset-2 truncate block"
+                >
+                  {r.place_name}
+                </Link>
+                {r.rating_overall != null && (
+                  <p className="text-xs text-ink-500 mt-0.5">Overall: {r.rating_overall}/5</p>
+                )}
+                {savedId === r.id && (
+                  <p className="mt-1 text-xs font-semibold text-green-700">Review updated.</p>
+                )}
+                <p className="mt-1.5 text-sm text-ink-700 line-clamp-2">{r.review_text}</p>
+                <p className="mt-1 text-xs text-ink-400">
+                  {new Date(r.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                </p>
+              </div>
+
+              <div className="shrink-0">
+                {confirmId === r.id ? (
+                  <div className="flex gap-2 items-center">
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(r.id)}
+                      disabled={deletingId === r.id}
+                      className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700 disabled:opacity-50 transition-colors"
+                    >
+                      {deletingId === r.id ? 'Deleting…' : 'Delete'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setConfirmId(null)}
+                      className="rounded-lg bg-sand-100 px-3 py-1.5 text-xs font-semibold text-ink-800 hover:bg-sand-200 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => startEdit(r)}
+                      className="rounded-lg p-1.5 text-ink-400 hover:text-brand-700 hover:bg-brand-50 transition-colors"
+                      aria-label="Edit review"
+                    >
+                      <Pencil className="h-4 w-4" aria-hidden="true" />
+                    </button>
+                  <button
+                    type="button"
+                    onClick={() => setConfirmId(r.id)}
+                    className="rounded-lg p-1.5 text-ink-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                    aria-label="Delete review"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                  </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </Card>
       ))}
     </div>

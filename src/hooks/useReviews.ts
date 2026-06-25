@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
-import type { ReviewInsert, ReviewRow } from '../lib/database.types'
+import { useAuth } from '../contexts/AuthContext'
+import type { ReviewInsert, ReviewRow, ReviewUpdate } from '../lib/database.types'
 import type { ComputedRatings, Review, TagId } from '../types'
 
 /** Convert a DB ReviewRow to the legacy Review shape used by ReviewCard */
@@ -90,6 +91,33 @@ export function useDeleteReview() {
   }
 
   return { deleteReview, loading }
+}
+
+export function useUpdateReview() {
+  const { user } = useAuth()
+  const [loading, setLoading] = useState(false)
+
+  async function updateReview(
+    reviewId: string,
+    payload: ReviewUpdate,
+  ): Promise<{ error: string | null }> {
+    if (!user) return { error: 'Please sign in to edit your review.' }
+
+    setLoading(true)
+    const { error } = await supabase
+      .from('reviews')
+      .update({
+        ...payload,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', reviewId)
+      .eq('user_id', user.id)
+      .eq('is_seed', false)
+    setLoading(false)
+    return { error: error?.message ?? null }
+  }
+
+  return { updateReview, loading }
 }
 
 export function useReportReview() {
