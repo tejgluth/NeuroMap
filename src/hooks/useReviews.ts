@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
+import { notifyReviewsChanged, subscribeToReviewChanges } from '../lib/reviewEvents'
 import type { ReviewInsert, ReviewRow, ReviewUpdate } from '../lib/database.types'
 import type { ComputedRatings, Review, TagId } from '../types'
 
@@ -61,6 +62,7 @@ export function useReviews(placeId: string | undefined) {
 
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { fetch() }, [fetch])
+  useEffect(() => subscribeToReviewChanges(fetch), [fetch])
 
   const reviews: Review[] = rows.map(dbReviewToLegacy)
 
@@ -74,6 +76,7 @@ export function useSubmitReview() {
     setLoading(true)
     const { error } = await supabase.from('reviews').insert(payload)
     setLoading(false)
+    if (!error) notifyReviewsChanged()
     return { error: error?.message ?? null }
   }
 
@@ -81,13 +84,29 @@ export function useSubmitReview() {
 }
 
 export function useDeleteReview() {
+  const { user } = useAuth()
   const [loading, setLoading] = useState(false)
 
   async function deleteReview(reviewId: string): Promise<{ error: string | null }> {
+    if (!user) return { error: 'Please sign in to delete your review.' }
+
     setLoading(true)
-    const { error } = await supabase.from('reviews').delete().eq('id', reviewId)
+    const { data, error } = await supabase
+      .from('reviews')
+      .delete()
+      .eq('id', reviewId)
+      .eq('user_id', user.id)
+      .eq('is_seed', false)
+      .select('id')
     setLoading(false)
-    return { error: error?.message ?? null }
+
+    if (error) return { error: error.message }
+    if (!data || data.length === 0) {
+      return { error: 'Could not delete that review. It may have already been removed, or you may not have permission.' }
+    }
+
+    notifyReviewsChanged()
+    return { error: null }
   }
 
   return { deleteReview, loading }
@@ -114,10 +133,35 @@ export function useUpdateReview() {
       .eq('user_id', user.id)
       .eq('is_seed', false)
     setLoading(false)
+    if (!error) notifyReviewsChanged()
     return { error: error?.message ?? null }
   }
 
   return { updateReview, loading }
+}
+
+export function useRenameReviewPlace() {
+  const { user } = useAuth()
+  const [loading, setLoading] = useState(false)
+
+  async function renameReviewPlace(
+    reviewId: string,
+    placeName: string,
+  ): Promise<{ error: string | null }> {
+    if (!user) return { error: 'Please sign in to rename this place.' }
+
+    setLoading(true)
+    const { error } = await supabase.rpc('rename_review_place', {
+      target_review_id: reviewId,
+      new_name: placeName,
+    })
+    setLoading(false)
+
+    if (!error) notifyReviewsChanged()
+    return { error: error?.message ?? null }
+  }
+
+  return { renameReviewPlace, loading }
 }
 
 export function useReportReview() {

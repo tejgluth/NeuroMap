@@ -259,10 +259,6 @@ export default function PlaceMap({
 
               <div className="mt-3 grid gap-2">
                 <RatingMeter value={p.computedRatings.overall} label="Overall" />
-                <div className="grid gap-2 sm:grid-cols-2">
-                  <RatingMeter value={p.computedRatings.noise} label="Noise" />
-                  <RatingMeter value={p.computedRatings.crowdedness} label="Crowds" />
-                </div>
               </div>
 
               <p className="mt-3 text-xs leading-relaxed text-ink-800">{p.shortDescription}</p>

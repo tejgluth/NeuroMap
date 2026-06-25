@@ -96,6 +96,7 @@ export default function AddReviewPage() {
   const { user, profile } = useAuth()
 
   const [reviewMode, setReviewMode] = useState<ReviewMode>(() => searchParams.get('source') === 'mapbox' ? 'unlisted' : 'listed')
+  const [customPlaceLocked, setCustomPlaceLocked] = useState(() => searchParams.get('source') === 'mapbox')
   const [displayName, setDisplayName] = useState(profile?.display_name ?? '')
   const [visitTime, setVisitTime] = useState<VisitTime | ''>('')
   const [childAgeRange, setChildAgeRange] = useState<ChildAgeRange | ''>('')
@@ -138,6 +139,7 @@ export default function AddReviewPage() {
     setErrors({})
     setSubmitError(null)
     if (nextMode === 'unlisted') {
+      if (reviewMode !== 'unlisted') setCustomPlaceLocked(false)
       setSearchParams(
         (prev) => {
           const params = new URLSearchParams(prev)
@@ -151,12 +153,14 @@ export default function AddReviewPage() {
 
   function selectListedPlace(slug: string) {
     setReviewMode('listed')
+    setCustomPlaceLocked(false)
     setSearchParams({ place: slug }, { replace: true })
     setErrors((current) => ({ ...current, placeId: '' }))
   }
 
   function selectMapboxPlace(place: MapboxPlace) {
     setReviewMode('unlisted')
+    setCustomPlaceLocked(true)
     setCustomPlaceName(place.name)
     setCustomAddress(place.address)
     setCustomAddressCoords({ lat: place.lat, lng: place.lng })
@@ -347,10 +351,18 @@ export default function AddReviewPage() {
                           <span className="text-xs font-semibold text-ink-600">Place name</span>
                           <input
                             value={customPlaceName}
-                            onChange={(e) => setCustomPlaceName(e.target.value)}
+                            onChange={(e) => {
+                              if (!customPlaceLocked) setCustomPlaceName(e.target.value)
+                            }}
+                            readOnly={customPlaceLocked}
                             placeholder="e.g. Small Steps Hair Studio"
-                            className={inputClass}
+                            className={customPlaceLocked ? inputClass + ' cursor-not-allowed bg-sand-200 text-ink-600' : inputClass}
                           />
+                          {customPlaceLocked && (
+                            <span className="text-xs text-ink-400">
+                              This place came from the map, so the name is locked for accuracy.
+                            </span>
+                          )}
                           {errors.customPlaceName && (
                             <p className="text-xs font-semibold text-red-700">{errors.customPlaceName}</p>
                           )}
@@ -373,21 +385,31 @@ export default function AddReviewPage() {
                         </label>
                         <label className="grid gap-1.5">
                           <span className="text-xs font-semibold text-ink-600">Address</span>
-                          <AddressAutocomplete
-                            value={customAddress}
-                            onChange={(next) => {
-                              setCustomAddress(next)
-                              setCustomAddressCoords(null)
-                            }}
-                            onSelect={(suggestion: AddressSuggestion) => {
-                              setCustomAddress(suggestion.placeName)
-                              setCustomAddressCoords({ lat: suggestion.lat, lng: suggestion.lng })
-                            }}
-                            placeholder="Start typing, e.g. 7855 Fay Ave…"
-                            className={inputClass}
-                          />
+                          {customPlaceLocked ? (
+                            <input
+                              value={customAddress}
+                              readOnly
+                              className={inputClass + ' cursor-not-allowed bg-sand-200 text-ink-600'}
+                            />
+                          ) : (
+                            <AddressAutocomplete
+                              value={customAddress}
+                              onChange={(next) => {
+                                setCustomAddress(next)
+                                setCustomAddressCoords(null)
+                              }}
+                              onSelect={(suggestion: AddressSuggestion) => {
+                                setCustomAddress(suggestion.placeName)
+                                setCustomAddressCoords({ lat: suggestion.lat, lng: suggestion.lng })
+                              }}
+                              placeholder="Start typing, e.g. 7855 Fay Ave…"
+                              className={inputClass}
+                            />
+                          )}
                           <span className="text-xs text-ink-400">
-                            Start typing and choose your address from the suggestions.
+                            {customPlaceLocked
+                              ? 'This address came from the selected map result.'
+                              : 'Start typing and choose your address from the suggestions.'}
                           </span>
                           {errors.customAddress && (
                             <p className="text-xs font-semibold text-red-700">{errors.customAddress}</p>

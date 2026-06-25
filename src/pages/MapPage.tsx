@@ -28,18 +28,6 @@ function PlaceSkeleton() {
   )
 }
 
-function RatingPill({ value, label }: { value: number | null | undefined; label: string }) {
-  const has = typeof value === 'number' && Number.isFinite(value)
-  return (
-    <div className="flex items-center gap-1.5 text-xs text-ink-600">
-      <span className="font-medium">{label}</span>
-      <span className={cn('font-semibold tabular-nums', has ? 'text-ink-900' : 'text-ink-400')}>
-        {has ? (value as number).toFixed(1) : '—'}
-      </span>
-    </div>
-  )
-}
-
 export default function MapPage() {
   const [query, setQuery] = useState('')
   const [category, setCategory] = useState<CategoryFilter>('all')
@@ -328,11 +316,6 @@ export default function MapPage() {
                             </div>
                             <div className="text-xs text-ink-400">overall</div>
                           </div>
-                        </div>
-
-                        <div className="mt-2.5 flex items-center gap-4">
-                          <RatingPill value={p.computedRatings.noise} label="Noise" />
-                          <RatingPill value={p.computedRatings.crowdedness} label="Crowds" />
                         </div>
 
                         <div className="mt-2.5 flex gap-2">

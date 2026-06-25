@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { mergeComputedRatings } from '../lib/ratings'
+import { subscribeToReviewChanges } from '../lib/reviewEvents'
 import type { PlaceInsert, PlacesWithRatingsRow } from '../lib/database.types'
 import type { CategoryId, ComputedRatings, Place, Ratings } from '../types'
 
@@ -69,8 +70,9 @@ export function usePlaces() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
+  const fetch = useCallback(() => {
     let cancelled = false
+    setLoading(true)
     supabase
       .rpc('get_places_with_ratings')
       .then(({ data, error }) => {
@@ -85,6 +87,10 @@ export function usePlaces() {
       })
     return () => { cancelled = true }
   }, [])
+
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => fetch(), [fetch])
+  useEffect(() => subscribeToReviewChanges(fetch), [fetch])
 
   return { places, loading, error }
 }

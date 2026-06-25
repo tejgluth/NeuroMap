@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
+import { subscribeToReviewChanges } from '../lib/reviewEvents'
 import type { TagId, VisitTime, YesNo } from '../types'
 
 export function useFavorites() {
@@ -87,6 +88,7 @@ export function useMyReviews() {
     tags: TagId[]
     created_at: string
     updated_at: string
+    place_can_edit_name: boolean
     place_slug: string
     place_name: string
   }>>([])
@@ -102,7 +104,7 @@ export function useMyReviews() {
       .eq('is_seed', false)
       .order('created_at', { ascending: false })
     const mapped = (data ?? []).map((row) => {
-      const place = row.places as unknown as { name: string; slug: string }
+      const place = row.places as unknown as { name: string; slug: string } | null
       return {
         id: row.id,
         place_id: row.place_id,
@@ -113,6 +115,9 @@ export function useMyReviews() {
         tags: (row.tags as TagId[] | null) ?? [],
         created_at: row.created_at,
         updated_at: row.updated_at,
+        // Keep this disabled until the guarded rename_review_place RPC is applied in Supabase.
+        // Without that database function, exposing a rename field would create a broken save path.
+        place_can_edit_name: false,
         place_name: place?.name ?? '',
         place_slug: place?.slug ?? '',
       }
@@ -123,6 +128,7 @@ export function useMyReviews() {
 
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { fetch() }, [fetch])
+  useEffect(() => subscribeToReviewChanges(fetch), [fetch])
 
   return { reviews, loading, refetch: fetch }
 }

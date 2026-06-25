@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { MapPin, Star, Heart, User, AlertTriangle, Pencil } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { useFavorites, useMyFavoritePlaces, useMyReviews } from '../../hooks/useFavorites'
-import { useDeleteReview, useUpdateReview } from '../../hooks/useReviews'
+import { useDeleteReview, useRenameReviewPlace, useUpdateReview } from '../../hooks/useReviews'
 import { Button } from '../../components/ui/Button'
 import Card from '../../components/ui/Card'
 import Container from '../../components/ui/Container'
@@ -247,15 +247,18 @@ function ReviewsTab() {
   const { reviews, loading, refetch } = useMyReviews()
   const { deleteReview } = useDeleteReview()
   const { updateReview, loading: updating } = useUpdateReview()
+  const { renameReviewPlace, loading: renamingPlace } = useRenameReviewPlace()
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [confirmId, setConfirmId] = useState<string | null>(null)
   const [editingId, setEditingId] = useState<string | null>(null)
+  const [editPlaceName, setEditPlaceName] = useState('')
   const [editText, setEditText] = useState('')
   const [editOverall, setEditOverall] = useState(3)
   const [editVisitTime, setEditVisitTime] = useState<VisitTime | ''>('')
   const [editRecommend, setEditRecommend] = useState<YesNo | ''>('')
   const [editTags, setEditTags] = useState<TagId[]>([])
   const [editError, setEditError] = useState<string | null>(null)
+  const [actionError, setActionError] = useState<string | null>(null)
   const [savedId, setSavedId] = useState<string | null>(null)
 
   type MyReview = (typeof reviews)[number]
@@ -264,7 +267,9 @@ function ReviewsTab() {
     setConfirmId(null)
     setSavedId(null)
     setEditError(null)
+    setActionError(null)
     setEditingId(review.id)
+    setEditPlaceName(review.place_name)
     setEditText(review.review_text)
     setEditOverall(review.rating_overall ?? 3)
     setEditVisitTime(review.visit_time ?? '')
@@ -286,7 +291,15 @@ function ReviewsTab() {
   }
 
   async function handleSaveEdit(reviewId: string) {
+    const review = reviews.find((item) => item.id === reviewId)
     const trimmedText = editText.trim()
+    const trimmedPlaceName = editPlaceName.trim()
+
+    if (review?.place_can_edit_name && trimmedPlaceName.length < 2) {
+      setEditError('Please enter a valid place name.')
+      return
+    }
+
     if (trimmedText.length < 20) {
       setEditError('Please write at least 20 characters.')
       return
@@ -306,6 +319,14 @@ function ReviewsTab() {
       return
     }
 
+    if (review?.place_can_edit_name && trimmedPlaceName !== review.place_name) {
+      const { error: placeError } = await renameReviewPlace(reviewId, trimmedPlaceName)
+      if (placeError) {
+        setEditError(`Could not rename this place. ${placeError}`)
+        return
+      }
+    }
+
     await refetch()
     setEditingId(null)
     setSavedId(reviewId)
@@ -313,11 +334,16 @@ function ReviewsTab() {
   }
 
   async function handleDelete(id: string) {
+    setActionError(null)
     setDeletingId(id)
-    await deleteReview(id)
+    const { error } = await deleteReview(id)
     setDeletingId(null)
+    if (error) {
+      setActionError(error)
+      return
+    }
     setConfirmId(null)
-    refetch()
+    await refetch()
   }
 
   if (loading) return <SkeletonList />
@@ -340,6 +366,11 @@ function ReviewsTab() {
 
   return (
     <div className="flex flex-col gap-3">
+      {actionError && (
+        <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+          {actionError}
+        </div>
+      )}
       {reviews.map((r) => (
         <Card key={r.id} className="p-4">
           {editingId === r.id ? (
@@ -358,6 +389,21 @@ function ReviewsTab() {
                 <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
                   {editError}
                 </div>
+              )}
+
+              {r.place_can_edit_name && (
+                <label className="grid gap-1.5">
+                  <span className="text-sm font-semibold text-ink-800">Place name</span>
+                  <input
+                    value={editPlaceName}
+                    onChange={(event) => setEditPlaceName(event.target.value)}
+                    maxLength={120}
+                    className={inputClass}
+                  />
+                  <span className="text-xs text-ink-400">
+                    Only the original review author can rename a newly added community place.
+                  </span>
+                </label>
               )}
 
               <RatingRadioGroup
@@ -455,10 +501,10 @@ function ReviewsTab() {
                   type="button"
                   variant="secondary"
                   size="sm"
-                  disabled={updating}
+                  disabled={updating || renamingPlace}
                   onClick={() => handleSaveEdit(r.id)}
                 >
-                  {updating ? 'Saving…' : 'Save review'}
+                  {updating || renamingPlace ? 'Saving…' : 'Save review'}
                 </Button>
                 <Button type="button" variant="ghost" size="sm" onClick={cancelEdit}>
                   Cancel

@@ -297,6 +297,13 @@ export type Database = {
           slug: string
         }[]
       }
+      rename_review_place: {
+        Args: {
+          target_review_id: string
+          new_name: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       category_id:
