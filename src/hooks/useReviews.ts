@@ -87,22 +87,63 @@ export function useDeleteReview() {
   const { user } = useAuth()
   const [loading, setLoading] = useState(false)
 
-  async function deleteReview(reviewId: string): Promise<{ error: string | null }> {
-    if (!user) return { error: 'Please sign in to delete your review.' }
-
-    setLoading(true)
+  async function deleteReviewDirectly(reviewId: string, userId: string): Promise<{ error: string | null }> {
     const { data, error } = await supabase
       .from('reviews')
       .delete()
       .eq('id', reviewId)
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .eq('is_seed', false)
       .select('id')
-    setLoading(false)
 
     if (error) return { error: error.message }
     if (!data || data.length === 0) {
       return { error: 'Could not delete that review. It may have already been removed, or you may not have permission.' }
+    }
+
+    return { error: null }
+  }
+
+  async function deleteReview(reviewId: string): Promise<{ error: string | null }> {
+    if (!user) return { error: 'Please sign in to delete your review.' }
+
+    setLoading(true)
+    const { data: sessionData, error: sessionError } = await supabase.auth.getSession()
+    if (sessionError || !sessionData.session?.access_token) {
+      setLoading(false)
+      return { error: 'Please sign in again before deleting your review.' }
+    }
+
+    let response: Response
+    try {
+      response = await fetch('/api/delete-review', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${sessionData.session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ reviewId }),
+      })
+    } catch {
+      setLoading(false)
+      return { error: 'Could not delete that review. Please check your connection and try again.' }
+    }
+
+    let payload: { error?: string } | null = null
+    try {
+      payload = await response.json()
+    } catch {
+      payload = null
+    }
+    setLoading(false)
+
+    if (!response.ok) {
+      if (response.status === 503) {
+        const fallback = await deleteReviewDirectly(reviewId, user.id)
+        if (fallback.error) return fallback
+      } else {
+        return { error: payload?.error ?? 'Could not delete that review.' }
+      }
     }
 
     notifyReviewsChanged()

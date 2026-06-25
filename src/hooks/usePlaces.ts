@@ -65,6 +65,14 @@ export function toDbPlace(row: PlacesWithRatingsRow): DbPlace {
   }
 }
 
+function hasSeedRatings(place: DbPlace) {
+  return Object.values(place.seededRatings ?? {}).some((value) => typeof value === 'number' && Number.isFinite(value))
+}
+
+function shouldShowPlace(place: DbPlace) {
+  return hasSeedRatings(place) || place.communityReviewCount > 0
+}
+
 export function usePlaces() {
   const [places, setPlaces] = useState<DbPlace[]>([])
   const [loading, setLoading] = useState(true)
@@ -80,7 +88,7 @@ export function usePlaces() {
         if (error) {
           setError(error.message)
         } else {
-          setPlaces((data ?? []).map(toDbPlace))
+          setPlaces((data ?? []).map(toDbPlace).filter(shouldShowPlace))
           setError(null)
         }
         setLoading(false)
