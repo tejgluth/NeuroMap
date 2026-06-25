@@ -113,8 +113,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   async function deleteAccount() {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabase as any).rpc('delete_own_account')
+    const { error } = await supabase.rpc('delete_own_account')
     if (!error) {
       await supabase.auth.signOut()
     }

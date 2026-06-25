@@ -1,11 +1,16 @@
 const json = (body, status = 200) => new Response(JSON.stringify(body), {
   status,
-  headers: { 'Content-Type': 'application/json; charset=utf-8' },
+  headers: {
+    'Content-Type': 'application/json; charset=utf-8',
+    'Cache-Control': 'no-store',
+    'X-Content-Type-Options': 'nosniff',
+  },
 })
 
 const MAX_BODY_BYTES = 12_000
 const WINDOW_MS = 60_000
 const MAX_MESSAGES_PER_WINDOW = 5
+const MAX_BUCKETS = 1_000
 const ipBuckets = new Map()
 
 const escapeHtml = (value) => String(value)
@@ -22,7 +27,13 @@ function isAllowedOrigin(request, env) {
   const requestUrl = new URL(request.url)
   const allowed = new Set([requestUrl.origin])
   const siteUrl = String(env.VITE_SITE_URL || '').trim()
-  if (siteUrl) allowed.add(new URL(siteUrl).origin)
+  if (siteUrl) {
+    try {
+      allowed.add(new URL(siteUrl).origin)
+    } catch {
+      // Ignore an invalid optional site URL instead of turning a request into a 500.
+    }
+  }
 
   return allowed.has(origin)
 }
@@ -32,6 +43,12 @@ function isRateLimited(request) {
   const now = Date.now()
   const current = ipBuckets.get(ip)
 
+  if (ipBuckets.size > MAX_BUCKETS) {
+    for (const [key, bucket] of ipBuckets) {
+      if (now > bucket.resetAt) ipBuckets.delete(key)
+    }
+  }
+
   if (!current || now > current.resetAt) {
     ipBuckets.set(ip, { count: 1, resetAt: now + WINDOW_MS })
     return false
@@ -39,6 +56,19 @@ function isRateLimited(request) {
 
   current.count += 1
   return current.count > MAX_MESSAGES_PER_WINDOW
+}
+
+async function readJsonPayload(request) {
+  const text = await request.text()
+  if (new TextEncoder().encode(text).byteLength > MAX_BODY_BYTES) {
+    return { error: json({ error: 'Message is too large.' }, 413) }
+  }
+
+  try {
+    return { payload: JSON.parse(text) }
+  } catch {
+    return { error: json({ error: 'Invalid request.' }, 400) }
+  }
 }
 
 export async function onRequest({ request, env }) {
@@ -51,12 +81,8 @@ export async function onRequest({ request, env }) {
   if (contentLength > MAX_BODY_BYTES) return json({ error: 'Message is too large.' }, 413)
   if (isRateLimited(request)) return json({ error: 'Too many messages. Please try again later.' }, 429)
 
-  let payload
-  try {
-    payload = await request.json()
-  } catch {
-    return json({ error: 'Invalid request.' }, 400)
-  }
+  const { payload, error } = await readJsonPayload(request)
+  if (error) return error
 
   if (payload.website) return json({ ok: true })
 

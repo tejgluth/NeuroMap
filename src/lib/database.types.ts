@@ -259,6 +259,10 @@ export type Database = {
       }
     }
     Functions: {
+      delete_own_account: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       get_places_with_ratings: {
         Args: Record<PropertyKey, never>
         Returns: {

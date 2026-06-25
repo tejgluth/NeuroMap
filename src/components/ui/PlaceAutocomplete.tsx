@@ -27,7 +27,11 @@ export default function PlaceAutocomplete({
   onSelectListed: (place: DbPlace) => void
   onSelectMapbox: (place: MapboxPlace) => void
 }) {
-  const [query, setQuery] = useState(selectedPlace?.name ?? '')
+  const selectedPlaceId = selectedPlace?.id ?? ''
+  const [inputState, setInputState] = useState(() => ({
+    query: selectedPlace?.name ?? '',
+    selectedPlaceId,
+  }))
   const [mapboxResults, setMapboxResults] = useState<MapboxPlaceSuggestion[]>([])
   const [open, setOpen] = useState(false)
   const [searching, setSearching] = useState(false)
@@ -36,9 +40,18 @@ export default function PlaceAutocomplete({
   const [sessionToken, setSessionToken] = useState(createSearchSessionToken)
   const rootRef = useRef<HTMLDivElement>(null)
 
-  useEffect(() => {
-    setQuery(selectedPlace?.name ?? '')
-  }, [selectedPlace])
+  if (inputState.selectedPlaceId !== selectedPlaceId) {
+    setInputState({
+      query: selectedPlace?.name ?? '',
+      selectedPlaceId,
+    })
+  }
+
+  const query = inputState.query
+
+  function setQuery(query: string) {
+    setInputState({ query, selectedPlaceId })
+  }
 
   useEffect(() => {
     const controller = new AbortController()

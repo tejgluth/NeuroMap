@@ -1,7 +1,13 @@
 const json = (body, status = 200) => new Response(JSON.stringify(body), {
   status,
-  headers: { 'Content-Type': 'application/json; charset=utf-8' },
+  headers: {
+    'Content-Type': 'application/json; charset=utf-8',
+    'Cache-Control': 'no-store',
+    'X-Content-Type-Options': 'nosniff',
+  },
 })
+
+const MAX_BODY_BYTES = 2_000
 
 function isAllowedOrigin(request, env) {
   const origin = request.headers.get('Origin')
@@ -10,7 +16,13 @@ function isAllowedOrigin(request, env) {
   const requestUrl = new URL(request.url)
   const allowed = new Set([requestUrl.origin])
   const siteUrl = String(env.VITE_SITE_URL || '').trim()
-  if (siteUrl) allowed.add(new URL(siteUrl).origin)
+  if (siteUrl) {
+    try {
+      allowed.add(new URL(siteUrl).origin)
+    } catch {
+      // Ignore an invalid optional site URL instead of turning a request into a 500.
+    }
+  }
 
   return allowed.has(origin)
 }
@@ -71,6 +83,22 @@ async function getAuthedUser(env, token) {
   return response.json()
 }
 
+async function readJsonPayload(request) {
+  const contentLength = Number(request.headers.get('Content-Length') || 0)
+  if (contentLength > MAX_BODY_BYTES) return { error: json({ error: 'Invalid request.' }, 413) }
+
+  const text = await request.text()
+  if (new TextEncoder().encode(text).byteLength > MAX_BODY_BYTES) {
+    return { error: json({ error: 'Invalid request.' }, 413) }
+  }
+
+  try {
+    return { payload: JSON.parse(text) }
+  } catch {
+    return { error: json({ error: 'Invalid request.' }, 400) }
+  }
+}
+
 export async function onRequest({ request, env }) {
   if (request.method !== 'POST') return json({ error: 'Method not allowed.' }, 405)
   if (!isAllowedOrigin(request, env)) return json({ error: 'Request origin is not allowed.' }, 403)
@@ -88,12 +116,8 @@ export async function onRequest({ request, env }) {
   const user = await getAuthedUser(env, token)
   if (!user?.id) return json({ error: 'Please sign in to delete your review.' }, 401)
 
-  let payload
-  try {
-    payload = await request.json()
-  } catch {
-    return json({ error: 'Invalid request.' }, 400)
-  }
+  const { payload, error } = await readJsonPayload(request)
+  if (error) return error
 
   const reviewId = String(payload.reviewId || '').trim()
   if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(reviewId)) {

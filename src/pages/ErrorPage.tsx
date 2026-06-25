@@ -81,7 +81,7 @@ export default function ErrorPage() {
           <p className="mt-3 text-ink-600">{description}</p>
           {!isRecovering && message ? (
             <p className="mt-4 rounded-2xl bg-sand-100 px-4 py-3 text-sm text-ink-600">
-              Error reference: {message}
+              Error reference: {isMissingAsset ? 'stale site asset' : 'route load failure'}
             </p>
           ) : null}
           <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
