@@ -5,12 +5,12 @@ import Card from '../components/ui/Card'
 import { ButtonLink } from '../components/ui/Button'
 
 const TEAM = [
-  { name: 'Nolan Ameriks', role: 'Co-founder' },
-  { name: 'Nathan Hong', role: 'Co-founder' },
-  { name: 'Tejas Gluth', role: 'Co-founder' },
-  { name: 'Kent Isakari', role: 'Co-founder' },
-  { name: 'Amaan Khan', role: 'Co-founder' },
-  { name: 'Theron Schutz', role: 'Co-founder' },
+  { name: 'Tejas Gluth', role: 'CTO' },
+  { name: 'Nolan Ameriks', role: 'CEO' },
+  { name: 'Nathan Hong', role: 'CFO' },
+  { name: 'Kent Isakari', role: 'Secretary' },
+  { name: 'Amaan Khan', role: 'CMO' },
+  { name: 'Theron Schutz', role: 'COO' },
 ]
 
 function getInitials(name: string) {
