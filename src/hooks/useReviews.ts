@@ -14,7 +14,7 @@ export function dbReviewToLegacy(row: ReviewRow): Review {
   if (row.rating_lighting != null) ratings.lighting = row.rating_lighting
   if (row.rating_parking != null) ratings.parking = row.rating_parking
   if (row.rating_navigation != null) ratings.navigation = row.rating_navigation
-  if (row.rating_elevators != null) ratings.elevators = row.rating_elevators
+  if (row.rating_elevators != null) ratings.nonElevatorAccess = row.rating_elevators
   if (row.rating_stairs != null) ratings.elevatorSensory = row.rating_stairs
   if (row.rating_overall != null) ratings.overall = row.rating_overall
 

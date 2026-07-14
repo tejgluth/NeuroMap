@@ -27,7 +27,7 @@ const DEFAULT_RATINGS: Ratings = {
   lighting: 3,
   parking: 3,
   navigation: 3,
-  elevators: 3,
+  nonElevatorAccess: 3,
   elevatorSensory: 3,
   overall: 3,
 }
@@ -207,7 +207,8 @@ export default function AddReviewPage() {
       rating_lighting: ratings.lighting,
       rating_parking: ratings.parking,
       rating_navigation: ratings.navigation,
-      rating_elevators: ratings.elevators,
+      // Keep using the legacy database slot for the replacement access factor.
+      rating_elevators: ratings.nonElevatorAccess,
       // Keep using the legacy database slot until the backend column can be renamed safely.
       rating_stairs: ratings.elevatorSensory,
     }
@@ -531,11 +532,11 @@ export default function AddReviewPage() {
                         onChange={(v) => setRatings((r) => ({ ...r, navigation: v }))}
                       />
                       <RatingRadioGroup
-                        name="elevators"
-                        label="Elevator availability"
-                        description={ratingDescriptions.get('elevators') ?? ''}
-                        value={ratings.elevators}
-                        onChange={(v) => setRatings((r) => ({ ...r, elevators: v }))}
+                        name="nonElevatorAccess"
+                        label="Non-elevator access"
+                        description={ratingDescriptions.get('nonElevatorAccess') ?? ''}
+                        value={ratings.nonElevatorAccess}
+                        onChange={(v) => setRatings((r) => ({ ...r, nonElevatorAccess: v }))}
                       />
                       <RatingRadioGroup
                         name="elevatorSensory"

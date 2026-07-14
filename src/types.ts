@@ -17,7 +17,7 @@ export type RatingKey =
   | 'lighting'
   | 'parking'
   | 'navigation'
-  | 'elevators'
+  | 'nonElevatorAccess'
   | 'elevatorSensory'
   | 'overall'
 

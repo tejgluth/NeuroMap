@@ -102,7 +102,6 @@ function seededRatingsFromPlace(place: JsonPlace): Place['seededRatings'] {
   if (typeof r.lightingSensoryStimuli === 'number') seeded.lighting = invertScale(r.lightingSensoryStimuli)
   if (typeof r.parkingAccessibility === 'number') seeded.parking = r.parkingAccessibility
   if (typeof r.navigation === 'number') seeded.navigation = r.navigation
-  if (typeof r.elevators === 'number') seeded.elevators = r.elevators
   return Object.keys(seeded).length > 0 ? seeded : undefined
 }
 

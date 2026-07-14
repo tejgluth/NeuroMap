@@ -62,8 +62,8 @@ export function ratingLabel(key: RatingKey) {
       return 'Parking Accessibility'
     case 'navigation':
       return 'Navigation'
-    case 'elevators':
-      return 'Elevator Availability'
+    case 'nonElevatorAccess':
+      return 'Non-Elevator Access'
     case 'elevatorSensory':
       return 'Elevator Sensory Comfort'
     case 'overall':

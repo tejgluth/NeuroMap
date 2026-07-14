@@ -19,7 +19,7 @@ function toSeedRatings(row: PlacesWithRatingsRow): Partial<Ratings> {
   if (row.seed_lighting != null) r.lighting = row.seed_lighting
   if (row.seed_parking != null) r.parking = row.seed_parking
   if (row.seed_navigation != null) r.navigation = row.seed_navigation
-  if (row.seed_elevators != null) r.elevators = row.seed_elevators
+  if (row.seed_elevators != null) r.nonElevatorAccess = row.seed_elevators
   if (row.seed_stairs != null) r.elevatorSensory = row.seed_stairs
   if (row.seed_overall != null) r.overall = row.seed_overall
   return r
@@ -33,7 +33,7 @@ function toAvgRatings(row: PlacesWithRatingsRow): ComputedRatings {
     lighting: row.avg_lighting ?? null,
     parking: row.avg_parking ?? null,
     navigation: row.avg_navigation ?? null,
-    elevators: row.avg_elevators ?? null,
+    nonElevatorAccess: row.avg_elevators ?? null,
     elevatorSensory: row.avg_stairs ?? null,
     overall: row.avg_overall ?? null,
   }

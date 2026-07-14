@@ -49,16 +49,16 @@ export const RATING_DIMENSIONS: Array<{
     description: 'How predictable layout and wayfinding felt (1 = confusing, 5 = clear).',
   },
   {
-    key: 'elevators',
-    label: 'Elevator Availability',
-    shortLabel: 'Elevator Access',
-    description: 'How available and easy to find elevator access was when needed (1 = none/unclear, 5 = easy to access).',
+    key: 'nonElevatorAccess',
+    label: 'Non-Elevator Access',
+    shortLabel: 'Alternative Access',
+    description: 'How easy it was to navigate without an elevator, using options like ground-floor routes, ramps, escalators, or manageable stairs (1 = elevator required/no clear alternative, 5 = easy alternatives).',
   },
   {
     key: 'elevatorSensory',
     label: 'Elevator Sensory Comfort',
     shortLabel: 'Elevator Comfort',
-    description: 'How comfortable elevator pressure or ear-popping, motion, and sounds felt (1 = overwhelming, 5 = comfortable).',
+    description: 'How comfortable the elevator ride felt, including pressure or ear-popping, motion, sounds, and the enclosed space (1 = overwhelming, 5 = comfortable).',
   },
 ]
 
