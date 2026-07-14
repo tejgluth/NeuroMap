@@ -50,17 +50,16 @@ export const RATING_DIMENSIONS: Array<{
   },
   {
     key: 'elevators',
-    label: 'Elevators',
-    shortLabel: 'Elevators',
-    description: 'How available elevator access is when needed (1 = none/unclear, 5 = accessible).',
+    label: 'Elevator Availability',
+    shortLabel: 'Elevator Access',
+    description: 'How available and easy to find elevator access was when needed (1 = none/unclear, 5 = easy to access).',
   },
   {
-    key: 'stairs',
-    label: 'Stairs',
-    shortLabel: 'Stairs',
-    description: 'How manageable stairs and step-free options felt (1 = lots of stairs, 5 = minimal).',
+    key: 'elevatorSensory',
+    label: 'Elevator Sensory Comfort',
+    shortLabel: 'Elevator Comfort',
+    description: 'How comfortable elevator pressure or ear-popping, motion, and sounds felt (1 = overwhelming, 5 = comfortable).',
   },
 ]
 
 export const RATING_KEYS: RatingKey[] = RATING_DIMENSIONS.map((d) => d.key)
-

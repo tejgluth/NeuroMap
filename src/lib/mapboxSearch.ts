@@ -55,13 +55,13 @@ function mapCategory(values: string[] | undefined): CategoryId {
   if (/restaurant|food|dining/.test(category)) return 'restaurant'
   if (/beach|coast/.test(category)) return 'beach'
   if (/park|garden|playground|trail/.test(category)) return 'park'
+  if (/grocery|supermarket|food market/.test(category)) return 'grocery'
   if (/dentist|dental/.test(category)) return 'dentist'
   if (/doctor|medical|clinic|health|hospital/.test(category)) return 'doctor'
-  if (/school|education|tutor|library/.test(category)) return 'tutoring'
   if (/salon|barber|hair|spa/.test(category)) return 'salon'
   if (/shop|store|retail|mall|market/.test(category)) return 'retail'
-  if (/cinema|museum|theater|entertainment|attraction|zoo|sports/.test(category)) return 'entertainment'
-  return 'service'
+  if (/cinema|museum|theater|entertainment|attraction|zoo|sports|library|school|education/.test(category)) return 'entertainment'
+  return 'retail'
 }
 
 function formatAddress(input: {

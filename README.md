@@ -1,6 +1,6 @@
 # NeuroMaps
 
-NeuroMaps is a **sensory-accessibility review platform** for families with autistic children. Parents browse, rate, and review real-world places on 9 sensory dimensions — noise, crowdedness, lighting, staff hospitality, parking, navigation, elevators, stairs, and overall — so other families can plan outings with confidence.
+NeuroMaps is a **sensory-accessibility review platform** for families with autistic children. Parents browse, rate, and review real-world places on 9 sensory dimensions — noise, crowdedness, lighting, staff hospitality, parking, navigation, elevator availability, elevator sensory comfort, and overall — so other families can plan outings with confidence.
 
 **Current focus:** San Diego, CA, with support for discovering places throughout the United States.
 

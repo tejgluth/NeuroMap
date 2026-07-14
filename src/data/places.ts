@@ -50,8 +50,8 @@ const CATEGORY_MAP: Record<JsonCategory, CategoryId> = {
   cafe: 'cafe',
   dessert: 'cafe',
   bookstore: 'retail',
-  pharmacy: 'service',
-  library: 'service',
+  pharmacy: 'retail',
+  library: 'entertainment',
   museum: 'entertainment',
   sports: 'entertainment',
   park: 'park',
@@ -69,8 +69,8 @@ function defaultShortDescription(categoryId: CategoryId) {
       return 'Local outing in La Jolla.'
     case 'retail':
       return 'Shop in La Jolla.'
-    case 'service':
-      return 'Everyday service in La Jolla.'
+    case 'grocery':
+      return 'Grocery store in La Jolla.'
     case 'beach':
       return 'Beach access in La Jolla.'
     case 'salon':
@@ -79,8 +79,6 @@ function defaultShortDescription(categoryId: CategoryId) {
       return 'Clinic in La Jolla.'
     case 'dentist':
       return 'Dental office in La Jolla.'
-    case 'tutoring':
-      return 'Learning support in La Jolla.'
   }
 }
 
@@ -105,7 +103,6 @@ function seededRatingsFromPlace(place: JsonPlace): Place['seededRatings'] {
   if (typeof r.parkingAccessibility === 'number') seeded.parking = r.parkingAccessibility
   if (typeof r.navigation === 'number') seeded.navigation = r.navigation
   if (typeof r.elevators === 'number') seeded.elevators = r.elevators
-  if (typeof r.stairs === 'number') seeded.stairs = r.stairs
   return Object.keys(seeded).length > 0 ? seeded : undefined
 }
 
@@ -126,7 +123,7 @@ function toSeedReview(placeId: string, review: JsonReview, idx: number): Review 
 }
 
 function toPlace(place: JsonPlace): Place {
-  const categoryId = CATEGORY_MAP[place.category] ?? 'service'
+  const categoryId = CATEGORY_MAP[place.category] ?? 'retail'
   const shortDescription =
     typeof place.shortDescription === 'string' && place.shortDescription.trim()
       ? place.shortDescription.trim()

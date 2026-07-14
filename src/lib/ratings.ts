@@ -63,9 +63,9 @@ export function ratingLabel(key: RatingKey) {
     case 'navigation':
       return 'Navigation'
     case 'elevators':
-      return 'Elevators'
-    case 'stairs':
-      return 'Stairs'
+      return 'Elevator Availability'
+    case 'elevatorSensory':
+      return 'Elevator Sensory Comfort'
     case 'overall':
       return 'Overall Autism-Friendliness'
   }

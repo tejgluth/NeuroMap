@@ -314,6 +314,7 @@ export type Database = {
         | "restaurant"
         | "cafe"
         | "park"
+        | "grocery"
         | "beach"
         | "entertainment"
         | "retail"

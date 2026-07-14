@@ -1,10 +1,9 @@
 import {
-  Building2,
   Coffee,
-  GraduationCap,
   Popcorn,
   Scissors,
   ShoppingBag,
+  ShoppingCart,
   Smile,
   Stethoscope,
   Trees,
@@ -30,6 +29,8 @@ export default function CategoryIcon({
       return <Coffee {...props} />
     case 'park':
       return <Trees {...props} />
+    case 'grocery':
+      return <ShoppingCart {...props} />
     case 'beach':
       return <Waves {...props} />
     case 'entertainment':
@@ -42,9 +43,5 @@ export default function CategoryIcon({
       return <Stethoscope {...props} />
     case 'dentist':
       return <Smile {...props} />
-    case 'tutoring':
-      return <GraduationCap {...props} />
-    case 'service':
-      return <Building2 {...props} />
   }
 }

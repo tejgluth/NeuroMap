@@ -2,14 +2,13 @@ export type CategoryId =
   | 'restaurant'
   | 'cafe'
   | 'park'
+  | 'grocery'
   | 'beach'
   | 'entertainment'
   | 'retail'
   | 'salon'
   | 'doctor'
   | 'dentist'
-  | 'tutoring'
-  | 'service'
 
 export type RatingKey =
   | 'noise'
@@ -19,7 +18,7 @@ export type RatingKey =
   | 'parking'
   | 'navigation'
   | 'elevators'
-  | 'stairs'
+  | 'elevatorSensory'
   | 'overall'
 
 export type Ratings = Record<RatingKey, number>
