@@ -10,7 +10,7 @@ const TEAM = [
   { name: 'Nathan Hong', role: 'CFO' },
   { name: 'Kent Isakari', role: 'Secretary' },
   { name: 'Amaan Khan', role: 'CMO' },
-  { name: 'Theron Schutz', role: 'COO' },
+  { name: 'Theron Schutz', role: '' },
 ]
 
 function getInitials(name: string) {
@@ -120,7 +120,9 @@ export default function AboutPage() {
                 </div>
                 <div>
                   <div className="text-sm font-semibold text-ink-900">{name}</div>
-                  <div className="text-xs text-ink-500">{role} · The Bishop's School</div>
+                  <div className="text-xs text-ink-500">
+                    {role ? `${role} · ` : ''}The Bishop's School
+                  </div>
                 </div>
               </Card>
             ))}
