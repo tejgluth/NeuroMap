@@ -97,9 +97,15 @@ export default function PlacePage() {
   const ratings = place.computedRatings
   const reviewed = searchParams.get('reviewed') === '1'
   const hasStructuredRatings = Object.values(ratings).some((v) => typeof v === 'number' && Number.isFinite(v))
+  const sensoryFriendlyHours = Array.from(new Set(
+    rows
+      .map((row) => row.sensory_friendly_hours?.trim())
+      .filter((hours): hours is string => Boolean(hours)),
+  ))
 
   const showPlanningInfo =
     Boolean(place.sensoryOverview) ||
+    sensoryFriendlyHours.length > 0 ||
     Boolean(place.bestTimesToVisit?.length) ||
     Boolean(place.commonTriggers?.length) ||
     Boolean(place.helpfulAccommodations?.length) ||
@@ -237,7 +243,7 @@ export default function PlacePage() {
           <div className="mb-1 text-xs font-semibold uppercase tracking-wider text-brand-700">Breakdown</div>
           <h2 className="text-xl font-semibold text-ink-900 sm:text-2xl">Sensory breakdown</h2>
           <p className="mt-1.5 text-sm text-ink-600">
-            Scores are 1–5. Higher means calmer or more accessible.
+            Scores are 1–5. Higher means calmer or more accessible; N/A responses are excluded.
           </p>
 
           {hasStructuredRatings ? (
@@ -285,6 +291,14 @@ export default function PlacePage() {
                   icon={Clock}
                   title="Best times to visit"
                   items={place.bestTimesToVisit}
+                />
+              )}
+
+              {sensoryFriendlyHours.length > 0 && (
+                <PlanningCard
+                  icon={Clock}
+                  title="Sensory-friendly hours"
+                  items={sensoryFriendlyHours}
                 />
               )}
 

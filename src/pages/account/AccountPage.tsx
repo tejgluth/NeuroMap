@@ -253,7 +253,8 @@ function ReviewsTab() {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editPlaceName, setEditPlaceName] = useState('')
   const [editText, setEditText] = useState('')
-  const [editOverall, setEditOverall] = useState(3)
+  const [editOverall, setEditOverall] = useState<number | null>(3)
+  const [editSensoryFriendlyHours, setEditSensoryFriendlyHours] = useState('')
   const [editVisitTime, setEditVisitTime] = useState<VisitTime | ''>('')
   const [editRecommend, setEditRecommend] = useState<YesNo | ''>('')
   const [editTags, setEditTags] = useState<TagId[]>([])
@@ -271,7 +272,8 @@ function ReviewsTab() {
     setEditingId(review.id)
     setEditPlaceName(review.place_name)
     setEditText(review.review_text)
-    setEditOverall(review.rating_overall ?? 3)
+    setEditOverall(review.rating_overall)
+    setEditSensoryFriendlyHours(review.sensory_friendly_hours ?? '')
     setEditVisitTime(review.visit_time ?? '')
     setEditRecommend(review.recommend ?? '')
     setEditTags(review.tags ?? [])
@@ -288,6 +290,9 @@ function ReviewsTab() {
         ? current.filter((id) => id !== tagId)
         : [...current, tagId],
     )
+    if (tagId === 'sensory_friendly_hours' && editTags.includes(tagId)) {
+      setEditSensoryFriendlyHours('')
+    }
   }
 
   async function handleSaveEdit(reviewId: string) {
@@ -305,10 +310,21 @@ function ReviewsTab() {
       return
     }
 
+    if (
+      editTags.includes('sensory_friendly_hours')
+      && editSensoryFriendlyHours.trim().length < 3
+    ) {
+      setEditError('Please add the day and time for the sensory-friendly hours.')
+      return
+    }
+
     setEditError(null)
     const { error } = await updateReview(reviewId, {
       review_text: trimmedText,
       rating_overall: editOverall,
+      sensory_friendly_hours: editTags.includes('sensory_friendly_hours')
+        ? editSensoryFriendlyHours.trim()
+        : null,
       visit_time: editVisitTime || null,
       recommend: editRecommend || null,
       tags: editTags.length > 0 ? editTags : null,
@@ -484,6 +500,22 @@ function ReviewsTab() {
                   })}
                 </div>
               </fieldset>
+
+              {editTags.includes('sensory_friendly_hours') && (
+                <label className="grid gap-1.5 rounded-xl border border-brand-200/70 bg-brand-50 p-4">
+                  <span className="text-sm font-semibold text-brand-900">Sensory-friendly dates or hours</span>
+                  <span className="text-xs leading-relaxed text-brand-800">
+                    Add the recurring day and time, a specific date, or class schedule.
+                  </span>
+                  <input
+                    value={editSensoryFriendlyHours}
+                    onChange={(event) => setEditSensoryFriendlyHours(event.target.value)}
+                    maxLength={500}
+                    placeholder="e.g. Saturdays, 8–9am"
+                    className={inputClass}
+                  />
+                </label>
+              )}
 
               <label className="grid gap-1.5">
                 <span className="text-sm font-semibold text-ink-800">Review text</span>

@@ -30,6 +30,7 @@ export type VisitTime = 'Morning' | 'Midday' | 'Afternoon' | 'Evening'
 export type ChildAgeRange = '0–3' | '4–7' | '8–12' | '13–17' | '18+'
 
 export type TagId =
+  | 'sensory_friendly_hours'
   | 'quiet_morning'
   | 'staff_supportive'
   | 'crowded_after_school'
@@ -61,6 +62,7 @@ export type Review = {
   ratings?: Partial<Ratings>
   recommendForSensorySensitiveFamilies?: YesNo
   tags?: TagId[]
+  sensoryFriendlyHours?: string
   text: string
 }
 

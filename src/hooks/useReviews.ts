@@ -29,6 +29,7 @@ export function dbReviewToLegacy(row: ReviewRow): Review {
     ratings,
     recommendForSensorySensitiveFamilies: row.recommend ?? undefined,
     tags: (row.tags as TagId[] | null) ?? undefined,
+    sensoryFriendlyHours: row.sensory_friendly_hours ?? undefined,
     text: row.review_text,
   }
 }

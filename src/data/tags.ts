@@ -1,6 +1,7 @@
 import type { Tag } from '../types'
 
 export const TAGS: Tag[] = [
+  { id: 'sensory_friendly_hours', label: 'Sensory-friendly hours', hint: 'Dedicated low-sensory dates or times' },
   { id: 'quiet_morning', label: 'Quiet morning', hint: 'Lower noise + fewer people' },
   { id: 'staff_supportive', label: 'Staff supportive', hint: 'Kind, flexible, patient' },
   { id: 'crowded_after_school', label: 'Crowded after school', hint: 'Busy 3–6pm' },
@@ -14,4 +15,3 @@ export const TAGS: Tag[] = [
 ]
 
 export const TAG_BY_ID = Object.fromEntries(TAGS.map((t) => [t.id, t])) as Record<Tag['id'], Tag>
-

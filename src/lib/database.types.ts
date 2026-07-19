@@ -182,6 +182,7 @@ export type Database = {
           rating_stairs: number | null
           recommend: Database["public"]["Enums"]["yes_no"] | null
           review_text: string
+          sensory_friendly_hours: string | null
           tags: Database["public"]["Enums"]["tag_id"][] | null
           updated_at: string
           user_id: string | null
@@ -206,6 +207,7 @@ export type Database = {
           rating_stairs?: number | null
           recommend?: Database["public"]["Enums"]["yes_no"] | null
           review_text: string
+          sensory_friendly_hours?: string | null
           tags?: Database["public"]["Enums"]["tag_id"][] | null
           updated_at?: string
           user_id?: string | null
@@ -230,6 +232,7 @@ export type Database = {
           rating_stairs?: number | null
           recommend?: Database["public"]["Enums"]["yes_no"] | null
           review_text?: string
+          sensory_friendly_hours?: string | null
           tags?: Database["public"]["Enums"]["tag_id"][] | null
           updated_at?: string
           user_id?: string | null
@@ -325,6 +328,7 @@ export type Database = {
         | "service"
       child_age_range: "0–3" | "4–7" | "8–12" | "13–17" | "18+"
       tag_id:
+        | "sensory_friendly_hours"
         | "quiet_morning"
         | "staff_supportive"
         | "crowded_after_school"

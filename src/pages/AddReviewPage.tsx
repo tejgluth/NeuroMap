@@ -16,11 +16,11 @@ import { geocodeAddress, slugify, type AddressSuggestion } from '../lib/geocodin
 import { usePlaces, useSubmitPlace } from '../hooks/usePlaces'
 import { useSubmitReview } from '../hooks/useReviews'
 import { useAuth } from '../contexts/AuthContext'
-import type { CategoryId, ChildAgeRange, Ratings, Review, TagId, VisitTime } from '../types'
+import type { CategoryId, ChildAgeRange, ComputedRatings, Review, TagId, VisitTime } from '../types'
 import type { PlaceInsert, ReviewInsert } from '../lib/database.types'
 import type { MapboxPlace } from '../lib/mapboxSearch'
 
-const DEFAULT_RATINGS: Ratings = {
+const DEFAULT_RATINGS: ComputedRatings = {
   noise: 3,
   crowdedness: 3,
   staffHospitality: 3,
@@ -50,6 +50,8 @@ function validateReview(input: {
   customCategory: CategoryId | ''
   visitTime: VisitTime | ''
   recommend: Review['recommendForSensorySensitiveFamilies'] | ''
+  sensoryFriendlyHours: string
+  hasSensoryFriendlyHours: boolean
   text: string
 }) {
   const errors: Record<string, string> = {}
@@ -64,6 +66,9 @@ function validateReview(input: {
 
   if (!input.visitTime) errors.visitTime = 'Please choose a visit time.'
   if (!input.recommend) errors.recommend = 'Please choose yes or no.'
+  if (input.hasSensoryFriendlyHours && input.sensoryFriendlyHours.trim().length < 3) {
+    errors.sensoryFriendlyHours = 'Please add the day and time for the sensory-friendly hours.'
+  }
   if (input.text.trim().length < 20) errors.text = 'Please write at least 20 characters.'
   return errors
 }
@@ -102,8 +107,9 @@ export default function AddReviewPage() {
   const [childAgeRange, setChildAgeRange] = useState<ChildAgeRange | ''>('')
   const [recommend, setRecommend] = useState<Review['recommendForSensorySensitiveFamilies'] | ''>('')
   const [tags, setTags] = useState<TagId[]>([])
+  const [sensoryFriendlyHours, setSensoryFriendlyHours] = useState('')
   const [text, setText] = useState('')
-  const [ratings, setRatings] = useState<Ratings>({ ...DEFAULT_RATINGS })
+  const [ratings, setRatings] = useState<ComputedRatings>({ ...DEFAULT_RATINGS })
   const [customPlaceName, setCustomPlaceName] = useState(() => searchParams.get('name') ?? '')
   const [customAddress, setCustomAddress] = useState(() => searchParams.get('address') ?? '')
   const [customAddressCoords, setCustomAddressCoords] = useState<{ lat: number; lng: number } | null>(() => {
@@ -188,6 +194,8 @@ export default function AddReviewPage() {
       customCategory,
       visitTime,
       recommend,
+      sensoryFriendlyHours,
+      hasSensoryFriendlyHours: tags.includes('sensory_friendly_hours'),
       text,
     })
     setErrors(nextErrors)
@@ -225,6 +233,9 @@ export default function AddReviewPage() {
           child_age_range: childAgeRange ? (childAgeRange as ChildAgeRange) : null,
           recommend: recommend ? (recommend as Review['recommendForSensorySensitiveFamilies']) : null,
           tags: tags.length > 0 ? tags : null,
+          sensory_friendly_hours: tags.includes('sensory_friendly_hours')
+            ? sensoryFriendlyHours.trim()
+            : null,
           ...ratingFields,
         }
 
@@ -260,6 +271,9 @@ export default function AddReviewPage() {
         child_age_range: childAgeRange ? (childAgeRange as ChildAgeRange) : null,
         recommend: recommend ? (recommend as Review['recommendForSensorySensitiveFamilies']) : null,
         tags: tags.length > 0 ? tags : null,
+        sensory_friendly_hours: tags.includes('sensory_friendly_hours')
+          ? sensoryFriendlyHours.trim()
+          : null,
         ...ratingFields,
       }
 
@@ -476,7 +490,7 @@ export default function AddReviewPage() {
                 <div className="p-6">
                   <div className="text-sm font-semibold text-ink-900">Sensory ratings (1–5)</div>
                   <p className="mt-1 text-xs leading-relaxed text-ink-500">
-                    Higher means calmer or more accessible. Rate each dimension based on your visit.
+                    Higher means calmer or more accessible. Choose N/A when a factor did not apply or you could not observe it.
                   </p>
 
                   <div className="mt-5 grid gap-5">
@@ -603,11 +617,15 @@ export default function AddReviewPage() {
                             <input
                               type="checkbox"
                               checked={checked}
-                              onChange={() =>
+                              onChange={() => {
                                 setTags((curr) =>
                                   checked ? curr.filter((id) => id !== tag.id) : [...curr, tag.id],
                                 )
-                              }
+                                if (tag.id === 'sensory_friendly_hours' && checked) {
+                                  setSensoryFriendlyHours('')
+                                  setErrors((current) => ({ ...current, sensoryFriendlyHours: '' }))
+                                }
+                              }}
                               className="sr-only"
                             />
                             {tag.label}
@@ -616,6 +634,28 @@ export default function AddReviewPage() {
                       })}
                     </div>
                   </fieldset>
+
+                  {tags.includes('sensory_friendly_hours') && (
+                    <label className="mt-4 grid gap-1.5 rounded-xl border border-brand-200/70 bg-brand-50 p-4">
+                      <span className="text-sm font-semibold text-brand-900">Sensory-friendly dates or hours</span>
+                      <span className="text-xs leading-relaxed text-brand-800">
+                        Add the recurring day and time, a specific date, or class schedule. These are shown separately from regular operating hours.
+                      </span>
+                      <input
+                        value={sensoryFriendlyHours}
+                        onChange={(event) => {
+                          setSensoryFriendlyHours(event.target.value)
+                          setErrors((current) => ({ ...current, sensoryFriendlyHours: '' }))
+                        }}
+                        maxLength={500}
+                        placeholder="e.g. Sundays, 9–10am before general opening"
+                        className={inputClass}
+                      />
+                      {errors.sensoryFriendlyHours && (
+                        <p className="text-xs font-semibold text-red-700">{errors.sensoryFriendlyHours}</p>
+                      )}
+                    </label>
+                  )}
                 </div>
 
                 {/* Review text */}

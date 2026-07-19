@@ -1,4 +1,4 @@
-import { Flag, ThumbsDown, ThumbsUp, Trash2 } from 'lucide-react'
+import { CalendarClock, Flag, ThumbsDown, ThumbsUp, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 
 import type { Review } from '../../types'
@@ -161,6 +161,16 @@ export default function ReviewCard({
 
       {/* Review text */}
       <p className="mt-4 text-sm leading-relaxed text-ink-700">{review.text}</p>
+
+      {review.sensoryFriendlyHours && (
+        <div className="mt-4 flex items-start gap-2.5 rounded-xl border border-brand-200/70 bg-brand-50 px-4 py-3 text-sm text-brand-900">
+          <CalendarClock className="mt-0.5 h-4 w-4 shrink-0 text-brand-700" aria-hidden="true" />
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-wide text-brand-700">Sensory-friendly hours</div>
+            <p className="mt-1 leading-relaxed">{review.sensoryFriendlyHours}</p>
+          </div>
+        </div>
+      )}
 
       {/* Tags */}
       {review.tags && review.tags.length > 0 && (
