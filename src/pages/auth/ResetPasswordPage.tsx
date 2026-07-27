@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 import { supabase } from '../../lib/supabase'
 import { Button } from '../../components/ui/Button'
@@ -12,9 +12,8 @@ const inputClass =
 export default function ResetPasswordPage() {
   const { updatePassword } = useAuth()
   const navigate = useNavigate()
-  const [searchParams] = useSearchParams()
 
-  const [ready, setReady] = useState(searchParams.get('verified') === '1')
+  const [ready, setReady] = useState(false)
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [error, setError] = useState<string | null>(null)

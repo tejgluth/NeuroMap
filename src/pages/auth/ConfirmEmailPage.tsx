@@ -33,7 +33,7 @@ const AUTH_EMAIL_FLOWS: Record<AuthEmailType, {
     progress: 'Verifying your password-reset link…',
     success: 'Your reset link is verified. You can now choose a new password.',
     actionLabel: 'Choose a new password',
-    actionPath: '/reset-password?verified=1',
+    actionPath: '/reset-password',
   },
   invite: {
     progress: 'Accepting your NeuroMaps invitation…',
