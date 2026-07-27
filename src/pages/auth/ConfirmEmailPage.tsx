@@ -9,45 +9,97 @@ import Spinner from '../../components/ui/Spinner'
 import { supabase } from '../../lib/supabase'
 
 type ConfirmationState = 'verifying' | 'confirmed' | 'error'
+type AuthEmailType = 'email' | 'signup' | 'recovery' | 'invite' | 'magiclink' | 'email_change'
+
+const AUTH_EMAIL_FLOWS: Record<AuthEmailType, {
+  progress: string
+  success: string
+  actionLabel: string
+  actionPath: string
+}> = {
+  email: {
+    progress: 'Confirming your email address…',
+    success: 'Your email is confirmed. Your NeuroMaps account is ready.',
+    actionLabel: 'Continue to your account',
+    actionPath: '/account',
+  },
+  signup: {
+    progress: 'Confirming your email address…',
+    success: 'Your email is confirmed. Your NeuroMaps account is ready.',
+    actionLabel: 'Continue to your account',
+    actionPath: '/account',
+  },
+  recovery: {
+    progress: 'Verifying your password-reset link…',
+    success: 'Your reset link is verified. You can now choose a new password.',
+    actionLabel: 'Choose a new password',
+    actionPath: '/reset-password?verified=1',
+  },
+  invite: {
+    progress: 'Accepting your NeuroMaps invitation…',
+    success: 'Your invitation is accepted and your NeuroMaps account is ready.',
+    actionLabel: 'Continue to your account',
+    actionPath: '/account',
+  },
+  magiclink: {
+    progress: 'Signing you in securely…',
+    success: 'You are signed in to NeuroMaps.',
+    actionLabel: 'Continue to your account',
+    actionPath: '/account',
+  },
+  email_change: {
+    progress: 'Confirming your new email address…',
+    success: 'Your NeuroMaps email address has been updated.',
+    actionLabel: 'Continue to your account',
+    actionPath: '/account',
+  },
+}
+
+function isAuthEmailType(value: string | null): value is AuthEmailType {
+  return value !== null && value in AUTH_EMAIL_FLOWS
+}
 
 export default function ConfirmEmailPage() {
   const [searchParams] = useSearchParams()
   const tokenHash = searchParams.get('token_hash')
+  const requestedType = searchParams.get('type')
+  const emailType = isAuthEmailType(requestedType) ? requestedType : null
+  const flow = emailType ? AUTH_EMAIL_FLOWS[emailType] : null
   const [state, setState] = useState<ConfirmationState>('verifying')
-  const [message, setMessage] = useState('Confirming your email address…')
+  const [message, setMessage] = useState(flow?.progress ?? 'Verifying your secure link…')
 
   useEffect(() => {
     let cancelled = false
 
-    async function confirmEmail() {
-      if (!tokenHash) {
+    async function confirmAuthEmail() {
+      if (!tokenHash || !emailType || !flow) {
         setState('error')
-        setMessage('This confirmation link is incomplete. Please request a new confirmation email.')
+        setMessage('This secure link is incomplete. Please request a new email and try again.')
         return
       }
 
       const { error } = await supabase.auth.verifyOtp({
         token_hash: tokenHash,
-        type: 'email',
+        type: emailType,
       })
 
       if (cancelled) return
 
       if (error) {
         setState('error')
-        setMessage('This confirmation link is invalid or has expired. Please request a new confirmation email.')
+        setMessage('This secure link is invalid or has expired. Please request a new email and try again.')
         return
       }
 
       setState('confirmed')
-      setMessage('Your email is confirmed. Your NeuroMaps account is ready.')
+      setMessage(flow.success)
     }
 
-    void confirmEmail()
+    void confirmAuthEmail()
     return () => {
       cancelled = true
     }
-  }, [tokenHash])
+  }, [emailType, flow, tokenHash])
 
   return (
     <Container className="flex justify-center py-16">
@@ -73,17 +125,19 @@ export default function ConfirmEmailPage() {
 
           <h1 className="mt-5 text-xl font-semibold tracking-tight text-ink-900">
             {state === 'confirmed'
-              ? 'Email confirmed'
+              ? emailType === 'recovery'
+                ? 'Reset link verified'
+                : 'Secure link verified'
               : state === 'error'
-                ? 'Confirmation link unavailable'
-                : 'Confirming your email'}
+                ? 'Secure link unavailable'
+                : 'Verifying your link'}
           </h1>
           <p className="mt-2 text-sm leading-relaxed text-ink-700">{message}</p>
 
           {state === 'confirmed' && (
             <div className="mt-6">
-              <ButtonLink to="/account" variant="secondary">
-                Continue to your account
+              <ButtonLink to={flow?.actionPath ?? '/account'} variant="secondary">
+                {flow?.actionLabel ?? 'Continue to NeuroMaps'}
               </ButtonLink>
             </div>
           )}

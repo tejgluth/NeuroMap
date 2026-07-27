@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 import { supabase } from '../../lib/supabase'
 import { Button } from '../../components/ui/Button'
@@ -12,8 +12,9 @@ const inputClass =
 export default function ResetPasswordPage() {
   const { updatePassword } = useAuth()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
 
-  const [ready, setReady] = useState(false)
+  const [ready, setReady] = useState(searchParams.get('verified') === '1')
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -23,12 +24,21 @@ export default function ResetPasswordPage() {
   // Supabase fires PASSWORD_RECOVERY when the user arrives via a reset link.
   // detectSessionInUrl:true (set on the client) parses the hash and sets up the session.
   useEffect(() => {
+    let cancelled = false
+
+    void supabase.auth.getSession().then(({ data }) => {
+      if (!cancelled && data.session) setReady(true)
+    })
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'PASSWORD_RECOVERY') {
         setReady(true)
       }
     })
-    return () => subscription.unsubscribe()
+    return () => {
+      cancelled = true
+      subscription.unsubscribe()
+    }
   }, [])
 
   async function handleSubmit(e: React.FormEvent) {
