@@ -51,8 +51,7 @@ export type MapboxPlace = MapboxPlaceSuggestion & {
 
 function mapCategory(values: string[] | undefined): CategoryId {
   const category = (values ?? []).join(' ').toLowerCase()
-  if (/coffee|cafe|tea|bakery/.test(category)) return 'cafe'
-  if (/restaurant|food|dining/.test(category)) return 'restaurant'
+  if (/coffee|cafe|tea|bakery|restaurant|food|dining/.test(category)) return 'restaurant'
   if (/beach|coast/.test(category)) return 'beach'
   if (/park|garden|playground|trail/.test(category)) return 'park'
   if (/grocery|supermarket|food market/.test(category)) return 'grocery'
@@ -61,7 +60,7 @@ function mapCategory(values: string[] | undefined): CategoryId {
   if (/salon|barber|hair|spa/.test(category)) return 'salon'
   if (/shop|store|retail|mall|market/.test(category)) return 'retail'
   if (/cinema|museum|theater|entertainment|attraction|zoo|sports|library|school|education/.test(category)) return 'entertainment'
-  return 'retail'
+  return 'other'
 }
 
 function formatAddress(input: {

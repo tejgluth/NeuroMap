@@ -1,5 +1,5 @@
 import {
-  Coffee,
+  Shapes,
   Popcorn,
   Scissors,
   ShoppingBag,
@@ -25,8 +25,6 @@ export default function CategoryIcon({
   switch (categoryId) {
     case 'restaurant':
       return <Utensils {...props} />
-    case 'cafe':
-      return <Coffee {...props} />
     case 'park':
       return <Trees {...props} />
     case 'grocery':
@@ -43,5 +41,7 @@ export default function CategoryIcon({
       return <Stethoscope {...props} />
     case 'dentist':
       return <Smile {...props} />
+    case 'other':
+      return <Shapes {...props} />
   }
 }

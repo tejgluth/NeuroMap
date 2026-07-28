@@ -47,8 +47,8 @@ type JsonPlace = {
 
 const CATEGORY_MAP: Record<JsonCategory, CategoryId> = {
   restaurant: 'restaurant',
-  cafe: 'cafe',
-  dessert: 'cafe',
+  cafe: 'restaurant',
+  dessert: 'restaurant',
   bookstore: 'retail',
   pharmacy: 'retail',
   library: 'entertainment',
@@ -61,8 +61,6 @@ function defaultShortDescription(categoryId: CategoryId) {
   switch (categoryId) {
     case 'restaurant':
       return 'Restaurant in La Jolla.'
-    case 'cafe':
-      return 'Café in La Jolla.'
     case 'park':
       return 'Outdoor space in La Jolla.'
     case 'entertainment':
@@ -79,6 +77,8 @@ function defaultShortDescription(categoryId: CategoryId) {
       return 'Clinic in La Jolla.'
     case 'dentist':
       return 'Dental office in La Jolla.'
+    case 'other':
+      return 'Local place in La Jolla.'
   }
 }
 

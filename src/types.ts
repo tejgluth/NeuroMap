@@ -1,6 +1,5 @@
 export type CategoryId =
   | 'restaurant'
-  | 'cafe'
   | 'park'
   | 'grocery'
   | 'beach'
@@ -9,6 +8,7 @@ export type CategoryId =
   | 'salon'
   | 'doctor'
   | 'dentist'
+  | 'other'
 
 export type RatingKey =
   | 'noise'

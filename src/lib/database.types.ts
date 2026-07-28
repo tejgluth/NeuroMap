@@ -324,6 +324,7 @@ export type Database = {
         | "salon"
         | "doctor"
         | "dentist"
+        | "other"
         | "tutoring"
         | "service"
       child_age_range: "0–3" | "4–7" | "8–12" | "13–17" | "18+"
