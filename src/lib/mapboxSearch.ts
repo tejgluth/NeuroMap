@@ -29,6 +29,11 @@ type SearchBoxFeature = {
     poi_category_ids?: string[]
     poi_category?: string[]
     coordinates?: { longitude?: number; latitude?: number }
+    context?: {
+      country?: {
+        country_code?: string
+      }
+    }
   }
 }
 
@@ -47,6 +52,11 @@ export type MapboxPlaceSuggestion = {
 export type MapboxPlace = MapboxPlaceSuggestion & {
   lat: number
   lng: number
+}
+
+export type ReverseMapboxResult = {
+  places: MapboxPlace[]
+  outsideUnitedStates: boolean
 }
 
 function mapCategory(values: string[] | undefined): CategoryId {
@@ -179,21 +189,27 @@ export async function reverseMapboxPlaces(
   lat: number,
   lng: number,
   signal?: AbortSignal,
-): Promise<MapboxPlace[]> {
-  if (!MAPBOX_TOKEN) return []
+): Promise<ReverseMapboxResult> {
+  if (!MAPBOX_TOKEN) return { places: [], outsideUnitedStates: false }
   const params = new URLSearchParams({
     longitude: String(lng),
     latitude: String(lat),
     access_token: MAPBOX_TOKEN,
-    country: 'US',
     language: 'en',
     limit: '8',
   })
   const response = await fetch(`https://api.mapbox.com/search/searchbox/v1/reverse?${params}`, { signal })
   if (!response.ok) throw new Error('Mapbox place lookup failed')
   const data = (await response.json()) as SearchBoxFeatureResponse
+  const countryCode = data.features
+    ?.map((feature) => feature.properties?.context?.country?.country_code)
+    .find((code): code is string => typeof code === 'string')
 
-  return (data.features ?? []).flatMap((feature) => {
+  if (countryCode && countryCode.toUpperCase() !== 'US') {
+    return { places: [], outsideUnitedStates: true }
+  }
+
+  const places = (data.features ?? []).flatMap((feature) => {
     const coordinates = feature.geometry?.coordinates
     const properties = feature.properties
     const id = properties?.mapbox_id
@@ -209,4 +225,6 @@ export async function reverseMapboxPlaces(
       lng: coordinates[0],
     }]
   })
+
+  return { places, outsideUnitedStates: false }
 }

@@ -109,6 +109,7 @@ type ClickDiscovery = {
   loading: boolean
   places: MapboxPlace[]
   error: string
+  outsideUnitedStates: boolean
 }
 
 export type MapPlace = Place & { computedRatings: ComputedRatings }
@@ -140,17 +141,20 @@ export default function PlaceMap({
     discoveryController.current?.abort()
     const controller = new AbortController()
     discoveryController.current = controller
-    setClickDiscovery({ lat, lng, loading: true, places: [], error: '' })
+    setClickDiscovery({ lat, lng, loading: true, places: [], error: '', outsideUnitedStates: false })
 
     try {
-      const nearbyPlaces = await reverseMapboxPlaces(lat, lng, controller.signal)
+      const result = await reverseMapboxPlaces(lat, lng, controller.signal)
       if (!controller.signal.aborted) {
         setClickDiscovery({
           lat,
           lng,
           loading: false,
-          places: nearbyPlaces,
-          error: nearbyPlaces.length === 0 ? 'No nearby places were found. Try clicking closer to a place label.' : '',
+          places: result.places,
+          error: result.places.length === 0 && !result.outsideUnitedStates
+            ? 'No nearby places were found. Try clicking closer to a place label.'
+            : '',
+          outsideUnitedStates: result.outsideUnitedStates,
         })
       }
     } catch (error) {
@@ -161,6 +165,7 @@ export default function PlaceMap({
           loading: false,
           places: [],
           error: error instanceof Error ? error.message : 'Could not look up this location.',
+          outsideUnitedStates: false,
         })
       }
     }
@@ -195,9 +200,15 @@ export default function PlaceMap({
           maxWidth={320}
         >
           <div className="w-64">
-            <div className="text-sm font-semibold text-ink-900">Places near this point</div>
+            <div className="text-sm font-semibold text-ink-900">
+              {clickDiscovery.outsideUnitedStates ? 'Outside our current coverage' : 'Places near this point'}
+            </div>
             {clickDiscovery.loading ? (
               <p className="mt-2 text-xs text-ink-600">Finding nearby places…</p>
+            ) : clickDiscovery.outsideUnitedStates ? (
+              <p className="mt-2 text-xs leading-relaxed text-ink-600">
+                NeuroMaps is currently limited to places in the United States.
+              </p>
             ) : clickDiscovery.error ? (
               <p className="mt-2 text-xs leading-relaxed text-ink-600">{clickDiscovery.error}</p>
             ) : (
