@@ -10,7 +10,6 @@ const TEAM = [
   { name: 'Nathan Hong', role: 'CFO' },
   { name: 'Kent Isakari', role: 'Secretary' },
   { name: 'Amaan Khan', role: 'CMO' },
-  { name: 'Theron Schutz', role: '' },
 ]
 
 function getInitials(name: string) {
